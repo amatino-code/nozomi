@@ -11,3 +11,4 @@ class HTTPMethod(Enum):
     POST = 'POST'
     DELETE = 'DELETE'
     PUT = 'PUT'
+    PATCH = 'PATCH'

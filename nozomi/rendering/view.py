@@ -5,7 +5,7 @@ author: hugh@blinkybeach.com
 """
 
 
-class View:
+class View():
     """
     An abstract class defining an interfaces for classes providing a web page
     view

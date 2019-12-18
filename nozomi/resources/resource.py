@@ -4,7 +4,7 @@ Resource Module
 Copyright Amatino Pty Ltd
 """
 from nozomi.http.arguments import HTTPArguments
-from nozomi.http.headers import HTTPHeaders
+from nozomi.http.headers import QueryString
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.immutable import Immutable
 from nozomi.transmission.encodable import Encodable
@@ -28,7 +28,7 @@ class Resource:
         self,
         request_data: Optional[Any],
         request_arguments: Optional[HTTPArguments],
-        request_headers: Optional[HTTPHeaders] = None
+        request_headers: Optional[QueryString] = None
     ) -> Encodable:
         """Return serialisable response data"""
         raise NotImplementedError
@@ -37,9 +37,9 @@ class Resource:
         self,
         request_data: Any,
         request_arguments: Optional[HTTPArguments] = None,
-        request_headers: Optional[HTTPHeaders] = None
+        request_headers: Optional[QueryString] = None
     ) -> str:
-        """Return a JSON-serialised response to a request"""
+        """Return a string response body to a request"""
         return self.compute_response(
             request_data,
             request_arguments,

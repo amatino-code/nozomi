@@ -6,10 +6,10 @@ Copyright Amatino Pty Ltd
 from nozomi.data.datastore import Datastore
 from nozomi.security.internal_key import InternalKey
 from nozomi.api.resource import Resource
-from nozomi.http.headers import HTTPHeaders
+from nozomi.http.headers import QueryString
 from nozomi.http.arguments import HTTPArguments
 from nozomi.http.status_code import HTTPStatusCode
-from nozomi.ancillary.error import NozomiError
+from nozomi.errors.error import NozomiError
 from typing import Optional
 from typing import Any
 
@@ -36,7 +36,7 @@ class InternalResource(Resource):
         self,
         request_data: Optional[Any],
         request_arguments: Optional[HTTPArguments],
-        request_headers: HTTPHeaders
+        request_headers: QueryString
     ) -> str:
 
         if not self._internal_key.matches_headers(request_headers):

@@ -3,7 +3,7 @@ Nozomi
 Internal Key Module
 Copyright Amatino Pty Ltd
 """
-from nozomi.http.headers import HTTPHeaders
+from nozomi.http.headers import QueryString
 
 
 class InternalKey:
@@ -13,7 +13,7 @@ class InternalKey:
     """
     HEADER_KEY = NotImplemented
 
-    def matches_headers(self, headers: HTTPHeaders) -> bool:
+    def matches_headers(self, headers: QueryString) -> bool:
         """
         Return true if the supplied headers authenticate a request as
         coming from an internal application.

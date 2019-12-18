@@ -21,8 +21,6 @@ class Broadcastable(Encodable):
     the application. A broadcastable representation of the object would
     strip those fields and return an Encodable version of its data, suitable
     for return to an application.
-
-    Broadcastable provides a 
     """
     _VALID_TYPES = {str, int, dict, list, float}
 

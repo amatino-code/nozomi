@@ -4,24 +4,23 @@ Secure Resource Module
 author: hugh@blinkybeach.com
 """
 from typing import Any
-from nozomi.ancillary.error import NozomiError
+from nozomi.errors.error import NozomiError
 from nozomi.transmission.broadcastable import Broadcastable
 from nozomi.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.arguments import HTTPArguments
-from nozomi.http.headers import HTTPHeaders
+from nozomi.http.headers import QueryString
 from nozomi.http.status_code import HTTPStatusCode
 from typing import Optional
-from typing import Tuple
 
 
-class SecureResource(Resource):
+class OpenResource(Resource):
     """
-    Abstract class defining an interface for API requests that
-    require authentication. Authorisation should be performed
-    in the implementing subclass. To authorise a request, call
-    SecureResource.authorise() in the subclass compute_response() method.
+    Abstract class defining an interface for for resources that do not require
+    authentication, but that are aware of a requesting agent. For example, a web
+    page that may be served differently depending on whether a user is logged in
+    or not.
     """
 
     def compute_response(
@@ -29,9 +28,9 @@ class SecureResource(Resource):
         request_data: Optional[Any],
         request_arguments: Optional[HTTPArguments],
         requesting_agent: Agent
-    ) -> Tuple[Broadcastable, Agent]:
+    ) -> Broadcastable:
         """
-        Method returning an encodable response, and an Agent authorised to
+        Method returning a Broadcastable response, and an Agent authorised to
         make the request
         """
         raise NotImplementedError
@@ -40,7 +39,7 @@ class SecureResource(Resource):
         self,
         request_data: Optional[Any],
         request_arguments: Optional[HTTPArguments],
-        headers: HTTPHeaders
+        headers: QueryString
     ) -> str:
         session = Session.from_headers(
             headers,
