@@ -3,7 +3,7 @@ Nozomi
 Database Credentials Module
 author: hugh@blinkybeach.com
 """
-from nozomi.data.immutable import Immutable
+from nozomi.ancillary.immutable import Immutable
 from nozomi.data.decodable import Decodable
 import json
 from typing import TypeVar, Type, Dict
