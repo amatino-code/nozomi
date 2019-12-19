@@ -13,14 +13,17 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as readme_file:
     LONG_DESCRIPTION = readme_file.read()
 
+with open(path.join(here, 'VERSION'), encoding='utf-8') as version_file:
+    VERSION = version_file.read()
+
 setup(
     name='nozomi',
-    version='0.0.1',
+    version=VERSION,
     description='HTTP web application & API protocol library',
     long_description=LONG_DESCRIPTION,
-    url='https://amatino.io/nozomi',
+    url='https://github.com/amatino-code/nozomi',
     author='Amatino',
-    author_email='hugh@amatino.io',
+    author_email='hugh@blinkybeach.com',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -38,6 +41,6 @@ setup(
     python_requires='>=3.6',
     project_urls={
         'Github Repository': 'https://github.com/amatino-code/nozomi',
-        'About': 'https://amatino.io/nozomi'
+        'About': 'https://github.com/amatino-code/nozomi'
     }
 )
