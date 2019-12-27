@@ -34,6 +34,9 @@ from nozomi.rendering.view.view import View
 from nozomi.rendering.view.base import BaseView
 from nozomi.rendering.view.open import OpenView
 from nozomi.rendering.view.secure import SecureView
+from nozomi.rendering.render_dependency import RenderDependency
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.script import Script
 
 from nozomi.resources.open import OpenResource
 from nozomi.resources.resource import Resource
@@ -54,4 +57,3 @@ from nozomi.security.random_number import RandomNumber
 from nozomi.security.salt import Salt
 from nozomi.security.session import Secret
 from nozomi.security.session import Session
-
