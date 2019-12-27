@@ -6,7 +6,7 @@ Copyright Amatino Pty Ltd
 from typing import Optional
 
 
-class QueryString:
+class Headers:
     """
     Abstract class defining an interface for a class that represents HTTP
     Headers

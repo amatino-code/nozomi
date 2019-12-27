@@ -3,29 +3,22 @@ Nozomi
 SQL Conforming Protocol Module
 author: hugh@blinkybeach.com
 """
-from psycopg2.extensions import ISQLQuote
-from psycopg2.extensions import QuotedString
 from nozomi.security.random_number import RandomNumber
 from typing import Union
 
 
-class SQLConforming(ISQLQuote):
+class SQLConforming:
 
     _QUOTE_LENGTH = 32
 
     sql_representation: bytes = NotImplemented
-
-    def __conform__(self, protocol):
-        if protocol == ISQLQuote:
-            return self
-        return
 
     def getquoted(self) -> bytes:
         return self.sql_representation
 
     def quote_string(self, string: str) -> bytes:
         """Return a quoted string"""
-        return QuotedString(string).getquoted()
+        raise NotImplementedError
 
     def dollar_quote_string(self, string: str) -> str:
         """Return a safely $$ quoted SQL string"""

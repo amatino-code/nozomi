@@ -5,12 +5,11 @@ author: hugh@blinkybeach.com
 """
 from typing import Any
 from nozomi.errors.error import NozomiError
-from nozomi.transmission.broadcastable import Broadcastable
+from nozomi.security.broadcastable import Broadcastable
 from nozomi.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
-from nozomi.http.arguments import HTTPArguments
-from nozomi.http.headers import QueryString
+from nozomi.http.query_string import QueryString
 from nozomi.http.status_code import HTTPStatusCode
 from typing import Optional
 
@@ -26,7 +25,7 @@ class OpenResource(Resource):
     def compute_response(
         self,
         request_data: Optional[Any],
-        request_arguments: Optional[HTTPArguments],
+        request_arguments: Optional[QueryString],
         requesting_agent: Agent
     ) -> Broadcastable:
         """
@@ -38,12 +37,13 @@ class OpenResource(Resource):
     def serve(
         self,
         request_data: Optional[Any],
-        request_arguments: Optional[HTTPArguments],
+        request_arguments: Optional[QueryString],
         headers: QueryString
     ) -> str:
         session = Session.from_headers(
-            headers,
-            self.datastore
+            hedaers=headers,
+            datastore=self.datastore,
+            configuration=self.configuration
         )
         if session is None:
             raise NozomiError(

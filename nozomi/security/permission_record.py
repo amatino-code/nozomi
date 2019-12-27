@@ -3,8 +3,8 @@ Nozomi
 Permission Record Module
 Copyright Amatino Pty Ltd
 """
-from nozomi.transmission.encodable import Encodable
-from nozomi.transmission.decodable import Decodable
+from nozomi.data.encodable import Encodable
+from nozomi.data.decodable import Decodable
 from nozomi.security.agent import Agent
 from typing import TypeVar
 from typing import Any

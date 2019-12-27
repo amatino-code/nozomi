@@ -3,7 +3,7 @@ Nozomi
 Internal Key Module
 Copyright Amatino Pty Ltd
 """
-from nozomi.http.headers import QueryString
+from nozomi.http.query_string import QueryString
 
 
 class InternalKey:

@@ -6,8 +6,7 @@ Copyright Amatino Pty Ltd
 from nozomi.data.datastore import Datastore
 from nozomi.security.internal_key import InternalKey
 from nozomi.api.resource import Resource
-from nozomi.http.headers import QueryString
-from nozomi.http.arguments import HTTPArguments
+from nozomi.http.query_string import QueryString
 from nozomi.http.status_code import HTTPStatusCode
 from nozomi.errors.error import NozomiError
 from typing import Optional
@@ -35,7 +34,7 @@ class InternalResource(Resource):
     def serve(
         self,
         request_data: Optional[Any],
-        request_arguments: Optional[HTTPArguments],
+        request_arguments: Optional[QueryString],
         request_headers: QueryString
     ) -> str:
 

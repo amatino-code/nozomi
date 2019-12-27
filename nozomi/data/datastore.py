@@ -3,7 +3,7 @@ Nozomi
 Datastore Module
 Copyright Amatino Pty Ltd
 """
-import psycopg2
+from nozomi.ancillary.immutable import Immutable
 from nozomi.ancillary.database_credentials import DatabaseCredentials
 from typing import Type, TypeVar, Any, Optional, Dict
 from nozomi.data.sql_conforming import AnySQLConforming
@@ -19,18 +19,14 @@ class Datastore:
         credentials: DatabaseCredentials
     ) -> None:
 
-        assert isinstance(credentials, DatabaseCredentials)
-        self._credentials = credentials
-        self._connection = psycopg2.connect(dsn=credentials.dsn_string)
-        self._cursor = self._connection.cursor()
+        raise NotImplementedError
 
-        return
+    connection = Immutable(lambda s: NotImplemented)
+    cursor = Immutable(lambda s: NotImplemented)
 
-    def _refresh(self) -> None:
+    def refresh(self) -> None:
         """Connect or re-connect the underlying database connection"""
-        self._connection = psycopg2.connect(dsn=self._credentials.dsn_string)
-        self._cursor = self._connection.cursor()
-        return
+        raise NotImplementedError
 
     def execute(
         self,
@@ -44,51 +40,28 @@ class Datastore:
         the query is denoted as atomic. That is, it is not transaction
         dependent.
         """
-        try:
-            self._cursor.execute(query, arguments)
-        except (
-            psycopg2.OperationalError,
-            psycopg2.InterfaceError,
-            psycopg2.InternalError
-        ):
-            if atomic is False:
-                raise
-            try:
-                self._connection.close()
-                self._cursor.close()
-            except Exception:
-                pass
-            self._refresh()
-            self._cursor.execute(query, arguments)
-        if self._cursor.description is None:
-            return None
-        result = self._cursor.fetchone()
-        if result is None:
-            return None
-        if atomic is True:
-            self.commit()
-        return result[0]
+        raise NotImplementedError
 
     def close(self) -> None:
-        self._cursor.close()
-        self._connection.close()
+        self.cursor.close()
+        self.connection.close()
         return
 
     def commit(self) -> None:
-        self._cursor.execute('commit')
+        self.cursor.execute('commit')
         return
 
     def mogrify(self, query: str, arguments: Optional[Dict[str, Any]]) -> str:
         """Return a string compiled query"""
-        return self._cursor.mogrify(query, arguments).decode()
+        return self.cursor.mogrify(query, arguments).decode()
 
     def rollback(self) -> None:
         """Roll back the current transaction"""
-        self._cursor.execute('rollback')
+        self.cursor.execute('rollback')
 
     def start_transaction(self) -> None:
         """Start a database transaction"""
-        self._cursor.execute('start transaction')
+        self.cursor.execute('start transaction')
 
     @classmethod
     def from_config(cls: Type[T], configuration: Any):

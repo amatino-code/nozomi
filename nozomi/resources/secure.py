@@ -5,12 +5,12 @@ author: hugh@blinkybeach.com
 """
 from typing import Any
 from nozomi.errors.error import NozomiError
-from nozomi.transmission.broadcastable import Broadcastable
+from nozomi.security.broadcastable import Broadcastable
 from nozomi.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
-from nozomi.http.arguments import HTTPArguments
-from nozomi.http.headers import QueryString
+from nozomi.http.query_string import QueryString
+from nozomi.http.headers import Headers
 from nozomi.http.status_code import HTTPStatusCode
 from typing import Optional
 from typing import Tuple
@@ -27,7 +27,7 @@ class SecureResource(Resource):
     def compute_response(
         self,
         request_data: Optional[Any],
-        request_arguments: Optional[HTTPArguments],
+        request_arguments: Optional[QueryString],
         requesting_agent: Agent
     ) -> Tuple[Broadcastable, Agent]:
         """
@@ -39,18 +39,15 @@ class SecureResource(Resource):
     def serve(
         self,
         request_data: Optional[Any],
-        request_arguments: Optional[HTTPArguments],
-        headers: QueryString
+        request_arguments: Optional[QueryString],
+        headers: Headers
     ) -> str:
-        session = Session.from_headers(
-            headers,
-            self.datastore
+        session = Session.require_from_headers(
+            headers=headers,
+            datastore=self.datastore,
+            configuration=self.configuration
         )
-        if session is None:
-            raise NozomiError(
-                'Not authenticated',
-                HTTPStatusCode.NOT_AUTHENTICATED
-            )
+        assert isinstance(session, Session)
         response, authorised_agent = self.compute_response(
             request_data,
             request_arguments,
