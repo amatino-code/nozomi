@@ -4,17 +4,33 @@ HTTP Headers Module
 Copyright Amatino Pty Ltd
 """
 from typing import Optional
+from collections.abc import Mapping
+from nozomi.errors.error import NozomiError
 
 
 class Headers:
     """
-    Abstract class defining an interface for a class that represents HTTP
-    Headers
+    A set of HTTP headers. Feed Headers a Mapping-conformant data type, for
+    example a Dict or a Werkzeug ImmutableMultiDict.
     """
+
+    def __init__(self, raw: Mapping) -> None:
+        self._raw = raw
+        return
 
     def value_for(self, key: str) -> Optional[str]:
         """
         Return the value of a supplied header key, or None if no value
         exists for that key.
         """
-        raise NotImplementedError
+        value = self._raw.get(key)
+        if value is None:
+            return None
+
+        if not isinstance(value, str):
+            raise NozomiError('The data structure underlying a Headers instance\
+unexpectedly contained non-string data for key "{k}", of type {t}. Headers \
+must only contain string values. Consider examining the data you fed to the \
+Headers initialiser.')
+
+        return value
