@@ -8,6 +8,8 @@ from nozomi.rendering.view_template import ViewTemplate
 from nozomi.rendering.context import Context
 from nozomi.rendering.static_context import StaticContext
 from nozomi.rendering.open_graph import OpenGraph
+from nozomi.ancillary.configuration import Configuration
+from nozomi.ancillary.immutable import Immutable
 
 
 class View:
@@ -21,14 +23,11 @@ class View:
     of a class Splash(View).
     """
 
-    STANDARD_STYLES: List[str] = []
-    STANDARD_CLASSES: List[str] = []
-    STANDARD_SCRIPTS: List[str] = []
-
     _transient_context = None
 
     def __init__(
         self,
+        configuration: Configuration,
         template: str,
         title: str,
         description: str,
@@ -41,25 +40,28 @@ class View:
         static_js_constants: Optional[Dict[str, Any]] = None
     ) -> None:
 
+        assert isinstance(configuration, Configuration)
+        self._configuration = configuration
+
         self._template_name = template
         assert isinstance(self._template_name, str)
         assert self._template_name[-5:] == '.html'
 
         assert isinstance(styles, list)
         assert False not in [isinstance(s, str) for s in styles]
-        all_styles = self.STANDARD_STYLES + styles
+        all_styles = self._standard_css_styles + styles
 
         assert isinstance(classes, list)
         assert False not in [isinstance(c, str) for c in classes]
         for jsclass in classes:
-            assert jsclass not in self.STANDARD_CLASSES
-        all_classes = self.STANDARD_CLASSES + classes
+            assert jsclass not in self._standard_js_classes
+        all_classes = self._standard_js_classes + classes
 
         assert isinstance(scripts, list)
         assert False not in [isinstance(s, str) for s in scripts]
         for script in scripts:
-            assert script not in self.STANDARD_SCRIPTS
-        all_scripts = scripts + self.STANDARD_SCRIPTS
+            assert script not in self._standard_js_scripts
+        all_scripts = scripts + self._standard_js_scripts
 
         assert isinstance(title, str)
         if open_graph is not None:
@@ -86,6 +88,18 @@ class View:
         )
 
         return
+
+    configuration = Immutable(lambda s: s._configuration)
+
+    _standard_css_styles = Immutable(
+        lambda s: s.configuration.standard_css_styles
+    )
+    _standard_js_classes = Immutable(
+        lambda s: s.configuration.standard_js_classes
+    )
+    _standard_js_scripts = Immutable(
+        lambda s: s.configuration.standard_css_styles
+    )
 
     def serve(self) -> str:
         """

@@ -3,11 +3,9 @@ Nozomi
 Base View Module
 author: hugh@blinkybeach.com
 """
-from nozomi.ancillary.immutable import Immutable
 from nozomi.rendering.view.view import View
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
-from nozomi.http.headers import Headers
 from typing import List, Dict, Optional, Any
 
 
@@ -45,9 +43,8 @@ class BaseView(View):
         if static_variables is not None:
             all_variables.update(static_variables)
 
-        self._configuration = configuration
-
         super().__init__(
+            configuration=configuration,
             template=template,
             title=title,
             description=description,
@@ -62,9 +59,5 @@ class BaseView(View):
 
         return
 
-    configuration = Immutable(lambda s: s._configuration)
-
-    def render(self, headers: Headers) -> str:
-        if self._ignore_vaccinations is False:
-            self._vaccination.protect(headers)
+    def render(self) -> str:
         return super().render()

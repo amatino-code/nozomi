@@ -3,6 +3,7 @@ Nozomi
 Configuration Module
 author: hugh@blinkybeach.com
 """
+from typing import List
 
 
 class Configuration:
@@ -18,3 +19,7 @@ class Configuration:
     session_api_key_name: str = NotImplemented
     session_cookie_key_name: str = NotImplemented
     session_id_name: str = NotImplemented
+
+    standard_css_styles: List[str] = NotImplemented
+    standard_js_classes: List[str] = NotImplemented
+    standard_js_scripts: List[str] = NotImplemented
