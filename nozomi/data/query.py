@@ -57,3 +57,17 @@ class Query:
             query = qfile.read()
 
         return cls(query=query)
+
+    @classmethod
+    def optionally_from_file(
+        cls: Type[T],
+        filename: str
+    ) -> Optional[T]:
+
+        try:
+            with open(filename) as qfile:
+                query = qfile.read()
+        except FileNotFoundError:
+            return None
+        
+        return cls(query=query)

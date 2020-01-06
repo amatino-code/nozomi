@@ -19,7 +19,9 @@ class Secret:
     """
     A user's secret passphrase
     """
-    Q_RETRIEVE_BY_EMAIL = Query.from_file('queries/secret/retrieve.sql')
+    _Q_RETRIEVE_BY_EMAIL = Query.optionally_from_file(
+        'queries/secret/retrieve.sql'
+    )
 
     def __init__(
         self,
@@ -36,6 +38,15 @@ class Secret:
 
     hashed_passphrase = Immutable(lambda s: s._hashed_passphrase)
     salt = Immutable(lambda s: s._salt.string)
+
+    Q_RETRIEVE_BY_EMAIL = Immutable(lambda s: s._load_query(
+        s._Q_RETRIEVE_BY_EMAIL
+    ))
+
+    def _load_query(self, query: Optional[Query]) -> Query:
+        if query is None:
+            raise NotImplementedError('A required SQL query is not implemented')
+        return query
 
     @classmethod
     def _compute_hash(cls: Type[T], raw_secret: str, salt: Salt) -> str:

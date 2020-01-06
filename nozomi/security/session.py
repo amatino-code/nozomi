@@ -29,9 +29,9 @@ T = TypeVar('T', bound='Session')
 
 class Session(Encodable, Decodable, Agent):
 
-    Q_DELETE: Query.from_file('queries/session/delete.sql')
-    Q_RETRIEVE: Query.from_file('queries/session/retrieve.sql')
-    Q_CREATE: Query.from_file('queries/session/create.sql')
+    _Q_DELETE: Query.optionally_from_file('queries/session/delete.sql')
+    _Q_RETRIEVE: Query.optionally_from_file('queries/session/retrieve.sql')
+    _Q_CREATE: Query.optionally_from_file('queries/session/create.sql')
 
     def __init__(
         self,
@@ -72,6 +72,15 @@ class Session(Encodable, Decodable, Agent):
     api_key: str = Immutable(lambda s: s._api_key)
 
     agent_id = Immutable(lambda s: s._human.agent_id)
+
+    Q_RETRIEVE = Immutable(lambda s: s._load_query(s._Q_RETRIEVE))
+    Q_CREATE = Immutable(lambda s: s._load_query(s._Q_CREATE))
+    Q_DELETE = Immutable(lambda s: s._load_query(s._Q_DELETE))
+
+    def _load_query(self, query: Optional[Query]) -> Query:
+        if query is None:
+            raise NotImplementedError('A required SQL query is not implemented')
+        return query
 
     def _finds_api_key_authentic(
         self,
