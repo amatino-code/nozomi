@@ -1,23 +1,24 @@
 """
 Nozomi
-Bad Request Error Module
+NotAuthorised Error Module
 author: hugh@blinkybeach.com
 """
 from nozomi.errors.error import NozomiError
 from nozomi.http.status_code import HTTPStatusCode
 
 
-class BadRequest(NozomiError):
+class NotAuthorised(NozomiError):
 
     def __init__(
         self,
-        client_description: str = 'We could not understand the data received'
+        client_description: str = 'You lack permissions required to perform \
+the requested action'
     ) -> None:
 
         super().__init__(
             self,
             client_description=client_description,
-            http_status_code=HTTPStatusCode.BAD_REQUEST
+            http_status_code=HTTPStatusCode.NOT_AUTHORISED
         )
 
         return

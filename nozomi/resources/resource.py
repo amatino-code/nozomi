@@ -4,7 +4,6 @@ Resource Module
 Copyright Amatino Pty Ltd
 """
 from nozomi.http.query_string import QueryString
-from nozomi.http.query_string import QueryString
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.encodable import Encodable

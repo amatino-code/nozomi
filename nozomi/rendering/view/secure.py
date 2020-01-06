@@ -6,7 +6,7 @@ author: hugh@blinkybeach.com
 from nozomi.rendering.view.base import BaseView
 from nozomi.http.headers import Headers
 from nozomi.http.query_string import QueryString
-from nozomi.security.session import Session
+from nozomi.app.security.session import Session
 from nozomi.security.perspective import Perspective
 from nozomi.rendering.context import Context
 from nozomi.security.considers_perspective import ConsidersPerspective
@@ -24,10 +24,10 @@ class SecureView(BaseView, ConsidersPerspective):
         query: Optional[QueryString],
         requesting_agent: Agent,
         context: Context,
-        may_change_state: bool
     ) -> str:
         """
-        Method returning the view as rendered for the supplied agent
+        Method returning the context as formed for the supplied request
+        parameters
         """
         raise NotImplementedError
 
@@ -35,28 +35,26 @@ class SecureView(BaseView, ConsidersPerspective):
         self,
         headers: Headers,
         query: Optional[QueryString],
-        may_change_state: bool
     ) -> str:
 
         session = Session.require_from_headers(
             headers=headers,
-            datastore=self.datastore,
             configuration=self.configuration,
-            request_may_change_state=may_change_state
+            signin_path=None
         )
         assert isinstance(session, Session)
         self.enforce_perspective(session)
-        context = self.generate_context()
+        context = Context()
         context.add('agent', session.agent)
         context.add_javascript_constant('global_api_key', session.api_key)
         context.add_javascript_constant(
             'global_session_id',
             session.session_id
         )
-
-        return self.compute_response(
+        context = self.compute_response(
             query=query,
             requesting_agent=session,
-            context=context,
-            may_change_state=may_change_state
+            context=context
         )
+
+        return self.render(with_context=context)

@@ -4,7 +4,7 @@ ConsidersPerspective Module
 author: hugh@blinkybeach.com
 """
 from nozomi.security.perspective import Perspective
-from nozomi.security.session import Session
+from nozomi.app.security.session import Session
 from nozomi.http.redirect import Redirect
 from nozomi.rendering.context import Context
 from typing import Set

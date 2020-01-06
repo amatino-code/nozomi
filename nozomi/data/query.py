@@ -69,5 +69,16 @@ class Query:
                 query = qfile.read()
         except FileNotFoundError:
             return None
-        
+
         return cls(query=query)
+
+    @classmethod
+    def require(
+        cls: Type[T],
+        query: Optional[T],
+        name: str = 'required'
+    ) -> T:
+        if not isinstance(query, Query):
+            raise NotImplementedError('Missing {n} query'.format(n=name))
+
+        return query

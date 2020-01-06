@@ -5,7 +5,7 @@ author: hugh@blinkybeach.com
 """
 from nozomi.rendering.view.base import BaseView
 from nozomi.http.headers import Headers
-from nozomi.security.session import Session
+from nozomi.app.security.session import Session
 from nozomi.rendering.context import Context
 from typing import Optional
 from nozomi.http.query_string import QueryString
@@ -19,36 +19,40 @@ class OpenView(BaseView):
         self,
         query: Optional[QueryString],
         requesting_agent: Optional[Agent],
-        context: Context,
-        may_change_state: bool
-    ) -> str:
+        context: Context
+    ) -> Context:
         """
-        Method returning the view as rendered for the supplied agent, or no
-        agent
+        Method returning the context as formed for the supplied request
+        parameters
         """
         raise NotImplementedError
 
     def serve(
         self,
         headers: Headers,
-        query: Optional[QueryString],
-        may_change_state: bool
+        query: Optional[QueryString]
     ) -> str:
 
-        session = Session.require_from_headers(
+        session = Session.from_headers(
             headers=headers,
-            datastore=self.datastore,
             configuration=self.configuration,
-            request_may_change_state=may_change_state
-        )
-        assert isinstance(session, Session)
-        self.enforce_perspective(session)
-        context = self.generate_context()
-        context.add('agent', session.agent)
-        context.add_javascript_constant('global_api_key', session.api_key)
-        context.add_javascript_constant(
-            'global_session_id',
-            session.session_id
+            signin_path=None
         )
 
-        return super().render(headers=headers)
+        context = self.generate_context()
+        context.add('agent', session.agent if session is not None else None)
+        context.add_javascript_constant(
+            'global_api_key',
+            session.api_key if session is not None else None
+        )
+        context.add_javascript_constant(
+            'global_session_id',
+            session.session_id if session is not None else None
+        )
+        context = self.compute_response(
+            query=query,
+            requesting_agent=session,
+            context=context
+        )
+
+        return self.render(with_context=context)

@@ -7,6 +7,7 @@ from nozomi.rendering.view.view import View
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
 from typing import List, Dict, Optional, Any
+from nozomi.rendering.context import Context
 
 
 class BaseView(View):
@@ -59,5 +60,5 @@ class BaseView(View):
 
         return
 
-    def render(self) -> str:
-        return super().render()
+    def compute_response(self, context: Context) -> Context:
+        return context

@@ -105,17 +105,21 @@ class View:
         """
         Return a string response to a request
         """
-        return self._render()
+        transient_context = Context()
+        computed_context = self.compute_response(transient_context)
+        assert isinstance(computed_context, Context)
+        return self._template.render(computed_context)
 
-    def _render(self) -> str:
-        """
-        Return a string rendering of this view
-        """
-        html = self._template.render(self._transient_context)
-        self._transient_context = None
-        return html
+    def compute_response(
+        self,
+        context: Context
+    ) -> Context:
+        raise NotImplementedError
 
     def generate_context(self) -> Context:
         """Return a transient context for use in rendering the view"""
         self._transient_context = Context()
         return self._transient_context
+
+    def render(self, with_context: Context) -> str:
+        return self._template.render(with_context)

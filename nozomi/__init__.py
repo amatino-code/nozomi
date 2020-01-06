@@ -55,5 +55,7 @@ from nozomi.security.privilege import Privilege
 from nozomi.security.protected import Protected
 from nozomi.security.random_number import RandomNumber
 from nozomi.security.salt import Salt
-from nozomi.security.session import Secret
-from nozomi.security.session import Session
+from nozomi.security.secret import Secret
+
+from nozomi import api
+from nozomi import app

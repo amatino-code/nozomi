@@ -5,11 +5,11 @@ Copyright Amatino Pty Ltd
 """
 
 from typing import List, Optional, Dict, Any
-from procuret_web.rendering.open_graph import OpenGraph
-from procuret_web.rendering.script import Script
-from procuret_web.rendering.js_class import JSClass
-from procuret_web.rendering.style import Style
-from procuret_web.rendering.context import Context
+from nozomi.rendering.open_graph import OpenGraph
+from nozomi.rendering.script import Script
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.style import Style
+from nozomi.rendering.context import Context
 
 
 class StaticContext(Context):
@@ -50,7 +50,7 @@ class StaticContext(Context):
         static_context = {
             'styles': [Style(s) for s in styles],
             'scripts': [Script(s) for s in scripts],
-            'classes': [JSClass(c) for c in classes],
+            'classes': [JavaScriptClass(c) for c in classes],
             'title': title,
             'open_graph': self._open_graph,
             'description': description,

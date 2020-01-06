@@ -6,7 +6,7 @@ author: hugh@blinkybeach.com
 from typing import Any
 from nozomi.errors.error import NozomiError
 from nozomi.security.broadcastable import Broadcastable
-from nozomi.security.session import Session
+from nozomi.app.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString

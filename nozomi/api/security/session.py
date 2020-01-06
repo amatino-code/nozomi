@@ -151,7 +151,7 @@ class Session(Encodable, Decodable, Agent):
             )
             if session is not None:
                 return session
-        credentials = Credentials.from_headers(headers)
+        credentials = Credentials.from_headers(headers, configuration)
         if credentials is None:
             return None
         session = cls.retrieve(credentials.session_id, datastore)
@@ -181,14 +181,10 @@ class Session(Encodable, Decodable, Agent):
         cookies = Cookies.from_headers(headers)
         if cookies is None:
             return None
-        if not cookies.contains(configuration.session_id_name):
+        session_id = cookies.value_for(configuration.session_id_name)
+        if session_id is None:
             return None
         if not cookies.contains(configuration.session_cookie_key_name):
-            return None
-        session_id = cookies.value_for(configuration.session_id_name)
-        try:
-            session_id = int(session_id)
-        except Exception:
             return None
         session = cls.retrieve(
             session_id=session_id,

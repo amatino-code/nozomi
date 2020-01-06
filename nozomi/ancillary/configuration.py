@@ -20,6 +20,11 @@ class Configuration:
     session_cookie_key_name: str = NotImplemented
     session_id_name: str = NotImplemented
 
+    internal_psk_header: str = NotImplemented
+    internal_psk: str = NotImplemented
+
+    forwarded_agent_header: str = NotImplemented
+
     standard_css_styles: List[str] = NotImplemented
     standard_js_classes: List[str] = NotImplemented
     standard_js_scripts: List[str] = NotImplemented
