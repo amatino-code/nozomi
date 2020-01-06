@@ -3,7 +3,7 @@ Nozomi
 HTTP Headers Module
 Copyright Amatino Pty Ltd
 """
-from typing import Optional
+from typing import Optional, List
 from collections.abc import Mapping
 from nozomi.errors.error import NozomiError
 from nozomi.http.status_code import HTTPStatusCode
@@ -37,7 +37,7 @@ Headers initialiser.', HTTPStatusCode.BAD_REQUEST)
         return value
 
     def getlist(self, key: str) -> List[str]:
-        
+
         if not hasattr(self._raw, 'getlist'):
             return list()
 
