@@ -79,7 +79,6 @@ class SecureResource(Resource):
         if session is not None:
             if (
                     session.perspective not in self.allowed_perspectives
-                    and session.perspective != Perspective.ADMINISTRATOR
             ):
                 raise NotAuthorised
 
@@ -90,10 +89,11 @@ class SecureResource(Resource):
             unauthorised_agent = ForwardedAgent.from_headers(
                 internal_key=self._internal_key,
                 headers=headers,
-                datastore=self.datastore
+                datastore=self.datastore,
+                configuration=self.configuration
             )
         else:
-            unauthorised_agent = session.human
+            unauthorised_agent = session.agent
 
         response, authorised_agent = self.compute_response(
             request_data,

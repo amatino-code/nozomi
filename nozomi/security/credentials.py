@@ -39,17 +39,12 @@ class Credentials:
     ) -> Optional[T]:
         """Extract credentials from request headers"""
 
-        session_id = headers.get(
-            configuration.session_id_name,
-            default=None
-        )
+        session_id = headers.value_for(configuration.session_id_name)
         if session_id is None:
             return None
 
-        api_key = headers.get(
-            configuration.session_api_key_name,
-            default=None
-        )
+        api_key = headers.value_for(configuration.session_api_key_name)
+
         if api_key is None:
             return None
 

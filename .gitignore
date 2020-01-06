@@ -9,3 +9,4 @@ queries/
 /build
 /dist
 /nozomi.egg-info
+.mypy_cache/*

@@ -16,7 +16,6 @@ the requested action'
     ) -> None:
 
         super().__init__(
-            self,
             client_description=client_description,
             http_status_code=HTTPStatusCode.NOT_AUTHORISED
         )

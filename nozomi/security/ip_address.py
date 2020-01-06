@@ -5,6 +5,7 @@ author: hugh@blinkybeach.com
 """
 from nozomi.data.encodable import Encodable
 from nozomi.http.headers import Headers
+from nozomi.http.status_code import HTTPStatusCode
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
 from nozomi.errors.error import NozomiError
@@ -48,10 +49,10 @@ class IpAddress(SQLConforming, Encodable):
         # fail, HAProxy is not configured properly.
 
         if len(addresses) != 1:
-            raise NozomiError('Internal error', 500)
+            raise NozomiError('Internal error', HTTPStatusCode.INTERNAL_ERROR)
 
         if len(addresses[0].split(',')) != 1:
-            raise NozomiError('Internal error', 500)
+            raise NozomiError('Internal error', HTTPStatusCode.INTERNAL_ERROR)
 
         return cls(addresses[0])
 

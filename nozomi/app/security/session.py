@@ -80,7 +80,7 @@ class Session(Decodable, Agent):
         configuration: Configuration
     ) -> bool:
         """Return True if credentials derived from Hedaers are authentic"""
-        cookies = self._cookies_from_headers(headers)
+        cookies = self._cookies_from_headers(headers, configuration)
         if cookies is None:
             return False
         supplied_id = cookies.value_for(configuration.session_id_name)
@@ -160,11 +160,11 @@ class Session(Decodable, Agent):
         Return a Session parsed from supplied headers, or None if no
         Session can be parsed.
         """
-        cookies = cls._cookies_from_headers(headers)
+        cookies = cls._cookies_from_headers(headers, configuration)
         if cookies is None:
             return None
 
-        session_id = int(cookies.value_for(cls.ID_NAME))
+        session_id = int(cookies.value_for(configuration.session_id_name))
         try:
             session = cls.retrieve(
                 session_id=session_id,
@@ -178,7 +178,7 @@ class Session(Decodable, Agent):
         if session is None:
             return None
 
-        if not session._authenticate_headers(headers):
+        if not session._authenticate_headers(headers, configuration):
             return None
 
         return session

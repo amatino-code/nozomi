@@ -30,4 +30,4 @@ class Protected:
     def grants_admin_to(self, agent: Agent) -> bool:
         if not isinstance(self.permission_record, PermissionRecord):
             raise NotImplementedError('.permission_record not implemented')
-        return self.permission_record.records_admin_permissions_for(agent)
+        return self.permission_record.records_admin_permission_for(agent)

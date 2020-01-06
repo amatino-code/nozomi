@@ -49,7 +49,7 @@ class Cookies:
     @classmethod
     def from_headers(cls: Type[T], headers: Headers) -> Optional[T]:
         """Return Cookies parsed from request headers"""
-        raw_cookies = headers.get('Cookie', default=None)
+        raw_cookies = headers.value_for('Cookie')
         if raw_cookies is None:
             return None
         return cls(raw_cookies)

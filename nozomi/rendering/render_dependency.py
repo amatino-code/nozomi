@@ -20,21 +20,20 @@ class RenderDependency:
         path: str,
         name: str = None,
     ):
-        assert isinstance(self._EXTENSION, str)
-        assert isinstance(self._NAME, str)
+        assert isinstance(extension, str)
+        assert isinstance(script_name, str)
 
         assert extension[:1] == '.'
 
-        self._name = name
-        if self._name is None:
-            self._name = self._DEFAULT_NAME
+        self._extension = extension
+        self._name = name if name is not None else self._DEFAULT_NAME
 
         assert isinstance(script_name, str)
         self._script_name = script_name
 
         assert isinstance(path, str)
 
-        self._full_path = path + self._script_name + self._EXTENSION
+        self._full_path = path + self._script_name + self._extension
         self._content = self._load_file(self._full_path)
         return
 
@@ -49,4 +48,4 @@ class RenderDependency:
         return self._content
 
     def __repr__(self) -> str:
-        return self._name + ': ' + self._script_name + self._EXTENSION
+        return self._name + ': ' + self._script_name + self._extension

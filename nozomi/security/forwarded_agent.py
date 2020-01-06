@@ -10,6 +10,7 @@ from nozomi.http.headers import Headers
 from nozomi.errors.not_authorised import NotAuthorised
 from nozomi.errors.bad_request import BadRequest
 from nozomi.data.datastore import Datastore
+from nozomi.ancillary.configuration import Configuration
 
 T = TypeVar('T', bound='ForwardedAgent')
 
@@ -21,7 +22,8 @@ class ForwardedAgent(StandaloneAgent):
         cls: Type[T],
         internal_key: InternalKey,
         headers: Headers,
-        datastore: Datastore
+        datastore: Datastore,
+        configuration: Configuration
     ) -> T:
 
         assert isinstance(internal_key, InternalKey)
@@ -30,7 +32,9 @@ class ForwardedAgent(StandaloneAgent):
         if not internal_key.matches_headers(headers):
             raise NotAuthorised
 
-        forwarded_agent_id = headers.get(cls.HEADER_KEY)
+        forwarded_agent_id = headers.value_for(
+            configuration.forwarded_agent_header
+        )
         if forwarded_agent_id is None:
             raise NotAuthorised
 

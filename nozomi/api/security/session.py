@@ -22,6 +22,7 @@ from nozomi.security.cookies import Cookies
 from nozomi.http.headers import Headers
 from typing import Any, Dict, TypeVar, Type, Optional
 from nozomi.ancillary.configuration import Configuration
+from nozomi.http.status_code import HTTPStatusCode
 import hmac
 
 T = TypeVar('T', bound='Session')
@@ -29,9 +30,9 @@ T = TypeVar('T', bound='Session')
 
 class Session(Encodable, Decodable, Agent):
 
-    _Q_DELETE: Query.optionally_from_file('queries/session/delete.sql')
-    _Q_RETRIEVE: Query.optionally_from_file('queries/session/retrieve.sql')
-    _Q_CREATE: Query.optionally_from_file('queries/session/create.sql')
+    _Q_DELETE = Query.optionally_from_file('queries/session/delete.sql')
+    _Q_RETRIEVE = Query.optionally_from_file('queries/session/retrieve.sql')
+    _Q_CREATE = Query.optionally_from_file('queries/session/create.sql')
 
     def __init__(
         self,
@@ -67,11 +68,11 @@ class Session(Encodable, Decodable, Agent):
 
     session_id: int = Immutable(lambda s: s._session_id)
     session_key: str = Immutable(lambda s: s._session_key)
-    agent: Agent = Immutable(lambda s: s._human)
+    agent: Agent = Immutable(lambda s: s._agent)
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
 
-    agent_id = Immutable(lambda s: s._human.agent_id)
+    agent_id = Immutable(lambda s: s._agent.agent_id)
 
     Q_RETRIEVE = Immutable(lambda s: s._load_query(s._Q_RETRIEVE))
     Q_CREATE = Immutable(lambda s: s._load_query(s._Q_CREATE))
@@ -121,7 +122,7 @@ class Session(Encodable, Decodable, Agent):
             'session_id': self._session_id,
             'session_key': self._session_key,
             'api_key': self._api_key,
-            'human': self._human.broadcast_to(self._human),
+            'agent': {'agent_id': self._agent.agent_id},
             'created': self._created.encode(),
             'last_utilised': self._last_utilised.encode(),
             'ip_address': self._ip_address.encode(),
@@ -146,6 +147,7 @@ class Session(Encodable, Decodable, Agent):
         if request_may_change_state is False:
             session = cls.from_cookies_in_headers(
                 headers=headers,
+                datastore=datastore,
                 configuration=configuration,
                 request_may_change_state=request_may_change_state
             )
@@ -154,7 +156,7 @@ class Session(Encodable, Decodable, Agent):
         credentials = Credentials.from_headers(headers, configuration)
         if credentials is None:
             return None
-        session = cls.retrieve(credentials.session_id, datastore)
+        session = cls.retrieve(credentials.session_id, datastore, configuration)
         if session is None:
             return None
         if not session._finds_api_key_authentic(credentials.api_key):
@@ -188,7 +190,8 @@ class Session(Encodable, Decodable, Agent):
             return None
         session = cls.retrieve(
             session_id=session_id,
-            datastore=datastore
+            datastore=datastore,
+            configuration=configuration
         )
         if session is None:
             return None
@@ -214,7 +217,10 @@ class Session(Encodable, Decodable, Agent):
             request_may_change_state=True
         )
         if session is None:
-            raise NozomiError('Not authenticated', 401)
+            raise NozomiError(
+                'Not authenticated',
+                HTTPStatusCode.NOT_AUTHENTICATED
+            )
         return session
 
     @classmethod
@@ -231,12 +237,18 @@ class Session(Encodable, Decodable, Agent):
 
         secret = Secret.retrieve_for_email(provided_email, datastore)
         if secret is None:
-            raise NozomiError('Invalid credentials', 401)
+            raise NozomiError(
+                'Invalid credentials',
+                HTTPStatusCode.NOT_AUTHORISED
+            )
 
         secret_check = secret.matches(provided_plaintext_secret)
 
         if secret_check is False:
-            raise NozomiError('Invalid credentials', 401)
+            raise NozomiError(
+                'Invalid credentials',
+                HTTPStatusCode.NOT_AUTHORISED
+            )
 
         assert secret_check is True  # Redundant sanity check
 
@@ -249,7 +261,7 @@ class Session(Encodable, Decodable, Agent):
             'api_key': RandomNumber(192).urlsafe_base64,
             'email_address': provided_email,
             'ip_address': ip_address,
-            'human_id': None,
+            'agent_id': None,
             'seconds_to_live': configuration.session_seconds_to_live,
             'perspective': perspective.perspective_id
         }
@@ -269,6 +281,7 @@ class Session(Encodable, Decodable, Agent):
         data: Any,
         ip_address: IpAddress,
         datastore: Datastore,
+        configuration: Configuration,
         perspective: Perspective
     ) -> T:
         """Return a newly minted Session"""
@@ -291,18 +304,19 @@ class Session(Encodable, Decodable, Agent):
             provided_plaintext_secret=provided_plaintext_secret,
             ip_address=ip_address,
             datastore=datastore,
-            perspective=perspective
+            perspective=perspective,
+            configuration=configuration
         )
 
     @classmethod
     def retrieve(
         cls: Type[T],
-        session_id: int,
+        session_id: str,
         datastore: Datastore,
         configuration: Configuration
     ) -> Optional[T]:
 
-        assert isinstance(session_id, int)
+        assert isinstance(session_id, str)
         arguments = {
             'session_id': session_id,
             'seconds_to_live': configuration.session_seconds_to_live

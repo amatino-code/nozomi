@@ -59,7 +59,7 @@ Agent retrieval'))
         datastore: Datastore
     ) -> Optional[T]:
         """Retrieve an Agent with the supplied ID, or None"""
-        result = cls._Q_RETRIEVE.execute(datastore, {'agent_id': agent_id})
+        result = cls.Q_RETRIEVE.execute(datastore, {'agent_id': agent_id})
         if result is None:
             return None
         return cls.decode(result)

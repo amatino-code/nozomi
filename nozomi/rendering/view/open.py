@@ -38,7 +38,7 @@ class OpenView(BaseView):
             configuration=self.configuration
         )
 
-        context = self.generate_context()
+        context = Context()
         context.add('agent', session.agent if session is not None else None)
         context.add_javascript_constant(
             'global_api_key',

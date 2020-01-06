@@ -6,6 +6,7 @@ Copyright Amatino Pty Ltd
 from typing import Optional
 from collections.abc import Mapping
 from nozomi.errors.error import NozomiError
+from nozomi.http.status_code import HTTPStatusCode
 
 
 class Headers:
@@ -31,6 +32,13 @@ class Headers:
             raise NozomiError('The data structure underlying a Headers instance\
 unexpectedly contained non-string data for key "{k}", of type {t}. Headers \
 must only contain string values. Consider examining the data you fed to the \
-Headers initialiser.')
+Headers initialiser.', HTTPStatusCode.BAD_REQUEST)
 
         return value
+
+    def getlist(self, key: str) -> List[str]:
+        
+        if not hasattr(self._raw, 'getlist'):
+            return list()
+
+        return self._raw.getlist(key)

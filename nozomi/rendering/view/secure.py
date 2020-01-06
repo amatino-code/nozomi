@@ -24,7 +24,7 @@ class SecureView(BaseView, ConsidersPerspective):
         query: Optional[QueryString],
         requesting_agent: Agent,
         context: Context,
-    ) -> str:
+    ) -> Context:
         """
         Method returning the context as formed for the supplied request
         parameters
