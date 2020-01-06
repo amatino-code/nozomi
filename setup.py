@@ -39,7 +39,7 @@ setup(
     packages=find_packages(exclude=('tests', 'tests.*')),
     long_description_content_type="text/markdown",
     python_requires='>=3.6',
-    install_requires=['argon2-cffi'],
+    install_requires=['argon2-cffi', 'jinja2'],
     project_urls={
         'Github Repository': 'https://github.com/amatino-code/nozomi',
         'About': 'https://github.com/amatino-code/nozomi'
