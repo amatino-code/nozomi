@@ -35,8 +35,7 @@ class OpenView(BaseView):
 
         session = Session.from_headers(
             headers=headers,
-            configuration=self.configuration,
-            signin_path=None
+            configuration=self.configuration
         )
 
         context = self.generate_context()
