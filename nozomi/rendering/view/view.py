@@ -98,7 +98,7 @@ class View:
         lambda s: s.configuration.standard_js_classes
     )
     _standard_js_scripts = Immutable(
-        lambda s: s.configuration.standard_css_styles
+        lambda s: s.configuration.standard_js_scripts
     )
 
     def serve(self) -> str:
