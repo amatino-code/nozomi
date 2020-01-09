@@ -19,7 +19,9 @@ class StandaloneAgent(Agent):
     access to read or write objects. At the MVP stage, this is most likely
     to be Humans.
     """
-    _Q_RETRIEVE = Query.optionally_from_file('queries/agents/retrieve.sql')
+    _Q_RETRIEVE = Query.optionally_from_file(
+        'queries/secrity/agents/retrieve.sql'
+    )
 
     def __init__(
         self,

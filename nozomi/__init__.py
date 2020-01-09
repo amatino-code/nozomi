@@ -46,6 +46,7 @@ from nozomi.resources.resource import Resource
 from nozomi.resources.secure import SecureResource
 
 from nozomi.security.agent import Agent
+from nozomi.security.standalone_agent import StandaloneAgent
 from nozomi.security.broadcastable import Broadcastable
 from nozomi.security.considers_perspective import ConsidersPerspective
 from nozomi.security.cookies import Cookies
