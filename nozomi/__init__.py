@@ -17,6 +17,9 @@ from nozomi.data.index_equitable import IndexEquitable
 
 from nozomi.errors.error import NozomiError
 from nozomi.errors.bad_request import BadRequest
+from nozomi.errors.not_found import NotFound
+from nozomi.errors.not_authorised import NotAuthorised
+from nozomi.errors.not_authenticated import NotAuthenticated
 
 from nozomi.http.headers import Headers
 from nozomi.http.method import HTTPMethod
