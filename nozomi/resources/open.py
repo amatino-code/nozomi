@@ -3,12 +3,10 @@ Nozomi
 Secure Resource Module
 author: hugh@blinkybeach.com
 """
-from nozomi.errors.error import NozomiError
 from nozomi.app.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString
-from nozomi.http.status_code import HTTPStatusCode
 from nozomi.http.parseable_data import ParseableData
 from nozomi.http.headers import Headers
 from nozomi.data.encodable import Encodable
@@ -27,11 +25,10 @@ class OpenResource(Resource):
         self,
         request_data: Optional[ParseableData],
         request_arguments: Optional[QueryString],
-        requesting_agent: Agent
+        requesting_agent: Optional[Agent]
     ) -> Encodable:
         """
-        Method returning a Broadcastable response, and an Agent authorised to
-        make the request
+        Method returning an Encodable response
         """
         raise NotImplementedError
 
@@ -46,11 +43,6 @@ class OpenResource(Resource):
             datastore=self.datastore,
             configuration=self.configuration
         )
-        if session is None:
-            raise NozomiError(
-                'Not authenticated',
-                HTTPStatusCode.NOT_AUTHENTICATED
-            )
         response = self.compute_response(
             request_data,
             request_arguments,
