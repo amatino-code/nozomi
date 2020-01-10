@@ -13,6 +13,7 @@ from nozomi.data.index_sql_conforming import IndexSQLConforming
 from nozomi.data.limit import Limit
 from nozomi.data.offset import Offset
 from nozomi.data.sql_conforming import SQLConforming
+from nozomi.data.sql_conforming import AnySQLConforming
 from nozomi.data.index_equitable import IndexEquitable
 
 from nozomi.errors.error import NozomiError
