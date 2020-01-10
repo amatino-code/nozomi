@@ -4,6 +4,7 @@ Configuration Module
 author: hugh@blinkybeach.com
 """
 from typing import List
+from nozomi.ancillary.database_credentials import DatabaseCredentials
 
 
 class Configuration:
@@ -28,3 +29,5 @@ class Configuration:
     standard_css_styles: List[str] = NotImplemented
     standard_js_classes: List[str] = NotImplemented
     standard_js_scripts: List[str] = NotImplemented
+
+    database_credentials: DatabaseCredentials = NotImplemented
