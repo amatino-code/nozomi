@@ -44,9 +44,10 @@ class PermissionRecord(Encodable, Decodable):
     def decode(cls: Type[T], data: Any) -> T:
         return cls(
             data['owned_by'],
-            data['readable_by'],
-            data['writable_by'],
-            data['administered_by']
+            data['readable_by'] if data['readable_by'] is not None else list(),
+            data['writable_by'] if data['writable_by'] is not None else list(),
+            data['administered_by'] if data['administered_by'] is not None
+            else list()
         )
 
     def encode(self) -> Any:
