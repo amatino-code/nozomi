@@ -5,20 +5,27 @@ author: hugh@blinkybeach.com
 """
 from nozomi.security.random_number import RandomNumber
 from typing import Union
+from psycopg2.extensions import ISQLQuote
+from psycopg2.extensions import QuotedString
 
 
-class SQLConforming:
+class SQLConforming(ISQLQuote):
 
     _QUOTE_LENGTH = 32
 
     sql_representation: bytes = NotImplemented
+
+    def __conform__(self, protocol):
+        if protocol == ISQLQuote:
+            return self
+        return
 
     def getquoted(self) -> bytes:
         return self.sql_representation
 
     def quote_string(self, string: str) -> bytes:
         """Return a quoted string"""
-        raise NotImplementedError
+        return QuotedString(string).getquoted()
 
     def dollar_quote_string(self, string: str) -> str:
         """Return a safely $$ quoted SQL string"""
