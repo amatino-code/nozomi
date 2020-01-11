@@ -6,10 +6,7 @@ Copyright Amatino Pty Ltd
 from nozomi.data.encodable import Encodable
 from nozomi.data.decodable import Decodable
 from nozomi.security.agent import Agent
-from typing import TypeVar
-from typing import Any
-from typing import Type
-from typing import List
+from typing import Union, TypeVar, Any, Type, List
 
 T = TypeVar('T', bound='PermissionRecord')
 
@@ -19,19 +16,15 @@ class PermissionRecord(Encodable, Decodable):
 
     def __init__(
         self,
-        owned_by: str,
-        readable_by: List[str],
-        writable_by: List[str],
-        administered_by: List[str]
+        owned_by: Union[str, int],
+        readable_by: List[Union[str, int]],
+        writable_by: List[Union[str, int]],
+        administered_by: List[Union[str, int]]
     ) -> None:
 
-        assert isinstance(owned_by, int)
         assert isinstance(readable_by, list)
         assert isinstance(writable_by, list)
         assert isinstance(administered_by, list)
-        assert False not in [isinstance(r, str) for r in readable_by]
-        assert False not in [isinstance(w, str) for w in writable_by]
-        assert False not in [isinstance(a, str) for a in administered_by]
 
         self._owned_by = owned_by
         self._readable_by = readable_by

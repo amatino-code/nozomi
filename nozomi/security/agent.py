@@ -5,6 +5,7 @@ Copyright Amatino Pty Ltd
 """
 from nozomi.data.sql_conforming import SQLConforming
 from nozomi.ancillary.immutable import Immutable
+from typing import Union
 
 
 class Agent(SQLConforming):
@@ -12,7 +13,7 @@ class Agent(SQLConforming):
     Astract protocol defining an interface for classes who may be granted
     access to read or write objects.
     """
-    agent_id: str = NotImplemented
+    agent_id: Union[str, int] = NotImplemented
 
     sql_representation = Immutable(lambda s: s.adapt_integer(s.agent_id))
 
