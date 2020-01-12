@@ -3,8 +3,8 @@ Nozomi
 Cross-Origin-Resource-Sharing Policy
 author: hugh@blinkybeach.com
 """
-from procuret_api.ancillary.configuration import Configuration
-from procuret_api.ancillary.immutable import Immutable
+from nozomi.ancillary.configuration import Configuration
+from nozomi.ancillary.immutable import Immutable
 from nozomi.http.headers import Headers
 
 
