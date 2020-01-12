@@ -42,3 +42,7 @@ Headers initialiser.', HTTPStatusCode.BAD_REQUEST)
             return list()
 
         return self._raw.getlist(key)
+
+    def add(self, key: str, value: str) -> None:
+        self._raw.add(key, value)
+        return

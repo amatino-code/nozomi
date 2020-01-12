@@ -31,3 +31,7 @@ class Configuration:
     standard_js_scripts: List[str] = NotImplemented
 
     database_credentials: DatabaseCredentials = NotImplemented
+
+    # CORS
+    local_origin: str = NotImplemented
+    restricted_origin: str = NotImplemented
