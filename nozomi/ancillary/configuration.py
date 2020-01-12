@@ -35,3 +35,6 @@ class Configuration:
     # CORS
     local_origin: str = NotImplemented
     restricted_origin: str = NotImplemented
+
+    # Other
+    server_name: str = NotImplemented
