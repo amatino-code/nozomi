@@ -3,7 +3,7 @@ Nozomi
 Secure Resource Module
 author: hugh@blinkybeach.com
 """
-from nozomi.app.security.session import Session
+from nozomi.api.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString

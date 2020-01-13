@@ -10,3 +10,4 @@ queries/
 /dist
 /nozomi.egg-info
 .mypy_cache/*
+deploy
