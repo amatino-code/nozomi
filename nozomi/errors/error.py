@@ -37,7 +37,7 @@ class NozomiError(Exception):
         super().__init__(client_description)
         return
 
-    http_status_code = Immutable(lambda s: s._http)
+    http_status_code = Immutable(lambda s: s._http_code)
     client_description = Immutable(lambda s: s._client_description)
     stack_trace = Immutable(lambda s: s._stack_trace)
     info_package = Immutable(lambda s: s._info_package())
