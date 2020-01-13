@@ -5,7 +5,7 @@ Copyright Amatino Pty Ltd
 """
 import datetime
 from nozomi.http.status_code import HTTPStatusCode
-from nozomi.http.headers import Headers
+from collections.abc import Mapping
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.encodable import Encodable
 from typing import Optional, Any, Dict
@@ -55,7 +55,7 @@ class NozomiError(Exception):
 
     def report(
         self,
-        request_headers: Optional[Headers] = None,
+        request_headers: Optional[Mapping] = None,
         request_json: Optional[Any] = None,
         request_arguments: Optional[Any] = None
     ) -> str:
