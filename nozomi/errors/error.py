@@ -49,7 +49,7 @@ class NozomiError(Exception):
         """
         data = {
             'error-information': self.client_description,
-            'response-code': self.http_status_code
+            'response-code': self.http_status_code.value
         }
         return NozomiError._InfoPackage(data)
 
