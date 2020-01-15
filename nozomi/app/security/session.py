@@ -11,7 +11,7 @@ from nozomi.security.perspective import Perspective
 from nozomi.http.redirect import Redirect
 from nozomi.http.api_request import ApiRequest
 from nozomi.security.standalone_agent import StandaloneAgent
-from nozomi.ancillary.time import NozomiTime
+from nozomi.temporal.time import NozomiTime
 from nozomi.http.method import HTTPMethod
 from nozomi.http.url_parameters import URLParameters
 from nozomi.http.url_parameter import URLParameter

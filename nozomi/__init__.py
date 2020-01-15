@@ -1,8 +1,10 @@
 from nozomi.ancillary.immutable import Immutable
 from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.database_credentials import DatabaseCredentials
-from nozomi.ancillary.time import NozomiTime
 from nozomi.ancillary.server_name import ServerName
+
+from nozomi.temporal.time import NozomiTime
+from nozomi.temporal.tz_utc import TimeZoneUTC
 
 from nozomi.data.datastore import Datastore
 from nozomi.data.encodable import Encodable

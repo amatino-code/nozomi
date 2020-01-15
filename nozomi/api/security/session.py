@@ -14,7 +14,7 @@ from nozomi.errors.bad_request import BadRequest
 from nozomi.security.ip_address import IpAddress
 from nozomi.security.secret import Secret
 from nozomi.security.perspective import Perspective
-from nozomi.ancillary.time import NozomiTime
+from nozomi.temporal.time import NozomiTime
 from nozomi.ancillary.immutable import Immutable
 from nozomi.security.agent import Agent
 from nozomi.security.credentials import Credentials
