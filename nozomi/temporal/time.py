@@ -16,6 +16,7 @@ T = TypeVar('T', bound='NozomiTime')
 class NozomiTime(datetime, Encodable, Decodable):
 
     _DB_FORMAT_STRING = '%Y-%m-%d %H:%M:%S.%f'
+    _NO_MS_FORMAT = '%Y-%m-%d %H:%M:%S'
 
     @classmethod
     def decode(cls: Type[T], data: Any) -> T:
@@ -30,7 +31,10 @@ class NozomiTime(datetime, Encodable, Decodable):
                 parsable = data
         parsable = parsable.replace('T', ' ')
         parsable = parsable.replace('_', ' ')
-        time = cls.strptime(parsable, cls._DB_FORMAT_STRING)
+        try:
+            time = cls.strptime(parsable, cls._DB_FORMAT_STRING)
+        except ValueError:
+            time = cls.strptime(parsable, cls._NO_MS_FORMAT)
         decoded = NozomiTime(
             year=time.year,
             month=time.month,
