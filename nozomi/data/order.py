@@ -3,7 +3,10 @@ Nozomi
 Order Module
 author: hugh@blinkybeach.com
 """
-from nozomi import SQLConforming, QueryString, BadRequest, Immutable
+from nozomi.http.query_string import QueryString 
+from nozomi.errors.bad_request import BadRequest
+from nozomi.ancillary.immutable import Immutable
+from nozomi.data.sql_conforming import SQLConforming
 from typing import TypeVar, Type
 
 T = TypeVar('T', bound='Order')
@@ -23,6 +26,8 @@ class Order(SQLConforming):
     sql_representation = Immutable(
         lambda s: b'asc' if s._ascending else b'desc'
     )
+    ascending: bool = Immutable(lambda s: s._ascending)
+    descending: bool = Immutable(lambda s: not s._ascending)
 
     def __str__(self) -> str:
         return 'asc' if self._ascending else 'desc'
