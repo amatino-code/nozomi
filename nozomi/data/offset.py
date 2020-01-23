@@ -19,6 +19,7 @@ class Offset(SQLConforming):
         return
 
     sql_representation = Immutable(lambda s: s.adapt_integer(s._magnitude))
+    magnitude = Immutable(lambda s: s._magnitude)
 
     @classmethod
     def from_arguments(
