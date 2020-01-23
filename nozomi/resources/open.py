@@ -10,7 +10,7 @@ from nozomi.http.query_string import QueryString
 from nozomi.http.parseable_data import ParseableData
 from nozomi.http.headers import Headers
 from nozomi.data.encodable import Encodable
-from typing import Optional
+from typing import Optional, List, Union
 
 
 class OpenResource(Resource):
@@ -26,7 +26,7 @@ class OpenResource(Resource):
         request_data: Optional[ParseableData],
         request_arguments: Optional[QueryString],
         requesting_agent: Optional[Agent]
-    ) -> Encodable:
+    ) -> Union[Encodable, List[Encodable]]:
         """
         Method returning an Encodable response
         """
@@ -48,5 +48,8 @@ class OpenResource(Resource):
             request_arguments,
             session
         )
+
+        if isinstance(response, list):
+            return Encodable.serialise_many(response)
 
         return response.serialise()
