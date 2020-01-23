@@ -3,7 +3,7 @@ Nozomi
 Order Module
 author: hugh@blinkybeach.com
 """
-from nozomi.http.query_string import QueryString 
+from nozomi.http.query_string import QueryString
 from nozomi.errors.bad_request import BadRequest
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
