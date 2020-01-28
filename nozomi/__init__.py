@@ -4,6 +4,7 @@ from nozomi.ancillary.database_credentials import DatabaseCredentials
 from nozomi.ancillary.server_name import ServerName
 
 from nozomi.temporal.time import NozomiTime
+from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
 
 from nozomi.data.datastore import Datastore
