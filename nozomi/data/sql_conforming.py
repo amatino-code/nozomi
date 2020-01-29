@@ -41,7 +41,7 @@ class SQLConforming(ISQLQuote):
         """Return a"""
         return '$A' + RandomNumber(
             self._QUOTE_LENGTH
-        ).dash_free_urlsafe_base64 + '$'
+        ).dash_free_urlsafe_base64.replace('=', '') + '$'
 
     def adapt_bool(self, boolean_data: bool) -> bytes:
         assert isinstance(boolean_data, bool)
