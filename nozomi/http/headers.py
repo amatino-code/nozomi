@@ -15,7 +15,7 @@ class Headers:
     example a Dict or a Werkzeug ImmutableMultiDict.
     """
 
-    def __init__(self, raw: Mapping) -> None:
+    def __init__(self, raw: Mapping = {}) -> None:
         self._raw = raw
         return
 

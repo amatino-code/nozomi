@@ -68,6 +68,7 @@ from nozomi.security.salt import Salt
 from nozomi.security.secret import Secret
 from nozomi.security.cors_policy import CORSPolicy
 from nozomi.security.access_control import AccessControl
+from nozomi.security.cookie_headers import CookieHeaders
 
 from nozomi import api
 from nozomi import app
