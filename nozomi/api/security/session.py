@@ -119,7 +119,7 @@ class Session(Encodable, Decodable, Agent):
             'session_id': self._session_id,
             'session_key': self._session_key,
             'api_key': self._api_key,
-            'human': self._human.broadcast_to(self._human),
+            'agent_id': self._human.broadcast_to(self._human),
             'created': self._created.encode(),
             'last_utilised': self._last_utilised.encode(),
             'ip_address': self._ip_address.encode(),
