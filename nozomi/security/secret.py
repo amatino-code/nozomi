@@ -27,12 +27,13 @@ class Secret:
         self,
         salt: Salt,
         hashed_passphrase: str,
-        agent_id: int
+        agent_id: Optional[int] = None
     ) -> None:
 
         assert isinstance(hashed_passphrase, str)
         assert isinstance(salt, Salt)
-        assert isinstance(agent_id, int)
+        if agent_id is not None:
+            assert isinstance(agent_id, int)
         self._hashed_passphrase = hashed_passphrase
         self._salt = salt
         self._agent_id = agent_id
@@ -120,7 +121,7 @@ class Secret:
         return cls(
             salt=Salt(salt_b64_string=result['salt']),
             hashed_passphrase=result['secret_hash'],
-            agent_it=result['agent']
+            agent_id=result['agent']
         )
 
     def __str__(self) -> str:

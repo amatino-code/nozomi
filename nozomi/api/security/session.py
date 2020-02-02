@@ -241,6 +241,7 @@ class Session(Encodable, Decodable, Agent):
             raise NozomiError('Invalid credentials', 401)
 
         assert secret_check is True  # Redundant sanity check
+        assert secret.agent_id is not None
 
         input_data = {
             'session_id': RandomNumber(128).urlsafe_base64.replace('=', ''),
