@@ -4,8 +4,7 @@ Configuration Module
 author: hugh@blinkybeach.com
 """
 from nozomi.ancillary.database_credentials import DatabaseCredentials
-from typing import Type, Optional, List
-from nozomi.security.abstract_session import AbstractSession
+from typing import Optional, List
 from nozomi.security.internal_key import InternalKey
 
 
@@ -19,8 +18,6 @@ class Configuration:
     api_endpoint: str = NotImplemented
 
     # Sessions
-
-    session_implementation: Type[AbstractSession] = NotImplemented
 
     session_seconds_to_live: int = NotImplemented
     session_api_key_name: str = NotImplemented

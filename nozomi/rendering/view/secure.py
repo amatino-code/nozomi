@@ -3,7 +3,7 @@ Nozomi
 Secure View Module
 author: hugh@blinkybeach.com
 """
-from nozomi.rendering.view.base import BaseView
+from nozomi.rendering.view.open import OpenView
 from nozomi.http.headers import Headers
 from nozomi.http.query_string import QueryString
 from nozomi.app.security.session import Session
@@ -14,7 +14,7 @@ from typing import Optional, Set
 from nozomi.security.agent import Agent
 
 
-class SecureView(BaseView, ConsidersPerspective):
+class SecureView(OpenView, ConsidersPerspective):
     """A view that requires authentication"""
 
     allowed_perspectives: Set[Perspective] = NotImplemented
@@ -37,12 +37,11 @@ class SecureView(BaseView, ConsidersPerspective):
         query: Optional[QueryString],
     ) -> str:
 
-        SessionImplementation = self.configuration.session_implementation
-
-        session = SessionImplementation.require_from_headers(
+        session = self.session_implementation.require_from_headers(
             headers=headers,
             configuration=self.configuration,
-            signin_path=None
+            signin_path=None,
+            request_may_change_state=self.requests_may_change_state
         )
         assert isinstance(session, Session)
         self.enforce_perspective(session)

@@ -16,7 +16,8 @@ from nozomi.security.perspective import Perspective
 from nozomi.security.forwarded_agent import ForwardedAgent
 from nozomi.security.protected import Protected
 from nozomi.data.encodable import Encodable
-from typing import Optional, Tuple, Set
+from typing import Optional, Tuple, Set, Type
+from nozomi.security.abstract_session import AbstractSession
 from nozomi.ancillary.configuration import Configuration
 
 
@@ -36,6 +37,7 @@ class SecureResource(Resource):
         self,
         datastore: Datastore,
         configuration: Configuration,
+        session_implementation: Type[AbstractSession],
         requests_may_change_state: bool = False
     ) -> None:
 
@@ -50,6 +52,7 @@ class SecureResource(Resource):
             isinstance(p, Perspective) for p in self.allowed_perspectives
         ]:
             raise TypeError('.allowed_perspectives must be Set[Perspective]')
+        self._session_implementation = session_implementation
         return
 
     allowed_perspectives: Set[Perspective] = NotImplemented
@@ -72,7 +75,7 @@ class SecureResource(Resource):
         session: Session = None
     ) -> str:
 
-        SessionImplementation = self.configuration.session_implementation
+        SessionImplementation = self._session_implementation
 
         if session is None:
             session = SessionImplementation.from_headers(

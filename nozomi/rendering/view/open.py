@@ -9,7 +9,8 @@ from nozomi.http.headers import Headers
 from nozomi.rendering.context import Context
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
-from typing import List, Dict, Optional, Any
+from nozomi.security.abstract_session import AbstractSession
+from typing import List, Dict, Optional, Any, Type
 from nozomi.http.query_string import QueryString
 from nozomi.security.agent import Agent
 
@@ -27,6 +28,7 @@ class OpenView(BaseView):
         styles: List[str],
         scripts: List[str],
         classes: List[str],
+        session_implementation: Type[AbstractSession],
         open_graph: Optional[OpenGraph] = None,
         static_variables: Optional[Dict[str, Any]] = None,
         static_js_constants: Optional[Dict[str, Any]] = None,
@@ -34,6 +36,7 @@ class OpenView(BaseView):
     ) -> None:
 
         self._requests_may_change_state = requests_may_change_state
+        self._session_implementation = session_implementation
 
         super().__init__(
             configuration=configuration,
@@ -54,6 +57,7 @@ class OpenView(BaseView):
     requests_may_change_state = Immutable(
         lambda s: s._requests_may_change_state
     )
+    session_implementation = Immutable(lambda s: s._session_implementation)
 
     def compute_response(
         self,
@@ -73,7 +77,7 @@ class OpenView(BaseView):
         query: Optional[QueryString]
     ) -> str:
 
-        session = self.configuration.session_implementation.from_headers(
+        session = self._session_implementation.from_headers(
             headers=headers,
             configuration=self.configuration,
             request_may_change_state=self.requests_may_change_state

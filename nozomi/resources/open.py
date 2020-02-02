@@ -9,7 +9,8 @@ from nozomi.http.query_string import QueryString
 from nozomi.http.parseable_data import ParseableData
 from nozomi.http.headers import Headers
 from nozomi.data.encodable import Encodable
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Type
+from nozomi.security.abstract_session import AbstractSession
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.immutable import Immutable
 from nozomi.ancillary.configuration import Configuration
@@ -27,6 +28,7 @@ class OpenResource(Resource):
         self,
         datastore: Datastore,
         configuration: Configuration,
+        session_implementation: Type[AbstractSession],
         requests_may_change_state: bool = False
     ) -> None:
         assert isinstance(datastore, Datastore)
@@ -34,6 +36,7 @@ class OpenResource(Resource):
             datastore=datastore,
             configuration=configuration
         )
+        self._session_implementation = session_implementation
         self._requests_may_change_state = requests_may_change_state
         return
 
@@ -59,7 +62,7 @@ class OpenResource(Resource):
         headers: Headers
     ) -> str:
 
-        SessionImplementation = self.configuration.session_implementation
+        SessionImplementation = self._session_implementation
 
         session = SessionImplementation.from_headers(
             headers=headers,
