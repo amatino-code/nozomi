@@ -26,18 +26,22 @@ class Secret:
     def __init__(
         self,
         salt: Salt,
-        hashed_passphrase: str
+        hashed_passphrase: str,
+        agent_id: int
     ) -> None:
 
         assert isinstance(hashed_passphrase, str)
         assert isinstance(salt, Salt)
+        assert isinstance(agent_id, int)
         self._hashed_passphrase = hashed_passphrase
         self._salt = salt
+        self._agent_id = agent_id
 
         return
 
     hashed_passphrase = Immutable(lambda s: s._hashed_passphrase)
     salt = Immutable(lambda s: s._salt.string)
+    agent_id = Immutable(lambda s: s._agent_id)
 
     Q_RETRIEVE_BY_EMAIL = Immutable(lambda s: s._load_query(
         s._Q_RETRIEVE_BY_EMAIL
@@ -115,7 +119,8 @@ class Secret:
 
         return cls(
             salt=Salt(salt_b64_string=result['salt']),
-            hashed_passphrase=result['secret_hash']
+            hashed_passphrase=result['secret_hash'],
+            agent_it=result['agent']
         )
 
     def __str__(self) -> str:

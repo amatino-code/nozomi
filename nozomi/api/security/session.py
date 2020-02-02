@@ -29,9 +29,9 @@ T = TypeVar('T', bound='Session')
 
 class Session(Encodable, Decodable, Agent):
 
-    _Q_DELETE: Query.optionally_from_file('queries/session/delete.sql')
-    _Q_RETRIEVE: Query.optionally_from_file('queries/session/retrieve.sql')
-    _Q_CREATE: Query.optionally_from_file('queries/session/create.sql')
+    _Q_DELETE = Query.optionally_from_file('queries/session/delete.sql')
+    _Q_RETRIEVE = Query.optionally_from_file('queries/session/retrieve.sql')
+    _Q_CREATE = Query.optionally_from_file('queries/session/create.sql')
 
     def __init__(
         self,
@@ -242,16 +242,13 @@ class Session(Encodable, Decodable, Agent):
 
         assert secret_check is True  # Redundant sanity check
 
-        # There is currently a race condition between any Human Profile
-        # email change and Session creation.
-
         input_data = {
-            'session_id': RandomNumber(64).urlsafe_base64,
-            'session_key': RandomNumber(192).urlsafe_base64,
-            'api_key': RandomNumber(192).urlsafe_base64,
+            'session_id': RandomNumber(128).urlsafe_base64.replace('=', ''),
+            'session_key': RandomNumber(192).urlsafe_base64.replace('=', ''),
+            'api_key': RandomNumber(192).urlsafe_base64.replace('=', ''),
             'email_address': provided_email,
             'ip_address': ip_address,
-            'human_id': None,
+            'agent_id': secret.agent_id,
             'seconds_to_live': configuration.session_seconds_to_live,
             'perspective': perspective.perspective_id
         }
