@@ -3,10 +3,10 @@ Nozomi
 Session Module
 author: hugh@blinkybeach.com
 """
-from nozomi.security.abstract_session import AbstractSession
-from nozomi.data.encodable import Encodable
 from datetime import datetime
 from nozomi.data.datastore import Datastore
+from nozomi.data.encodable import Encodable
+from nozomi.data.decodable import Decodable
 from nozomi.data.query import Query
 from nozomi.security.random_number import RandomNumber
 from nozomi.errors.error import NozomiError
@@ -14,7 +14,7 @@ from nozomi.errors.bad_request import BadRequest
 from nozomi.security.ip_address import IpAddress
 from nozomi.security.secret import Secret
 from nozomi.security.perspective import Perspective
-from nozomi.temporal.time import NozomiTime
+from nozomi.ancillary.time import NozomiTime
 from nozomi.ancillary.immutable import Immutable
 from nozomi.security.agent import Agent
 from nozomi.security.credentials import Credentials
@@ -22,17 +22,16 @@ from nozomi.security.cookies import Cookies
 from nozomi.http.headers import Headers
 from typing import Any, Dict, TypeVar, Type, Optional
 from nozomi.ancillary.configuration import Configuration
-from nozomi.http.status_code import HTTPStatusCode
 import hmac
 
 T = TypeVar('T', bound='Session')
 
 
-class Session(AbstractSession, Encodable):
+class Session(Encodable, Decodable, Agent):
 
-    _Q_DELETE = Query.optionally_from_file('queries/session/delete.sql')
-    _Q_RETRIEVE = Query.optionally_from_file('queries/session/retrieve.sql')
-    _Q_CREATE = Query.optionally_from_file('queries/session/create.sql')
+    _Q_DELETE: Query.optionally_from_file('queries/session/delete.sql')
+    _Q_RETRIEVE: Query.optionally_from_file('queries/session/retrieve.sql')
+    _Q_CREATE: Query.optionally_from_file('queries/session/create.sql')
 
     def __init__(
         self,
@@ -66,19 +65,16 @@ class Session(AbstractSession, Encodable):
 
         return
 
-    session_id: str = Immutable(lambda s: s._session_id)
+    session_id: int = Immutable(lambda s: s._session_id)
     session_key: str = Immutable(lambda s: s._session_key)
-    agent: Agent = Immutable(lambda s: s._agent)
+    agent: Agent = Immutable(lambda s: s._human)
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
 
-    agent_id = Immutable(lambda s: s._agent.agent_id)
+    agent_id = Immutable(lambda s: s._human.agent_id)
 
-    Q_RETRIEVE = Immutable(lambda s: s._load_query(s._Q_RETRIEVE))
-    Q_CREATE = Immutable(lambda s: s._load_query(s._Q_CREATE))
-    Q_DELETE = Immutable(lambda s: s._load_query(s._Q_DELETE))
-
-    def _load_query(self, query: Optional[Query]) -> Query:
+    @classmethod
+    def _load_query(cls: Type[T], query: Optional[Query]) -> Query:
         if query is None:
             raise NotImplementedError('A required SQL query is not implemented')
         return query
@@ -113,7 +109,8 @@ class Session(AbstractSession, Encodable):
             'session_id': self._session_id,
             'seconds_to_live': configuration.session_seconds_to_live
         }
-        self.Q_DELETE.execute(datastore, arguments, atomic=True)
+        query = self._load_query(self._Q_DELETE)
+        query.execute(datastore, arguments, atomic=True)
         return None
 
     def encode(self) -> Dict[str, Any]:
@@ -122,7 +119,7 @@ class Session(AbstractSession, Encodable):
             'session_id': self._session_id,
             'session_key': self._session_key,
             'api_key': self._api_key,
-            'agent': {'agent_id': self._agent.agent_id},
+            'human': self._human.broadcast_to(self._human),
             'created': self._created.encode(),
             'last_utilised': self._last_utilised.encode(),
             'ip_address': self._ip_address.encode(),
@@ -147,16 +144,15 @@ class Session(AbstractSession, Encodable):
         if request_may_change_state is False:
             session = cls.from_cookies_in_headers(
                 headers=headers,
-                datastore=datastore,
                 configuration=configuration,
                 request_may_change_state=request_may_change_state
             )
             if session is not None:
                 return session
-        credentials = Credentials.from_headers(headers, configuration)
+        credentials = Credentials.from_headers(headers)
         if credentials is None:
             return None
-        session = cls.retrieve(credentials.session_id, datastore, configuration)
+        session = cls.retrieve(credentials.session_id, datastore)
         if session is None:
             return None
         if not session._finds_api_key_authentic(credentials.api_key):
@@ -183,15 +179,18 @@ class Session(AbstractSession, Encodable):
         cookies = Cookies.from_headers(headers)
         if cookies is None:
             return None
-        session_id = cookies.value_for(configuration.session_id_name)
-        if session_id is None:
+        if not cookies.contains(configuration.session_id_name):
             return None
         if not cookies.contains(configuration.session_cookie_key_name):
             return None
+        session_id = cookies.value_for(configuration.session_id_name)
+        try:
+            session_id = int(session_id)
+        except Exception:
+            return None
         session = cls.retrieve(
             session_id=session_id,
-            datastore=datastore,
-            configuration=configuration
+            datastore=datastore
         )
         if session is None:
             return None
@@ -217,10 +216,7 @@ class Session(AbstractSession, Encodable):
             request_may_change_state=True
         )
         if session is None:
-            raise NozomiError(
-                'Not authenticated',
-                HTTPStatusCode.NOT_AUTHENTICATED
-            )
+            raise NozomiError('Not authenticated', 401)
         return session
 
     @classmethod
@@ -237,18 +233,12 @@ class Session(AbstractSession, Encodable):
 
         secret = Secret.retrieve_for_email(provided_email, datastore)
         if secret is None:
-            raise NozomiError(
-                'Invalid credentials',
-                HTTPStatusCode.NOT_AUTHORISED
-            )
+            raise NozomiError('Invalid credentials', 401)
 
         secret_check = secret.matches(provided_plaintext_secret)
 
         if secret_check is False:
-            raise NozomiError(
-                'Invalid credentials',
-                HTTPStatusCode.NOT_AUTHORISED
-            )
+            raise NozomiError('Invalid credentials', 401)
 
         assert secret_check is True  # Redundant sanity check
 
@@ -261,13 +251,14 @@ class Session(AbstractSession, Encodable):
             'api_key': RandomNumber(192).urlsafe_base64,
             'email_address': provided_email,
             'ip_address': ip_address,
-            'agent_id': None,
+            'human_id': None,
             'seconds_to_live': configuration.session_seconds_to_live,
             'perspective': perspective.perspective_id
         }
 
+        query = cls._load_query(cls._Q_CREATE)
         try:
-            result = cls.Q_CREATE.execute(datastore, input_data)
+            result = query.execute(datastore, input_data)
         except Exception:
             datastore.rollback()
             raise
@@ -281,7 +272,6 @@ class Session(AbstractSession, Encodable):
         data: Any,
         ip_address: IpAddress,
         datastore: Datastore,
-        configuration: Configuration,
         perspective: Perspective
     ) -> T:
         """Return a newly minted Session"""
@@ -304,24 +294,28 @@ class Session(AbstractSession, Encodable):
             provided_plaintext_secret=provided_plaintext_secret,
             ip_address=ip_address,
             datastore=datastore,
-            perspective=perspective,
-            configuration=configuration
+            perspective=perspective
         )
 
     @classmethod
     def retrieve(
         cls: Type[T],
-        session_id: str,
+        session_id: int,
         datastore: Datastore,
-        configuration: Configuration
+        configuration: Configuration,
+        in_transaction: bool = False
     ) -> Optional[T]:
 
-        assert isinstance(session_id, str)
+        assert isinstance(session_id, int)
         arguments = {
             'session_id': session_id,
             'seconds_to_live': configuration.session_seconds_to_live
         }
-        result = cls.Q_RETRIEVE.execute(datastore, arguments)
+        result = cls._load_query(cls._Q_RETRIEVE).execute(
+            datastore,
+            arguments,
+            atomic=(not in_transaction)
+        )
         datastore.commit()
         if result is None:
             return None
