@@ -3,7 +3,6 @@ Nozomi
 Session Module
 author: hugh@blinkybeach.com
 """
-from datetime import datetime
 from nozomi.data.datastore import Datastore
 from nozomi.data.encodable import Encodable
 from nozomi.data.decodable import Decodable
@@ -14,7 +13,7 @@ from nozomi.errors.bad_request import BadRequest
 from nozomi.security.ip_address import IpAddress
 from nozomi.security.secret import Secret
 from nozomi.security.perspective import Perspective
-from nozomi.ancillary.time import NozomiTime
+from nozomi.temporal.time import NozomiTime
 from nozomi.ancillary.immutable import Immutable
 from nozomi.security.agent import Agent
 from nozomi.security.credentials import Credentials
@@ -39,13 +38,13 @@ class Session(Encodable, Decodable, Agent):
         session_key: str,
         api_key: str,
         agent: Agent,
-        created: datetime,
-        last_utilised: datetime,
+        created: NozomiTime,
+        last_utilised: NozomiTime,
         ip_address: IpAddress,
         perspective: Perspective
     ) -> None:
 
-        assert isinstance(session_id, int)
+        assert isinstance(session_id, str)
         assert isinstance(session_key, str)
         assert isinstance(api_key, str)
         assert isinstance(agent, Agent)
