@@ -3,7 +3,6 @@ Nozomi
 Open View Module
 author: hugh@blinkybeach.com
 """
-from nozomi.ancillary.immutable import Immutable
 from nozomi.rendering.view.base import BaseView
 from nozomi.http.headers import Headers
 from nozomi.rendering.context import Context
@@ -18,6 +17,9 @@ from nozomi.security.agent import Agent
 class OpenView(BaseView):
     """A view that supports optional authentication"""
 
+    session_implementation: Type[AbstractSession] = NotImplemented
+    requests_may_change_state: bool = NotImplemented
+
     def __init__(
         self,
         configuration: Configuration,
@@ -28,15 +30,13 @@ class OpenView(BaseView):
         styles: List[str],
         scripts: List[str],
         classes: List[str],
-        session_implementation: Type[AbstractSession],
         open_graph: Optional[OpenGraph] = None,
         static_variables: Optional[Dict[str, Any]] = None,
-        static_js_constants: Optional[Dict[str, Any]] = None,
-        requests_may_change_state: bool = False
+        static_js_constants: Optional[Dict[str, Any]] = None
     ) -> None:
 
-        self._requests_may_change_state = requests_may_change_state
-        self._session_implementation = session_implementation
+        assert isinstance(self.session_implementation, type)
+        assert isinstance(self.requests_may_change_state, bool)
 
         super().__init__(
             configuration=configuration,
@@ -53,11 +53,6 @@ class OpenView(BaseView):
         )
 
         return
-
-    requests_may_change_state = Immutable(
-        lambda s: s._requests_may_change_state
-    )
-    session_implementation = Immutable(lambda s: s._session_implementation)
 
     def compute_response(
         self,
@@ -77,7 +72,7 @@ class OpenView(BaseView):
         query: Optional[QueryString]
     ) -> str:
 
-        session = self._session_implementation.from_headers(
+        session = self.session_implementation.from_headers(
             headers=headers,
             configuration=self.configuration,
             request_may_change_state=self.requests_may_change_state

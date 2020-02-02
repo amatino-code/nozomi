@@ -12,7 +12,6 @@ from nozomi.data.encodable import Encodable
 from typing import Optional, List, Union, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.data.datastore import Datastore
-from nozomi.ancillary.immutable import Immutable
 from nozomi.ancillary.configuration import Configuration
 
 
@@ -23,6 +22,9 @@ class OpenResource(Resource):
     page that may be served differently depending on whether a user is logged in
     or not.
     """
+
+    session_implementation: Type[AbstractSession] = NotImplemented
+    requests_may_change_state: bool = NotImplemented
 
     def __init__(
         self,
@@ -36,13 +38,9 @@ class OpenResource(Resource):
             datastore=datastore,
             configuration=configuration
         )
-        self._session_implementation = session_implementation
-        self._requests_may_change_state = requests_may_change_state
+        assert isinstance(self.session_implementation, type)
+        assert isinstance(self.requests_may_change_state, bool)
         return
-
-    requests_may_change_state: bool = Immutable(
-        lambda s: s._requests_may_change_state
-    )
 
     def compute_response(
         self,

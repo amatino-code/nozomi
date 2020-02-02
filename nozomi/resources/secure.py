@@ -33,18 +33,19 @@ class SecureResource(Resource):
     Machine Agent.
     """
 
+    session_implementation: Type[AbstractSession] = NotImplemented
+    requests_may_change_state: bool = NotImplemented
+    allowed_perspectives: Set[Perspective] = NotImplemented
+
     def __init__(
         self,
         datastore: Datastore,
-        configuration: Configuration,
-        session_implementation: Type[AbstractSession],
-        requests_may_change_state: bool = False
+        configuration: Configuration
     ) -> None:
 
         super().__init__(
             datastore=datastore,
-            configuration=configuration,
-            requests_may_change_state=requests_may_change_state
+            configuration=configuration
         )
         if not isinstance(self.allowed_perspectives, set):
             raise NotImplementedError('Implement .allowed_perspectives')
@@ -52,10 +53,10 @@ class SecureResource(Resource):
             isinstance(p, Perspective) for p in self.allowed_perspectives
         ]:
             raise TypeError('.allowed_perspectives must be Set[Perspective]')
-        self._session_implementation = session_implementation
-        return
 
-    allowed_perspectives: Set[Perspective] = NotImplemented
+        assert isinstance(self.session_implementation, type)
+        assert isinstance(self.requests_may_change_state, bool)
+        return
 
     def compute_response(
         self,
@@ -75,7 +76,7 @@ class SecureResource(Resource):
         session: Session = None
     ) -> str:
 
-        SessionImplementation = self._session_implementation
+        SessionImplementation = self.session_implementation
 
         if session is None:
             session = SessionImplementation.from_headers(
