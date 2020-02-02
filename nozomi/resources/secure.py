@@ -12,12 +12,12 @@ from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString
 from nozomi.http.headers import Headers
-from nozomi.security.internal_key import InternalKey
 from nozomi.security.perspective import Perspective
 from nozomi.security.forwarded_agent import ForwardedAgent
 from nozomi.security.protected import Protected
 from nozomi.data.encodable import Encodable
 from typing import Optional, Tuple, Set
+from nozomi.ancillary.configuration import Configuration
 
 
 class SecureResource(Resource):
@@ -35,20 +35,21 @@ class SecureResource(Resource):
     def __init__(
         self,
         datastore: Datastore,
-        debug: bool = False,
-        internal_key: InternalKey = None
+        configuration: Configuration,
+        requests_may_change_state: bool = False
     ) -> None:
-        assert isinstance(debug, bool)
-        super().__init__(datastore, debug)
+
+        super().__init__(
+            datastore=datastore,
+            configuration=configuration,
+            requests_may_change_state=requests_may_change_state
+        )
         if not isinstance(self.allowed_perspectives, set):
             raise NotImplementedError('Implement .allowed_perspectives')
         if False in [
             isinstance(p, Perspective) for p in self.allowed_perspectives
         ]:
             raise TypeError('.allowed_perspectives must be Set[Perspective]')
-        if internal_key is not None:
-            assert isinstance(internal_key, InternalKey)
-        self._internal_key = internal_key
         return
 
     allowed_perspectives: Set[Perspective] = NotImplemented
@@ -71,8 +72,10 @@ class SecureResource(Resource):
         session: Session = None
     ) -> str:
 
+        SessionImplementation = self.configuration.session_implementation
+
         if session is None:
-            session = Session.from_headers(
+            session = SessionImplementation.from_headers(
                 headers,
                 self.datastore
             )
@@ -82,12 +85,12 @@ class SecureResource(Resource):
             ):
                 raise NotAuthorised
 
-        if session is None and self._internal_key is None:
+        if session is None and self.configuration.internal_key is None:
             raise NotAuthorised
 
         if session is None:
             unauthorised_agent = ForwardedAgent.from_headers(
-                internal_key=self._internal_key,
+                internal_key=self.configuration.internal_key,
                 headers=headers,
                 datastore=self.datastore,
                 configuration=self.configuration

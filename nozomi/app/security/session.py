@@ -3,6 +3,7 @@ Nozomi
 App Session Module
 author: hugh@blinkybeach.com
 """
+from nozomi.security.abstract_session import AbstractSession
 from nozomi.http.headers import Headers
 from nozomi.ancillary.immutable import Immutable
 from nozomi.ancillary.configuration import Configuration
@@ -21,12 +22,11 @@ from typing import Optional, TypeVar, Type, Any
 import hmac
 from nozomi.security.agent import Agent
 from nozomi.security.machine_agent import MACHINE_AGENT
-from nozomi.data.decodable import Decodable
 
 T = TypeVar('T', bound='Session')
 
 
-class Session(Decodable, Agent):
+class Session(AbstractSession):
 
     def __init__(
         self,

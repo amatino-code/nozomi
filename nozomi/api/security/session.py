@@ -3,10 +3,10 @@ Nozomi
 Session Module
 author: hugh@blinkybeach.com
 """
+from nozomi.security.abstract_session import AbstractSession
+from nozomi.data.encodable import Encodable
 from datetime import datetime
 from nozomi.data.datastore import Datastore
-from nozomi.data.encodable import Encodable
-from nozomi.data.decodable import Decodable
 from nozomi.data.query import Query
 from nozomi.security.random_number import RandomNumber
 from nozomi.errors.error import NozomiError
@@ -28,7 +28,7 @@ import hmac
 T = TypeVar('T', bound='Session')
 
 
-class Session(Encodable, Decodable, Agent):
+class Session(AbstractSession, Encodable):
 
     _Q_DELETE = Query.optionally_from_file('queries/session/delete.sql')
     _Q_RETRIEVE = Query.optionally_from_file('queries/session/retrieve.sql')
@@ -66,7 +66,7 @@ class Session(Encodable, Decodable, Agent):
 
         return
 
-    session_id: int = Immutable(lambda s: s._session_id)
+    session_id: str = Immutable(lambda s: s._session_id)
     session_key: str = Immutable(lambda s: s._session_key)
     agent: Agent = Immutable(lambda s: s._agent)
     perspective: Perspective = Immutable(lambda s: s._perspective)

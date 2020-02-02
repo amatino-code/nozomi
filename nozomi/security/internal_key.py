@@ -3,22 +3,32 @@ Nozomi
 Internal Key Module
 Copyright Amatino Pty Ltd
 """
+import hmac
 from nozomi.http.headers import Headers
 
 
 class InternalKey:
     """
-    Abstract protocol defining the behaviour of a key authenticating requests
-    from internal applications.
+    Default implementation of a key authenticating requests from internal
+    applications.
     """
-    HEADER_KEY = NotImplemented
+    def __init__(
+        self,
+        key: str,
+        header_key: str
+    ) -> None:
+
+        self._key = key
+        self._header_key = header_key
+
+        return
 
     def matches_headers(self, headers: Headers) -> bool:
         """
         Return true if the supplied headers authenticate a request as
         coming from an internal application.
         """
-        credential = headers.value_for(self.HEADER_KEY)
+        credential = headers.value_for(self._header_key)
         if credential is None:
             return False
         return self.matches(credential)
@@ -28,4 +38,4 @@ class InternalKey:
         Return true if the supplied credential authenticates a request
         as coming from an internal application.
         """
-        raise NotImplementedError
+        return hmac.compare_digest(credential, self._key)

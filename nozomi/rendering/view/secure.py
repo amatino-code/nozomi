@@ -37,7 +37,9 @@ class SecureView(BaseView, ConsidersPerspective):
         query: Optional[QueryString],
     ) -> str:
 
-        session = Session.require_from_headers(
+        SessionImplementation = self.configuration.session_implementation
+
+        session = SessionImplementation.require_from_headers(
             headers=headers,
             configuration=self.configuration,
             signin_path=None

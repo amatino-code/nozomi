@@ -3,8 +3,10 @@ Nozomi
 Configuration Module
 author: hugh@blinkybeach.com
 """
-from typing import List
 from nozomi.ancillary.database_credentials import DatabaseCredentials
+from typing import Type, Optional, List
+from nozomi.security.abstract_session import AbstractSession
+from nozomi.security.internal_key import InternalKey
 
 
 class Configuration:
@@ -16,13 +18,17 @@ class Configuration:
     debug: bool = NotImplemented
     api_endpoint: str = NotImplemented
 
+    # Sessions
+
+    session_implementation: Type[AbstractSession] = NotImplemented
+
     session_seconds_to_live: int = NotImplemented
     session_api_key_name: str = NotImplemented
     session_cookie_key_name: str = NotImplemented
     session_id_name: str = NotImplemented
 
     internal_psk_header: str = NotImplemented
-    internal_psk: str = NotImplemented
+    internal_psk: Optional[InternalKey] = NotImplemented
 
     forwarded_agent_header: str = NotImplemented
 
