@@ -43,7 +43,8 @@ class Secret:
         s._Q_RETRIEVE_BY_EMAIL
     ))
 
-    def _load_query(self, query: Optional[Query]) -> Query:
+    @classmethod
+    def _load_query(cls: Type[T], query: Optional[Query]) -> Query:
         if query is None:
             raise NotImplementedError('A required SQL query is not implemented')
         return query
@@ -106,8 +107,9 @@ class Secret:
         assert isinstance(datastore, Datastore)
         assert isinstance(email, str)
 
-        arguments = {'email_address': email}
-        result = cls.Q_RETRIEVE_BY_EMAIL.execute(datastore, arguments)
+        arguments = {'email_address': email.lower()}
+        query = cls._load_query(cls._Q_RETRIEVE_BY_EMAIL)
+        result = query.execute(datastore, arguments)
         if result is None:
             return None
 

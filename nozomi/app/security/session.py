@@ -1,41 +1,47 @@
 """
 Nozomi
-App Session Module
+Session Module
 author: hugh@blinkybeach.com
 """
-from nozomi.security.abstract_session import AbstractSession
-from nozomi.http.headers import Headers
-from nozomi.ancillary.immutable import Immutable
-from nozomi.ancillary.configuration import Configuration
-from nozomi.security.cookies import Cookies
+from datetime import datetime
+from nozomi.data.datastore import Datastore
+from nozomi.data.encodable import Encodable
+from nozomi.data.decodable import Decodable
+from nozomi.data.query import Query
+from nozomi.security.random_number import RandomNumber
+from nozomi.errors.error import NozomiError
+from nozomi.errors.bad_request import BadRequest
+from nozomi.security.ip_address import IpAddress
+from nozomi.security.secret import Secret
 from nozomi.security.perspective import Perspective
-from nozomi.http.redirect import Redirect
-from nozomi.http.api_request import ApiRequest
-from nozomi.security.standalone_agent import StandaloneAgent
-from nozomi.temporal.time import NozomiTime
-from nozomi.http.method import HTTPMethod
-from nozomi.http.url_parameters import URLParameters
-from nozomi.http.url_parameter import URLParameter
-from nozomi.errors.not_authenticated import NotAuthenticated
-from urllib.request import HTTPError
-from typing import Optional, TypeVar, Type, Any
-import hmac
+from nozomi.ancillary.time import NozomiTime
+from nozomi.ancillary.immutable import Immutable
 from nozomi.security.agent import Agent
-from nozomi.security.machine_agent import MACHINE_AGENT
+from nozomi.security.credentials import Credentials
+from nozomi.security.cookies import Cookies
+from nozomi.http.headers import Headers
+from typing import Any, Dict, TypeVar, Type, Optional
+from nozomi.ancillary.configuration import Configuration
+import hmac
 
 T = TypeVar('T', bound='Session')
 
 
-class Session(AbstractSession):
+class Session(Encodable, Decodable, Agent):
+
+    _Q_DELETE: Query.optionally_from_file('queries/session/delete.sql')
+    _Q_RETRIEVE: Query.optionally_from_file('queries/session/retrieve.sql')
+    _Q_CREATE: Query.optionally_from_file('queries/session/create.sql')
 
     def __init__(
         self,
-        session_id: int,
+        session_id: str,
         session_key: str,
         api_key: str,
         agent: Agent,
-        created: NozomiTime,
-        last_utilised: NozomiTime,
+        created: datetime,
+        last_utilised: datetime,
+        ip_address: IpAddress,
         perspective: Perspective
     ) -> None:
 
@@ -45,6 +51,7 @@ class Session(AbstractSession):
         assert isinstance(agent, Agent)
         assert isinstance(created, NozomiTime)
         assert isinstance(last_utilised, NozomiTime)
+        assert isinstance(ip_address, IpAddress)
         assert isinstance(perspective, Perspective)
 
         self._session_id = session_id
@@ -53,172 +60,263 @@ class Session(AbstractSession):
         self._agent = agent
         self._created = created
         self._last_utilised = last_utilised
+        self._ip_address = ip_address
         self._perspective = perspective
 
         return
 
-    agent: Agent = Immutable(lambda s: s._agent)
+    session_id: int = Immutable(lambda s: s._session_id)
+    session_key: str = Immutable(lambda s: s._session_key)
+    agent: Agent = Immutable(lambda s: s._human)
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
-    session_id: int = Immutable(lambda s: s._session_id)
 
-    agent_id = Immutable(lambda s: s.agent.agent_id)
+    agent_id = Immutable(lambda s: s._human.agent_id)
 
-    def _authenticate_raw_credentials(self, key: str) -> bool:
-        """Return True if supplied credentials are authentic"""
-        assert isinstance(key, str)
-        key_comparison = hmac.compare_digest(key, self._session_key)
-        assert isinstance(key_comparison, bool)
-        if key_comparison is False:
-            return key_comparison
-        assert key == self._session_key
-        return True
+    @classmethod
+    def _load_query(cls: Type[T], query: Optional[Query]) -> Query:
+        if query is None:
+            raise NotImplementedError('A required SQL query is not implemented')
+        return query
 
-    def _authenticate_headers(
+    def _finds_api_key_authentic(
         self,
-        headers: Headers,
-        configuration: Configuration
+        api_key: str
     ) -> bool:
-        """Return True if credentials derived from Hedaers are authentic"""
-        cookies = self._cookies_from_headers(headers, configuration)
-        if cookies is None:
-            return False
-        supplied_id = cookies.value_for(configuration.session_id_name)
-        supplied_key = cookies.value_for(configuration.session_cookie_key_name)
-        if supplied_id != self._session_id:
-            return False
-        return self._authenticate_raw_credentials(supplied_key)
+        """Return True if supplied credentials are authentic"""
+        assert isinstance(api_key, str)
+        key_comparison = hmac.compare_digest(api_key, self._api_key)
+        assert isinstance(key_comparison, bool)
+        return key_comparison
+
+    def _finds_session_key_authentic(
+        self,
+        session_key: str
+    ) -> bool:
+        """Return True if supplied cookie session key is authentic"""
+        assert isinstance(session_key, str)
+        key_comparison = hmac.compare_digest(session_key, self._session_key)
+        assert isinstance(key_comparison, bool)
+        return key_comparison
 
     def delete(
         self,
-        on_behalf_of: Agent,
-        configuration: Configuration
+        configuration: Configuration,
+        datastore: Datastore
     ) -> None:
-        """Delete this Session, AKA logout the user"""
-        target = URLParameter('session_id', str(self._session_id))
-        parameters = URLParameters([target])
-
-        ApiRequest(
-            path='/internal/session',
-            method=HTTPMethod.DELETE,
-            configuration=configuration,
-            on_behalf_of_agent=on_behalf_of,
-            data=None,
-            url_parameters=parameters
-        )
+        """Return after deleting this Session."""
+        arguments = {
+            'session_id': self._session_id,
+            'seconds_to_live': configuration.session_seconds_to_live
+        }
+        query = self._load_query(self._Q_DELETE)
+        query.execute(datastore, arguments, atomic=True)
         return None
 
-    @classmethod
-    def retrieve(
-        cls: Type[T],
-        session_id: int,
-        on_behalf_of: Agent,
-        configuration: Configuration
-    ) -> Optional[T]:
-        """Return a Session with the given Session ID, if it exists"""
+    def encode(self) -> Dict[str, Any]:
 
-        assert isinstance(session_id, int)
-
-        target = URLParameter('session_id', str(session_id))
-        parameters = URLParameters([target])
-
-        request = ApiRequest(
-            path='/internal/session',
-            method=HTTPMethod.GET,
-            configuration=configuration,
-            on_behalf_of_agent=on_behalf_of,
-            data=None,
-            url_parameters=parameters
-        )
-
-        if request.response_data is None:
-            return None
-
-        return cls.decode(request.response_data)
-
-    @classmethod
-    def decode(cls: Type[T], data: Any) -> T:
-        """Return a Session decoded from API response data"""
-
-        return cls(
-            data['session_id'],
-            data['session_key'],
-            data['api_key'],
-            StandaloneAgent.decode(data['agent']),
-            NozomiTime.decode(data['created']),
-            NozomiTime.decode(data['last_utilised']),
-            Perspective(data['perspective'])
-        )
+        return {
+            'session_id': self._session_id,
+            'session_key': self._session_key,
+            'api_key': self._api_key,
+            'human': self._human.broadcast_to(self._human),
+            'created': self._created.encode(),
+            'last_utilised': self._last_utilised.encode(),
+            'ip_address': self._ip_address.encode(),
+            'perspective': self._perspective.value
+        }
 
     @classmethod
     def from_headers(
         cls: Type[T],
-        headers: Headers,
-        configuration: Configuration
+        headers: Optional[Headers],
+        datastore: Datastore,
+        configuration: Configuration,
+        request_may_change_state: bool = True
     ) -> Optional[T]:
         """
-        Return a Session parsed from supplied headers, or None if no
-        Session can be parsed.
+        Return a Session parsed from Headers, if it exists and supplied credentials
+        are authentic
         """
-        cookies = cls._cookies_from_headers(headers, configuration)
-        if cookies is None:
+        assert isinstance(request_may_change_state, bool)
+        if headers is None:
             return None
-
-        session_id = int(cookies.value_for(configuration.session_id_name))
-        try:
-            session = cls.retrieve(
-                session_id=session_id,
+        if request_may_change_state is False:
+            session = cls.from_cookies_in_headers(
+                headers=headers,
                 configuration=configuration,
-                on_behalf_of=MACHINE_AGENT
+                request_may_change_state=request_may_change_state
             )
-        except HTTPError as error:
-            if error.code == 404:
-                return None
-            raise
+            if session is not None:
+                return session
+        credentials = Credentials.from_headers(headers)
+        if credentials is None:
+            return None
+        session = cls.retrieve(credentials.session_id, datastore)
         if session is None:
             return None
-
-        if not session._authenticate_headers(headers, configuration):
+        if not session._finds_api_key_authentic(credentials.api_key):
             return None
+        return session
 
+    @classmethod
+    def from_cookies_in_headers(
+        cls: Type[T],
+        headers: Headers,
+        datastore: Datastore,
+        configuration: Configuration,
+        request_may_change_state: bool = True
+    ) -> Optional[T]:
+        """
+        Return a Session parsed from the cookies found in Headers. To provide
+        defense against accidental use of cookie authentication for
+        state-changing requests, i.e. accidental introduction of a CSRF
+        vulnerability, this method requires the caller to assert that state
+        change does not occur.
+        """
+        if request_may_change_state is True:
+            raise RuntimeError('Cannot auth with cookies if state may change')
+        cookies = Cookies.from_headers(headers)
+        if cookies is None:
+            return None
+        if not cookies.contains(configuration.session_id_name):
+            return None
+        if not cookies.contains(configuration.session_cookie_key_name):
+            return None
+        session_id = cookies.value_for(configuration.session_id_name)
+        try:
+            session_id = int(session_id)
+        except Exception:
+            return None
+        session = cls.retrieve(
+            session_id=session_id,
+            datastore=datastore
+        )
+        if session is None:
+            return None
+        session_key = cookies.value_for(configuration.session_cookie_key_name)
+        if not isinstance(session_key, str):
+            return None
+        if not session._finds_session_key_authentic(session_key):
+            return None
         return session
 
     @classmethod
     def require_from_headers(
         cls: Type[T],
-        headers: Headers,
+        headers: Optional[Headers],
+        datastore: Datastore,
         configuration: Configuration,
-        signin_path: Optional[str] = None
+        request_may_change_state: bool = True
     ) -> T:
-        """
-        Return a Session parsed from supplied headers, or redirect to the login
-        page if the user is not authenticated. Optionally supply a signin path
-        to which the user should be redirected if a Session is not available.
-        By default the user will be redirected to business signin.
-        """
-        session = cls.from_headers(headers, configuration)
+        session = cls.from_headers(
+            headers=headers,
+            datastore=datastore,
+            configuration=configuration,
+            request_may_change_state=True
+        )
         if session is None:
-            if signin_path is None:
-                raise NotAuthenticated
-            raise Redirect(signin_path)
+            raise NozomiError('Not authenticated', 401)
         return session
 
     @classmethod
-    def _cookies_from_headers(
+    def create(
         cls: Type[T],
-        headers: Headers,
+        provided_email: str,
+        provided_plaintext_secret: str,
+        ip_address: IpAddress,
+        datastore: Datastore,
+        perspective: Perspective,
         configuration: Configuration
-    ) -> Optional[Cookies]:
-        """
-        Return Cookies if Headers appear to contain credentials, but make no
-        judgement as to whether those credentials are authentic.
-        """
-        cookies = Cookies.from_headers(headers)
-        if cookies is None:
+    ) -> T:
+        """Return a newly minted Session"""
+
+        secret = Secret.retrieve_for_email(provided_email, datastore)
+        if secret is None:
+            raise NozomiError('Invalid credentials', 401)
+
+        secret_check = secret.matches(provided_plaintext_secret)
+
+        if secret_check is False:
+            raise NozomiError('Invalid credentials', 401)
+
+        assert secret_check is True  # Redundant sanity check
+
+        # There is currently a race condition between any Human Profile
+        # email change and Session creation.
+
+        input_data = {
+            'session_id': RandomNumber(64).urlsafe_base64,
+            'session_key': RandomNumber(192).urlsafe_base64,
+            'api_key': RandomNumber(192).urlsafe_base64,
+            'email_address': provided_email,
+            'ip_address': ip_address,
+            'human_id': None,
+            'seconds_to_live': configuration.session_seconds_to_live,
+            'perspective': perspective.perspective_id
+        }
+
+        query = cls._load_query(cls._Q_CREATE)
+        try:
+            result = query.execute(datastore, input_data)
+        except Exception:
+            datastore.rollback()
+            raise
+        datastore.commit()
+
+        return cls.decode(result)
+
+    @classmethod
+    def create_with_request_data(
+        cls: Type[T],
+        data: Any,
+        ip_address: IpAddress,
+        datastore: Datastore,
+        perspective: Perspective
+    ) -> T:
+        """Return a newly minted Session"""
+
+        assert isinstance(ip_address, IpAddress)
+        assert isinstance(perspective, Perspective)
+
+        if not isinstance(data, dict):
+            raise BadRequest('Expected a key/value object (dict)')
+
+        try:
+            provided_plaintext_secret = data['secret']
+            provided_email = data['email']
+        except KeyError as error:
+            raise BadRequest('Missing key ')
+            raise NozomiError('Missing key ' + str(error.args[0]), 400)
+
+        return cls.create(
+            provided_email=provided_email,
+            provided_plaintext_secret=provided_plaintext_secret,
+            ip_address=ip_address,
+            datastore=datastore,
+            perspective=perspective
+        )
+
+    @classmethod
+    def retrieve(
+        cls: Type[T],
+        session_id: int,
+        datastore: Datastore,
+        configuration: Configuration,
+        in_transaction: bool = False
+    ) -> Optional[T]:
+
+        assert isinstance(session_id, int)
+        arguments = {
+            'session_id': session_id,
+            'seconds_to_live': configuration.session_seconds_to_live
+        }
+        result = cls._load_query(cls._Q_RETRIEVE).execute(
+            datastore,
+            arguments,
+            atomic=(not in_transaction)
+        )
+        datastore.commit()
+        if result is None:
             return None
-        if (
-                not cookies.contains(configuration.session_id_name)
-                or not cookies.contains(configuration.session_cookie_key_name)
-        ):
-            return None
-        return cookies
+        return cls.decode(result)
