@@ -67,11 +67,11 @@ class Session(Encodable, Decodable, Agent):
 
     session_id: int = Immutable(lambda s: s._session_id)
     session_key: str = Immutable(lambda s: s._session_key)
-    agent: Agent = Immutable(lambda s: s._human)
+    agent: Agent = Immutable(lambda s: s._agent)
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
 
-    agent_id = Immutable(lambda s: s._human.agent_id)
+    agent_id = Immutable(lambda s: s._agent.agent_id)
 
     @classmethod
     def _load_query(cls: Type[T], query: Optional[Query]) -> Query:
@@ -119,7 +119,7 @@ class Session(Encodable, Decodable, Agent):
             'session_id': self._session_id,
             'session_key': self._session_key,
             'api_key': self._api_key,
-            'agent_id': self._human.broadcast_to(self._human),
+            'agent_id': self._agent.agent_id,
             'created': self._created.encode(),
             'last_utilised': self._last_utilised.encode(),
             'ip_address': self._ip_address.encode(),
