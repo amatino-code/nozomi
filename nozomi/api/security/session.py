@@ -3,6 +3,7 @@ Nozomi
 Session Module
 author: hugh@blinkybeach.com
 """
+from datetime import datetime
 from nozomi.data.datastore import Datastore
 from nozomi.data.encodable import Encodable
 from nozomi.data.decodable import Decodable
@@ -297,13 +298,13 @@ class Session(Encodable, Decodable, Agent):
     @classmethod
     def retrieve(
         cls: Type[T],
-        session_id: int,
+        session_id: str,
         datastore: Datastore,
         configuration: Configuration,
         in_transaction: bool = False
     ) -> Optional[T]:
 
-        assert isinstance(session_id, int)
+        assert isinstance(session_id, str)
         arguments = {
             'session_id': session_id,
             'seconds_to_live': configuration.session_seconds_to_live
