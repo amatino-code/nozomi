@@ -70,6 +70,7 @@ from nozomi.security.secret import Secret
 from nozomi.security.cors_policy import CORSPolicy
 from nozomi.security.access_control import AccessControl
 from nozomi.security.cookie_headers import CookieHeaders
+from nozomi.security.abstract_session import AbstractSession
 
 from nozomi import api
 from nozomi import app

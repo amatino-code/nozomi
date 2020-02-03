@@ -7,7 +7,6 @@ from typing import Any, Union, List
 from nozomi.errors.not_authorised import NotAuthorised
 from nozomi.data.datastore import Datastore
 from nozomi.security.broadcastable import Broadcastable
-from nozomi.api.security.session import Session
 from nozomi.security.agent import Agent
 from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString
@@ -73,7 +72,7 @@ class SecureResource(Resource):
         headers: Headers,
         query: Optional[QueryString],
         request_data: Optional[Any],
-        session: Session = None
+        session: AbstractSession = None
     ) -> str:
 
         SessionImplementation = self.session_implementation
