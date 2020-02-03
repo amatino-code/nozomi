@@ -6,6 +6,7 @@ Copyright Amatino Pty Ltd
 from typing import Optional, List
 from collections.abc import Mapping
 from nozomi.errors.error import NozomiError
+from nozomi.ancillary.immutable import Immutable
 from nozomi.http.status_code import HTTPStatusCode
 
 
@@ -18,6 +19,8 @@ class Headers:
     def __init__(self, raw: Mapping = {}) -> None:
         self._raw = raw
         return
+
+    dictionary = Immutable(lambda s: s._raw)
 
     def value_for(self, key: str) -> Optional[str]:
         """

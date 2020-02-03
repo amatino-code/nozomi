@@ -5,6 +5,8 @@ author: hugh@blinkybeach.com
 """
 from nozomi.http.headers import Headers
 from nozomi.security.abstract_session import AbstractSession as Session
+from nozomi.ancillary.configuration import Configuration
+from nozomi.ancillary.immutable import Immutable
 from typing import Optional
 
 
@@ -16,12 +18,13 @@ class CookieHeaders(Headers):
     def __init__(
         self,
         session: Session,
-        existing: Optional[Headers] = None,
-        debug: bool = False
+        configuration: Configuration,
+        existing: Optional[Headers] = None
     ) -> None:
 
         assert isinstance(session, Session)
-        assert isinstance(debug, bool)
+        self._debug = configuration.debug
+        self._configuration = configuration
         self._session = session
 
         headers = Headers()
@@ -29,20 +32,26 @@ class CookieHeaders(Headers):
             assert isinstance(existing, Headers)
             headers = existing
 
-        headers.add('Set-Cookie', self._generate_session_cookie(debug))
-        headers.add('Set-Cookie', self._generate_key_cookie(debug))
+        headers.add('Set-Cookie', self._generate_session_cookie(self._debug))
+        headers.add('Set-Cookie', self._generate_key_cookie(self._debug))
+
+        self._raw = headers.dictionary
 
         super().__init__(headers)
         return
 
+    dictionary = Immutable(lambda s: s._raw.dictionary)
+
     def _generate_session_cookie(self, debug: bool = False) -> str:
         """Return a set cookie string"""
-        cookie = Session.ID_NAME + '=' + str(self._session.session_id)
+        id_name = self._configuration.session_id_name
+        cookie = id_name + '=' + str(self._session.session_id)
         cookie += self._cookie_options(debug)
         return cookie
 
     def _generate_key_cookie(self, debug: bool = False) -> str:
-        cookie = Session.KEY_NAME + '=' + str(self._session.session_key)
+        key_name = self._configuration.session_cookie_key_name
+        cookie = key_name + '=' + str(self._session.session_key)
         cookie += self._cookie_options(debug)
         return cookie
 
