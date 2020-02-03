@@ -156,17 +156,22 @@ class Session(AbstractSession):
     def from_headers(
         cls: Type[T],
         headers: Headers,
-        configuration: Configuration
+        configuration: Configuration,
+        request_may_change_state: Optional[Any] = True
     ) -> Optional[T]:
         """
         Return a Session parsed from supplied headers, or None if no
         Session can be parsed.
         """
+
+        if request_may_change_state is True:
+            raise NotImplementedError('Cannot change data state from a \
+Nozomi Application')
         cookies = cls._cookies_from_headers(headers, configuration)
         if cookies is None:
             return None
 
-        session_id = int(cookies.value_for(configuration.session_id_name))
+        session_id = cookies.value_for(configuration.session_id_name)
         try:
             session = cls.retrieve(
                 session_id=session_id,
