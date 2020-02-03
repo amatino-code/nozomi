@@ -8,7 +8,7 @@ from nozomi.data.datastore import Datastore
 from nozomi.data.query import Query
 from nozomi.ancillary.immutable import Immutable
 from nozomi.errors.not_found import NotFound
-from typing import Type, TypeVar, Any, Optional
+from typing import Type, TypeVar, Any, Optional, Union
 
 T = TypeVar('T', bound='StandaloneAgent')
 
@@ -25,10 +25,10 @@ class StandaloneAgent(Agent):
 
     def __init__(
         self,
-        agent_id: int
+        agent_id: Union[int, str]
     ) -> None:
 
-        assert isinstance(agent_id, int)
+        assert isinstance(agent_id, int) or isinstance(agent_id, str)
         self._agent_id = agent_id
 
         return

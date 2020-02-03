@@ -28,6 +28,8 @@ T = TypeVar('T', bound='Session')
 
 class Session(AbstractSession):
 
+    API_PATH: str = NotImplemented
+
     def __init__(
         self,
         session_id: int,
@@ -99,7 +101,7 @@ class Session(AbstractSession):
         parameters = URLParameters([target])
 
         ApiRequest(
-            path='/internal/session',
+            path=self.API_PATH,
             method=HTTPMethod.DELETE,
             configuration=configuration,
             on_behalf_of_agent=on_behalf_of,
@@ -123,7 +125,7 @@ class Session(AbstractSession):
         parameters = URLParameters([target])
 
         request = ApiRequest(
-            path='/internal/session',
+            path=cls.API_PATH,
             method=HTTPMethod.GET,
             configuration=configuration,
             on_behalf_of_agent=on_behalf_of,
@@ -144,7 +146,7 @@ class Session(AbstractSession):
             data['session_id'],
             data['session_key'],
             data['api_key'],
-            StandaloneAgent.decode(data['agent']),
+            StandaloneAgent.decode(data['agent_id']),
             NozomiTime.decode(data['created']),
             NozomiTime.decode(data['last_utilised']),
             Perspective(data['perspective'])

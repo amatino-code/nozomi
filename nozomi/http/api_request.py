@@ -37,7 +37,7 @@ class ApiRequest:
             url = url_parameters.add_to(url)
 
         headers = {
-            configuration.internal_psk_header: configuration.api_psk,
+            configuration.internal_psk_header: configuration.internal_psk,
             configuration.forwarded_agent_header: on_behalf_of_agent.agent_id
         }
 
