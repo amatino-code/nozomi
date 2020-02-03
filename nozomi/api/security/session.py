@@ -144,6 +144,7 @@ class Session(Encodable, Decodable, Agent):
         if request_may_change_state is False:
             session = cls.from_cookies_in_headers(
                 headers=headers,
+                datastore=datastore,
                 configuration=configuration,
                 request_may_change_state=request_may_change_state
             )
