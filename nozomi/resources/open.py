@@ -58,7 +58,7 @@ class OpenResource(Resource):
         headers: Headers
     ) -> str:
 
-        SessionImplementation = self._session_implementation
+        SessionImplementation = self.session_implementation
 
         session = SessionImplementation.from_headers(
             headers=headers,
