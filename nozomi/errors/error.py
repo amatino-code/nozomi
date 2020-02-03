@@ -8,7 +8,7 @@ from nozomi.http.status_code import HTTPStatusCode
 from collections.abc import Mapping
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.encodable import Encodable
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, Union
 import traceback
 
 
@@ -17,9 +17,16 @@ class NozomiError(Exception):
     def __init__(
         self,
         client_description: str,
-        http_status_code: HTTPStatusCode
+        http_status_code: Union[HTTPStatusCode, int, str]
     ) -> None:
+
         if not isinstance(http_status_code, HTTPStatusCode):
+
+            try:
+                http_status_code = HTTPStatusCode(int(http_status_code))
+            except Exception:
+                pass
+
             raise TypeError('status must be of type `HTTPStatusCode`')
 
         if not isinstance(client_description, str):
