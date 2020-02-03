@@ -30,8 +30,6 @@ class OpenResource(Resource):
         self,
         datastore: Datastore,
         configuration: Configuration,
-        session_implementation: Type[AbstractSession],
-        requests_may_change_state: bool = False
     ) -> None:
         assert isinstance(datastore, Datastore)
         super().__init__(
