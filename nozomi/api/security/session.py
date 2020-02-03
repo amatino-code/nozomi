@@ -150,7 +150,10 @@ class Session(Encodable, Decodable, Agent):
             )
             if session is not None:
                 return session
-        credentials = Credentials.from_headers(headers)
+        credentials = Credentials.from_headers(
+            headers=headers,
+            configuration=configuration
+        )
         if credentials is None:
             return None
         session = cls.retrieve(credentials.session_id, datastore)
