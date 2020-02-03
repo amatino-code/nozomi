@@ -29,6 +29,7 @@ T = TypeVar('T', bound='Session')
 class Session(AbstractSession):
 
     API_PATH: str = NotImplemented
+    MACHINE_AGENT: Agent = NotImplemented
 
     def __init__(
         self,
@@ -176,7 +177,7 @@ Nozomi Application')
             session = cls.retrieve(
                 session_id=session_id,
                 configuration=configuration,
-                on_behalf_of=MACHINE_AGENT
+                on_behalf_of=cls.MACHINE_AGENT
             )
         except HTTPError as error:
             if error.code == 404:
