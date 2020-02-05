@@ -155,7 +155,11 @@ class Session(Encodable, AbstractSession):
         )
         if credentials is None:
             return None
-        session = cls.retrieve(credentials.session_id, datastore)
+        session = cls.retrieve(
+            session_id=credentials.session_id,
+            datastore=datastore,
+            configurtion=configuration
+        )
         if session is None:
             return None
         if not session._finds_api_key_authentic(credentials.api_key):
@@ -187,13 +191,10 @@ class Session(Encodable, AbstractSession):
         if not cookies.contains(configuration.session_cookie_key_name):
             return None
         session_id = cookies.value_for(configuration.session_id_name)
-        try:
-            session_id = int(session_id)
-        except Exception:
-            return None
         session = cls.retrieve(
             session_id=session_id,
-            datastore=datastore
+            datastore=datastore,
+            configuration=configuration
         )
         if session is None:
             return None
