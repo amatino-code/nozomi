@@ -8,7 +8,6 @@ from typing import TypeVar, Type
 from nozomi.security.internal_key import InternalKey
 from nozomi.http.headers import Headers
 from nozomi.errors.not_authorised import NotAuthorised
-from nozomi.errors.bad_request import BadRequest
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.configuration import Configuration
 
@@ -39,7 +38,7 @@ class ForwardedAgent(StandaloneAgent):
             raise NotAuthorised
 
         agent = cls.optionally_retrieve(
-            agent_id=agent_id,
+            public_id=forwarded_agent_id,
             datastore=datastore
         )
 
