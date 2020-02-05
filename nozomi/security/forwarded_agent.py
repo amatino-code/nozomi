@@ -38,11 +38,6 @@ class ForwardedAgent(StandaloneAgent):
         if forwarded_agent_id is None:
             raise NotAuthorised
 
-        try:
-            agent_id = int(forwarded_agent_id)
-        except ValueError:
-            raise BadRequest('Bad forwarded agent ID')
-
         agent = cls.optionally_retrieve(
             agent_id=agent_id,
             datastore=datastore

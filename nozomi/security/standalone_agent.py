@@ -20,7 +20,7 @@ class StandaloneAgent(Agent):
     to be Humans.
     """
     _Q_RETRIEVE = Query.optionally_from_file(
-        'queries/secrity/agents/retrieve.sql'
+        'queries/security/agent/retrieve.sql'
     )
 
     def __init__(
@@ -35,9 +35,6 @@ class StandaloneAgent(Agent):
 
     agent_id = Immutable(lambda s: s._agent_id)
     indexid = Immutable(lambda s: s._agent_id)
-
-    Q_RETRIEVE = Immutable(lambda s: Query.require(s._Q_RETRIEVE, 'Standalone\
-Agent retrieval'))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other.agent_id, int):
@@ -57,11 +54,12 @@ Agent retrieval'))
     @classmethod
     def optionally_retrieve(
         cls: Type[T],
-        agent_id: int,
+        public_id: str,
         datastore: Datastore
     ) -> Optional[T]:
         """Retrieve an Agent with the supplied ID, or None"""
-        result = cls.Q_RETRIEVE.execute(datastore, {'agent_id': agent_id})
+        query = Query.require(cls._Q_RETRIEVE, 'Standalone Agent retrieval')
+        result = query.execute(datastore, {'public_id': public_id})
         if result is None:
             return None
         return cls.decode(result)

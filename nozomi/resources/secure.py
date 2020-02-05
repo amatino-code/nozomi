@@ -3,7 +3,7 @@ Nozomi
 Secure Resource Module
 author: hugh@blinkybeach.com
 """
-from typing import Any, Union, List
+from typing import Union, List
 from nozomi.errors.not_authorised import NotAuthorised
 from nozomi.data.datastore import Datastore
 from nozomi.security.broadcastable import Broadcastable
@@ -18,6 +18,7 @@ from nozomi.data.encodable import Encodable
 from typing import Optional, Tuple, Set, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.ancillary.configuration import Configuration
+from nozomi.http.parseable_data import ParseableData
 
 
 class SecureResource(Resource):
@@ -61,7 +62,7 @@ class SecureResource(Resource):
         self,
         query: Optional[QueryString],
         unauthorised_agent: Agent,
-        request_data: Optional[Any],
+        request_data: Optional[ParseableData],
     ) -> Tuple[Union[Broadcastable, List[Broadcastable]], Agent]:
         # Method returning an encodable response, and an Agent authorised to
         # make the request.
@@ -69,9 +70,9 @@ class SecureResource(Resource):
 
     def serve(
         self,
+        request_data: Optional[ParseableData],
+        request_arguments: Optional[QueryString],
         headers: Headers,
-        query: Optional[QueryString],
-        request_data: Optional[Any],
         session: AbstractSession = None
     ) -> str:
 
@@ -79,8 +80,9 @@ class SecureResource(Resource):
 
         if session is None:
             session = SessionImplementation.from_headers(
-                headers,
-                self.datastore
+                headers=headers,
+                datastore=self.datastore,
+                configuration=self.configuration
             )
         if session is not None:
             if (
@@ -88,12 +90,12 @@ class SecureResource(Resource):
             ):
                 raise NotAuthorised
 
-        if session is None and self.configuration.internal_key is None:
+        if session is None and self.configuration.internal_psk is None:
             raise NotAuthorised
 
         if session is None:
             unauthorised_agent = ForwardedAgent.from_headers(
-                internal_key=self.configuration.internal_key,
+                internal_key=self.configuration.internal_psk,
                 headers=headers,
                 datastore=self.datastore,
                 configuration=self.configuration
@@ -102,9 +104,9 @@ class SecureResource(Resource):
             unauthorised_agent = session.agent
 
         response, authorised_agent = self.compute_response(
-            request_data,
-            query,
-            unauthorised_agent
+            request_arguments,
+            unauthorised_agent,
+            request_data
         )
 
         if not isinstance(authorised_agent, Agent):

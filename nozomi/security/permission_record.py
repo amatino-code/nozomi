@@ -63,11 +63,15 @@ class PermissionRecord(Encodable, Decodable):
         """Return True if write permissions are recorded for an Agent"""
         if self.records_ownership_by(agent):
             return True
+        if self.records_admin_permission_for(agent):
+            return True
         return agent.agent_id in self._writable_by
 
     def records_read_permission_for(self, agent: Agent) -> bool:
         """Return True of read permissions are recorded for an Agent"""
         if self.records_ownership_by(agent):
+            return True
+        if self.records_admin_permission_for(agent):
             return True
         return agent.agent_id in self._readable_by
 
