@@ -83,11 +83,8 @@ class SecureResource(Resource):
             session = SessionImplementation.from_headers(
                 headers=headers,
                 datastore=self.datastore,
-                credentials=RequestCredentials.on_behalf_of_agent(
-                    agent=self.configuration.api_agent,
-                    configuration=self.configuration
-                ),
-                configuration=self.configuration
+                configuration=self.configuration,
+                request_may_change_state=self.requests_may_change_state
             )
         if session is not None:
             if (

@@ -65,10 +65,6 @@ class OpenResource(Resource):
             headers=headers,
             datastore=self.datastore,
             configuration=self.configuration,
-            credentials=RequestCredentials.on_behalf_of_agent(
-                agent=self.configuration.api_agent,
-                configuration=self.configuration
-            ),
             request_may_change_state=self.requests_may_change_state
         )
         response = self.compute_response(

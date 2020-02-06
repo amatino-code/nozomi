@@ -6,7 +6,7 @@ author: hugh@blinkybeach.com
 from nozomi.http.headers import Headers
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.ancillary.configuration import Configuration
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Optional
 from nozomi.security.agent import Agent
 
 T = TypeVar('T', bound='RequestCredentials')
@@ -51,3 +51,15 @@ class RequestCredentials(Headers):
         }
 
         return cls(True, headers)
+
+    @classmethod
+    def optionally_on_behalf_of_agent(
+        cls: Type[T],
+        agent: Optional[Agent],
+        configuration: Configuration
+    ) -> T:
+
+        if agent is None:
+            return None
+
+        return cls.on_behalf_of_agent(agent, configuration)
