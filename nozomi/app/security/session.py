@@ -21,7 +21,7 @@ from urllib.request import HTTPError
 from typing import Optional, TypeVar, Type, Any
 import hmac
 from nozomi.security.agent import Agent
-from nozomi.security.machine_agent import MACHINE_AGENT
+from nozomi.security.request_credentials import RequestCredentials
 
 T = TypeVar('T', bound='Session')
 
@@ -29,7 +29,6 @@ T = TypeVar('T', bound='Session')
 class Session(AbstractSession):
 
     API_PATH: str = NotImplemented
-    MACHINE_AGENT: Agent = NotImplemented
 
     def __init__(
         self,
@@ -129,9 +128,12 @@ class Session(AbstractSession):
             path=cls.API_PATH,
             method=HTTPMethod.GET,
             configuration=configuration,
-            on_behalf_of_agent=on_behalf_of,
             data=None,
-            url_parameters=parameters
+            url_parameters=parameters,
+            credentials=RequestCredentials.on_behalf_of_agent(
+                on_behalf_of,
+                configuration
+            )
         )
 
         if request.response_data is None:
