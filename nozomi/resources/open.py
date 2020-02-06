@@ -72,7 +72,7 @@ class OpenResource(Resource):
         )
 
         if requesting_agent is None:
-            requesting_agent = ForwardedAgent.from_headers(
+            requesting_agent = ForwardedAgent.optionally_from_headers(
                 internal_key=self.configuration.internal_psk,
                 headers=headers,
                 datastore=self.datastore,
