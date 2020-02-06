@@ -14,6 +14,7 @@ from nozomi.security.abstract_session import AbstractSession
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.configuration import Configuration
 from nozomi.security.request_credentials import RequestCredentials
+from nozomi.security.forwarded_agent import ForwardedAgent
 
 
 class OpenResource(Resource):
@@ -61,16 +62,27 @@ class OpenResource(Resource):
 
         SessionImplementation = self.session_implementation
 
-        session = SessionImplementation.from_headers(
+        requesting_agent: Optional[Agent] = None
+
+        requesting_agent = SessionImplementation.from_headers(
             headers=headers,
             datastore=self.datastore,
             configuration=self.configuration,
             request_may_change_state=self.requests_may_change_state
         )
+
+        if requesting_agent is None:
+            requesting_agent = ForwardedAgent.from_headers(
+                internal_key=self.configuration.internal_psk,
+                headers=headers,
+                datastore=self.datastore,
+                configuration=self.configuration
+            )
+
         response = self.compute_response(
             request_data,
             request_arguments,
-            session
+            requesting_agent
         )
 
         if isinstance(response, list):
