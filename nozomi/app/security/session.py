@@ -93,7 +93,7 @@ class Session(AbstractSession):
 
     def delete(
         self,
-        on_behalf_of: Agent,
+        credentials: RequestCredentials,
         configuration: Configuration
     ) -> None:
         """Delete this Session, AKA logout the user"""
@@ -104,7 +104,7 @@ class Session(AbstractSession):
             path=self.API_PATH,
             method=HTTPMethod.DELETE,
             configuration=configuration,
-            on_behalf_of_agent=on_behalf_of,
+            credentials=RequestCredentials,
             data=None,
             url_parameters=parameters
         )
@@ -114,7 +114,7 @@ class Session(AbstractSession):
     def retrieve(
         cls: Type[T],
         session_id: int,
-        on_behalf_of: Agent,
+        credentials: RequestCredentials,
         configuration: Configuration
     ) -> Optional[T]:
         """Return a Session with the given Session ID, if it exists"""
@@ -130,10 +130,7 @@ class Session(AbstractSession):
             configuration=configuration,
             data=None,
             url_parameters=parameters,
-            credentials=RequestCredentials.on_behalf_of_agent(
-                on_behalf_of,
-                configuration
-            )
+            credentials=credentials
         )
 
         if request.response_data is None:
@@ -159,8 +156,9 @@ class Session(AbstractSession):
     def from_headers(
         cls: Type[T],
         headers: Headers,
+        credentials: RequestCredentials,
         configuration: Configuration,
-        request_may_change_state: Optional[Any] = True
+        request_may_change_state: bool = True
     ) -> Optional[T]:
         """
         Return a Session parsed from supplied headers, or None if no
@@ -179,7 +177,7 @@ Nozomi Application')
             session = cls.retrieve(
                 session_id=session_id,
                 configuration=configuration,
-                on_behalf_of=cls.MACHINE_AGENT
+                credentials=credentials
             )
         except HTTPError as error:
             if error.code == 404:
@@ -197,7 +195,9 @@ Nozomi Application')
     def require_from_headers(
         cls: Type[T],
         headers: Headers,
+        credentials: RequestCredentials,
         configuration: Configuration,
+        request_may_change_state: bool = True,
         signin_path: Optional[str] = None
     ) -> T:
         """
@@ -206,7 +206,12 @@ Nozomi Application')
         to which the user should be redirected if a Session is not available.
         By default the user will be redirected to business signin.
         """
-        session = cls.from_headers(headers, configuration)
+        session = cls.from_headers(
+            headers=headers,
+            credentials=credentials,
+            configuration=configuration,
+            request_may_change_state=request_may_change_state
+        )
         if session is None:
             if signin_path is None:
                 raise NotAuthenticated
