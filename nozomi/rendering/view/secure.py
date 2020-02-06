@@ -12,6 +12,7 @@ from nozomi.rendering.context import Context
 from nozomi.security.considers_perspective import ConsidersPerspective
 from typing import Optional, Set
 from nozomi.security.agent import Agent
+from nozomi.security.request_credentials import RequestCredentials
 
 
 class SecureView(OpenView, ConsidersPerspective):
@@ -40,6 +41,10 @@ class SecureView(OpenView, ConsidersPerspective):
         session = self.session_implementation.require_from_headers(
             headers=headers,
             configuration=self.configuration,
+            credentials=RequestCredentials.on_behalf_of_agent(
+                agent=self._api_agent,
+                configuration=self.configuration
+            ),
             signin_path=None,
             request_may_change_state=self.requests_may_change_state
         )

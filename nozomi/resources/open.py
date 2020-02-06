@@ -13,6 +13,7 @@ from typing import Optional, List, Union, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.configuration import Configuration
+from nozomi.security.request_credentials import RequestCredentials
 
 
 class OpenResource(Resource):
@@ -29,7 +30,7 @@ class OpenResource(Resource):
     def __init__(
         self,
         datastore: Datastore,
-        configuration: Configuration,
+        configuration: Configuration
     ) -> None:
         assert isinstance(datastore, Datastore)
         super().__init__(
@@ -64,6 +65,10 @@ class OpenResource(Resource):
             headers=headers,
             datastore=self.datastore,
             configuration=self.configuration,
+            credentials=RequestCredentials.on_behalf_of_agent(
+                agent=self.configuration.api_agent,
+                configuration=self.configuration
+            ),
             request_may_change_state=self.requests_may_change_state
         )
         response = self.compute_response(

@@ -6,6 +6,7 @@ author: hugh@blinkybeach.com
 from nozomi.ancillary.database_credentials import DatabaseCredentials
 from typing import Optional, List
 from nozomi.security.internal_key import InternalKey
+from nozomi.security.agent import Agent
 
 
 class Configuration:
@@ -34,6 +35,8 @@ class Configuration:
     standard_js_scripts: List[str] = NotImplemented
 
     database_credentials: DatabaseCredentials = NotImplemented
+
+    api_agent: Agent = NotImplemented
 
     # CORS
     local_origin: str = NotImplemented

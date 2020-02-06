@@ -19,6 +19,7 @@ from typing import Optional, Tuple, Set, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.ancillary.configuration import Configuration
 from nozomi.http.parseable_data import ParseableData
+from nozomi.security.request_credentials import RequestCredentials
 
 
 class SecureResource(Resource):
@@ -82,6 +83,10 @@ class SecureResource(Resource):
             session = SessionImplementation.from_headers(
                 headers=headers,
                 datastore=self.datastore,
+                credentials=RequestCredentials.on_behalf_of_agent(
+                    agent=self.configuration.api_agent,
+                    configuration=self.configuration
+                ),
                 configuration=self.configuration
             )
         if session is not None:

@@ -22,23 +22,3 @@ class AbstractSession(Decodable, Agent):
     api_key: str = NotImplemented
 
     agent_id = Immutable(lambda s: s._agent.agent_id)
-
-    @classmethod
-    def from_headers(
-        cls: Type[T],
-        headers: Headers,
-        configuration: Any,
-        request_may_change_state: bool = True
-    ) -> Optional[T]:
-
-        raise NotImplementedError
-
-    @classmethod
-    def require_from_headers(
-        cls: Type[T],
-        headers: Headers,
-        configuration: Any,
-        request_may_change_state: bool = True
-    ) -> T:
-
-        raise NotImplementedError

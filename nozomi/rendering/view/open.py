@@ -12,6 +12,7 @@ from nozomi.security.abstract_session import AbstractSession
 from typing import List, Dict, Optional, Any, Type
 from nozomi.http.query_string import QueryString
 from nozomi.security.agent import Agent
+from nozomi.security.request_credentials import RequestCredentials
 
 
 class OpenView(BaseView):
@@ -75,6 +76,10 @@ class OpenView(BaseView):
         session = self.session_implementation.from_headers(
             headers=headers,
             configuration=self.configuration,
+            credentials=RequestCredentials.on_behalf_of_agent(
+                agent=self.configuration.api_agent,
+                configuration=self.configuration
+            ),
             request_may_change_state=self.requests_may_change_state
         )
 
