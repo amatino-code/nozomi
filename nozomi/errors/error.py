@@ -25,9 +25,7 @@ class NozomiError(Exception):
             try:
                 http_status_code = HTTPStatusCode(int(http_status_code))
             except Exception:
-                pass
-
-            raise TypeError('status must be of type `HTTPStatusCode`')
+                raise TypeError('status must be of type `HTTPStatusCode`')
 
         if not isinstance(client_description, str):
             raise TypeError('descriptions must be of type `str`')
