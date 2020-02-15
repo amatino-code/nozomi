@@ -42,7 +42,7 @@ class SecureView(OpenView, ConsidersPerspective):
             headers=headers,
             configuration=self.configuration,
             credentials=RequestCredentials.on_behalf_of_agent(
-                agent=self._api_agent,
+                agent=self.configuration.api_agent,
                 configuration=self.configuration
             ),
             signin_path=None,
