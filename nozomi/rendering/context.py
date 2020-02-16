@@ -87,6 +87,7 @@ class Context:
         if isinstance(value, int) and not isinstance(value, bool):
             return value
         if isinstance(value, str):
+            value = value.replace("'", "\\'")
             return "'" + value + "'"
         if isinstance(value, bool):
             if value is True:
