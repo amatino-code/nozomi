@@ -158,7 +158,7 @@ class Session(Encodable, AbstractSession):
         session = cls.retrieve(
             session_id=credentials.session_id,
             datastore=datastore,
-            configurtion=configuration
+            configuration=configuration
         )
         if session is None:
             return None
