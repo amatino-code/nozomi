@@ -57,6 +57,7 @@ class SecureView(OpenView, ConsidersPerspective):
             'global_session_id',
             session.session_id
         )
+        context.add_javascript_constant('requesting_agent_id', session.agent_id)
         context = self.compute_response(
             query=query,
             requesting_agent=session,

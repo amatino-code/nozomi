@@ -93,6 +93,10 @@ class OpenView(BaseView):
             'global_session_id',
             session.session_id if session is not None else None
         )
+        context.add_javascript_constant(
+            'requesting_agent_id',
+            session.agent_id if session is not None else None
+        )
         context = self.compute_response(
             query=query,
             requesting_agent=session,
