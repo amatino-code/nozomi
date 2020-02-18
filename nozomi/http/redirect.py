@@ -6,6 +6,10 @@ author: hugh@blinkybeach.com
 from typing import Optional, List
 from nozomi.http.url_parameter import URLParameter
 from nozomi.http.url_parameters import URLParameters
+from nozomi.http.query_string import QueryString
+from typing import TypeVar, Type, Optional, Union
+
+T = TypeVar('T', bound='Redirect')
 
 
 class Redirect(Exception):
@@ -63,3 +67,68 @@ class Redirect(Exception):
         parameters = URLParameters(raw_parameters)
 
         return parameters.add_to(destination)
+
+    @classmethod
+    def _strip_next(
+        cls: Type[T],
+        query: Union[bytes, QueryString]
+    ) -> URLParameters:
+        """
+        Return a query string, of type string, stripped of all "then"
+        arguments
+        """
+
+        parameters: List[URLParameter] = list()
+
+        if isinstance(query, QueryString):
+
+            for key in query:
+                if key == 'then':
+                    continue
+                parameters.append(URLParameter(key, query[key]))
+                continue
+            return URLParameters(parameters)
+
+        if isinstance(query, bytes):
+            query_string = query.decode()
+            elements = query_string.split('&')
+            for element in elements:
+                if len(element) < 1:
+                    continue
+                if element[0] == '?':
+                    element = element[1:]
+                pieces = element.split('=')
+                assert len(pieces) == 2
+                if pieces[0] == 'then':
+                    continue
+                parameters.append(URLParameter(pieces[0], pieces[1]))
+                continue
+            return URLParameters(parameters)
+
+        raise TypeError('query must be `bytes` or `QueryString`')
+
+    @classmethod
+    def to_next_path(
+        cls: Type[T],
+        query: Optional[QueryString],
+        fallback_to_path: str,
+        preserve_arguments: bool = False,
+        extra_parameters: List[URLParameters] = list()
+    ) -> None:
+
+        arguments = ''
+        if preserve_arguments is True and query is not None:
+            arguments = cls._strip_next(query).query_string
+
+        next_path = None
+        if query is not None:
+            next_path = query.optionally_parse_string('then', max_length=96)
+        if next_path is None:
+            next_path = fallback_to_path
+
+        raise cls(
+            destination=next_path,
+            allow_next=False,
+            preserve_arguments=True,
+            extra_parameters=extra_parameters
+        )
