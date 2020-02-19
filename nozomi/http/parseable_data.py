@@ -4,7 +4,7 @@ HTTP Request QueryString Module
 Copyright Amatino Pty Ltd
 """
 from collections.abc import Mapping
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from nozomi.errors.bad_request import BadRequest
 import string
 
@@ -141,25 +141,26 @@ class ParseableData:
         return value
 
     def __iter__(self):
-        return ParseableData.Iterator()
+        return ParseableData.Iterator(self._raw)
 
     class Iterator:
         """An iterator for iterating through LedgerRows in a Ledger"""
 
-        def __init__(self, rows: List[str]) -> None:
+        def __init__(self, pairs: Dict[str, Any]) -> None:
             self._index = 0
-            self._rows = rows
+            self._pairs = pairs
+            self._keys = [k for k in pairs.keys()]
             return
 
         def __next__(self) -> str:
-            if self._index >= len(self._rows):
+            if self._index >= len(self._keys):
                 raise StopIteration
-            row = self._rows[self._index]
+            item = self._keys[self._index]
             self._index += 1
-            return row
+            return item
 
     def __len__(self):
-        return len(self._raw)
+        return len(self._keys)
 
     def __getitem__(self, key):
         return self._raw[key]

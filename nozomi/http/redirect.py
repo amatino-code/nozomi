@@ -69,9 +69,9 @@ class Redirect(Exception):
         return parameters.add_to(destination)
 
     @classmethod
-    def _strip_next(
+    def strip_next(
         cls: Type[T],
-        query: Union[bytes, QueryString]
+        query: Optional[Union[bytes, QueryString]]
     ) -> URLParameters:
         """
         Return a query string, of type string, stripped of all "then"
@@ -79,6 +79,9 @@ class Redirect(Exception):
         """
 
         parameters: List[URLParameter] = list()
+
+        if query is None:
+            return URLParameters(parameters)
 
         if isinstance(query, QueryString):
 
@@ -118,7 +121,7 @@ class Redirect(Exception):
 
         arguments = ''
         if preserve_arguments is True and query is not None:
-            arguments = cls._strip_next(query).query_string
+            arguments = cls.strip_next(query).query_string
 
         next_path = None
         if query is not None:
