@@ -50,7 +50,8 @@ class Redirect(Exception):
             raw_parameters.append(URLParameter('then', next_url))
 
         if self._preserve_arguments is False:
-            return destination
+            parameters = URLParameters(raw_parameters)
+            return parameters.add_to(destination)
 
         raw_query_string = query_string.decode()
         elements = raw_query_string.split('&')
