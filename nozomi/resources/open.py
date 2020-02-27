@@ -13,8 +13,8 @@ from typing import Optional, List, Union, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.data.datastore import Datastore
 from nozomi.ancillary.configuration import Configuration
-from nozomi.security.request_credentials import RequestCredentials
 from nozomi.security.forwarded_agent import ForwardedAgent
+from nozomi.errors.not_authorised import NotAuthorised
 
 
 class OpenResource(Resource):
@@ -27,6 +27,7 @@ class OpenResource(Resource):
 
     session_implementation: Type[AbstractSession] = NotImplemented
     requests_may_change_state: bool = NotImplemented
+    allows_unconfirmed_agents: bool = NotImplemented
 
     def __init__(
         self,
@@ -70,6 +71,16 @@ class OpenResource(Resource):
             configuration=self.configuration,
             request_may_change_state=self.requests_may_change_state
         )
+
+        session = requesting_agent
+
+        if (
+                session is not None
+                and session.agent_requires_confirmation
+                and not session.agent_confirmed
+                and not self.allows_unconfirmed_agents
+        ):
+            raise NotAuthorised
 
         if requesting_agent is None:
             requesting_agent = ForwardedAgent.optionally_from_headers(

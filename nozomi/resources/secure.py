@@ -19,7 +19,6 @@ from typing import Optional, Tuple, Set, Type
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.ancillary.configuration import Configuration
 from nozomi.http.parseable_data import ParseableData
-from nozomi.security.request_credentials import RequestCredentials
 
 
 class SecureResource(Resource):
@@ -37,6 +36,7 @@ class SecureResource(Resource):
     session_implementation: Type[AbstractSession] = NotImplemented
     requests_may_change_state: bool = NotImplemented
     allowed_perspectives: Set[Perspective] = NotImplemented
+    allows_unconfirmed_agents: bool = NotImplemented
 
     def __init__(
         self,
@@ -104,6 +104,14 @@ class SecureResource(Resource):
             )
         else:
             unauthorised_agent = session.agent
+
+        if (
+                session is not None
+                and session.agent_requires_confirmation
+                and not session.agent_confirmed
+                and not self.allows_unconfirmed_agents
+        ):
+            raise NotAuthorised
 
         response, authorised_agent = self.compute_response(
             request_arguments,
