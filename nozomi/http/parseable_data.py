@@ -36,6 +36,9 @@ class ParseableData:
         if value is None:
             raise BadRequest('Missing value for key ' + key)
 
+        if not isinstance(value, str):
+            raise BadRequest('Value for key ' + key + ' must be string')
+
         return value
 
     def optionally_parse_string(
@@ -51,6 +54,9 @@ class ParseableData:
 
         if value is None:
             return None
+
+        if not isinstance(value, str):
+            raise BadRequest('Value for key ' + key + ' must be string')
 
         if max_length is not None and len(value) > max_length:
             raise BadRequest(key + ' max length: ' + str(max_length))
