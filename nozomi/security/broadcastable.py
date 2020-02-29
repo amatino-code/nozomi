@@ -7,11 +7,12 @@ from nozomi.security.agent import Agent
 from nozomi.data.encodable import Encodable
 from typing import Any, List, Type, TypeVar, Optional
 from nozomi.security.privilege import Privilege
+from nozomi.security.read_protected import ReadProtected
 
 T = TypeVar('T', bound='Broadcastable')
 
 
-class Broadcastable(Encodable):
+class Broadcastable(Encodable, ReadProtected):
     """
     Abstract class defining an interface for concrete classes who may be asked
     to provide a broadcastable representation of themselves. For example,

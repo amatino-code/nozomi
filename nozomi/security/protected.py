@@ -5,9 +5,10 @@ Copyright Amatino Pty Ltd
 """
 from nozomi.security.agent import Agent
 from nozomi.security.permission_record import PermissionRecord
+from nozomi.security.read_protected import ReadProtected
 
 
-class Protected:
+class Protected(ReadProtected):
     """
     Abstract protocol defining an interface for objects to whom access is
     limited.

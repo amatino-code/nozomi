@@ -120,7 +120,7 @@ class SecureResource(Resource):
         )
 
         if not isinstance(authorised_agent, Agent):
-            raise NotAuthorised('')
+            raise NotAuthorised
 
         if session is not None:
             if authorised_agent != session.agent:
@@ -128,9 +128,19 @@ class SecureResource(Resource):
             assert authorised_agent == session.agent
 
         if isinstance(response, list):
+            for candidate in response:
+                self.assert_read_available_to(
+                    unauthorised_agent=authorised_agent,
+                    broadcast_candidate=candidate
+                )
             return Broadcastable.serialise_many(
                 Broadcastable.broadcast_many_to(response, authorised_agent)
             )
+
+        self.assert_read_available_to(
+            unauthorised_agent=authorised_agent,
+            broadcast_candidate=response
+        )
 
         return response.broadcast_to(authorised_agent).serialise()
 

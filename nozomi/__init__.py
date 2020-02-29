@@ -26,6 +26,7 @@ from nozomi.errors.bad_request import BadRequest
 from nozomi.errors.not_found import NotFound
 from nozomi.errors.not_authorised import NotAuthorised
 from nozomi.errors.not_authenticated import NotAuthenticated
+from nozomi.errors.already_exists import AlreadyExists
 
 from nozomi.http.headers import Headers
 from nozomi.http.method import HTTPMethod
@@ -64,6 +65,7 @@ from nozomi.security.permission_record import PermissionRecord
 from nozomi.security.perspective import Perspective
 from nozomi.security.privilege import Privilege
 from nozomi.security.protected import Protected
+from nozomi.security.read_protected import ReadProtected
 from nozomi.security.random_number import RandomNumber
 from nozomi.security.salt import Salt
 from nozomi.security.secret import Secret
