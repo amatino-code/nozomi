@@ -8,6 +8,9 @@ from nozomi.security.abstract_session import AbstractSession as Session
 from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.immutable import Immutable
 from typing import Optional
+from typing import TypeVar, Type
+
+T = TypeVar('T', bound='CookieHeaders')
 
 
 class CookieHeaders(Headers):
@@ -34,6 +37,11 @@ class CookieHeaders(Headers):
 
         headers.add('Set-Cookie', self._generate_session_cookie(self._debug))
         headers.add('Set-Cookie', self._generate_key_cookie(self._debug))
+        headers.add('Set-Cookie', self.generate_flag_cookie(
+            logged_in=True,
+            debug=configuration.debug,
+            configuration=configuration
+        ))
 
         self._raw = headers.dictionary
 
@@ -73,4 +81,48 @@ class CookieHeaders(Headers):
             'Cookie',
             self.simulate_cookie(debug)
         )
+        return headers
+
+    @classmethod
+    def generate_flag_cookie(
+        cls: Type[T],
+        logged_in: bool,
+        debug: bool,
+        configuration: Configuration
+    ) -> str:
+
+        cookie_name = configuration.session_flag_cookie_name
+
+        def compute_value(logged_in: bool) -> str:
+            if logged_in is True:
+                return '1'
+            return '0'
+
+        options = '; Path=/; SameSite=Strict;'
+        if debug is False:
+            options += '; Secure'
+        cookie = cookie_name + '=' + compute_value(logged_in)
+        return cookie + options
+
+    @classmethod
+    def flag_signout(
+        cls: Type[T],
+        debug: bool,
+        configuration: Configuration,
+        existing_headers: Optional[Headers] = None
+    ) -> Headers:
+
+        existing = existing_headers
+
+        headers = Headers()
+        if existing is not None:
+            assert isinstance(existing, Headers)
+            headers = existing
+
+        headers.add('Set-Cookie', cls.generate_flag_cookie(
+            logged_in=False,
+            debug=debug,
+            configuration=configuration
+        ))
+
         return headers

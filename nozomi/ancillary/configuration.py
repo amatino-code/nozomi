@@ -24,6 +24,7 @@ class Configuration:
     session_api_key_name: str = NotImplemented
     session_cookie_key_name: str = NotImplemented
     session_id_name: str = NotImplemented
+    session_flag_cookie_name: str = NotImplemented
 
     internal_psk_header: str = NotImplemented
     internal_psk: Optional[InternalKey] = NotImplemented

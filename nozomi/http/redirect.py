@@ -3,11 +3,10 @@ Nozomi
 Redirect Module
 author: hugh@blinkybeach.com
 """
-from typing import Optional, List
 from nozomi.http.url_parameter import URLParameter
 from nozomi.http.url_parameters import URLParameters
 from nozomi.http.query_string import QueryString
-from typing import TypeVar, Type, Optional, Union
+from typing import TypeVar, Type, Optional, Union, List
 
 T = TypeVar('T', bound='Redirect')
 
