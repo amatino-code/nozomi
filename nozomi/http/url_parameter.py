@@ -4,6 +4,7 @@ URL Parameter Module
 author: hugh@blinkybeach.com
 """
 from typing import Any
+from nozomi.ancillary.immutable import Immutable
 
 
 class URLParameter:
@@ -20,6 +21,8 @@ class URLParameter:
         self._value = value
 
         return
+
+    key: str = Immutable(lambda s: s._key)
 
     def __str__(self) -> str:
         return self._key + '=' + str(self._value)

@@ -19,6 +19,7 @@ class SecureView(OpenView, ConsidersPerspective):
     """A view that requires authentication"""
 
     allowed_perspectives: Set[Perspective] = NotImplemented
+    login_redirect_path: Optional[str] = None
 
     def compute_response(
         self,
@@ -45,7 +46,7 @@ class SecureView(OpenView, ConsidersPerspective):
                 agent=self.configuration.api_agent,
                 configuration=self.configuration
             ),
-            signin_path=None,
+            signin_path=self.login_redirect_path,
             request_may_change_state=self.requests_may_change_state
         )
         assert isinstance(session, Session)

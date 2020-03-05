@@ -54,8 +54,7 @@ class NozomiTime(datetime, Encodable, Decodable):
     @classmethod
     def utcnow(cls: Type[T]) -> T:
         time = datetime.utcnow()
-        time.replace(tzinfo=UTC)
-        return cls._from_datetime(time)
+        return cls._from_datetime(time.replace(tzinfo=UTC))
 
     @classmethod
     def from_unix_timestamp(cls: Type[T], timestamp: int) -> T:

@@ -22,6 +22,7 @@ class URLParameters:
         return
 
     query_string = Immutable(lambda s: s._form_query_string())
+    parameters: List[URLParameter] = Immutable(lambda s: s._targets)
 
     def _form_query_string(self) -> str:
         if len(self._targets) < 1:

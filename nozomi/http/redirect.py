@@ -42,17 +42,19 @@ class Redirect(Exception):
         redirected
         """
         destination = self._destination
-        raw_parameters = self._base_parameters
+        base_parameters = self._base_parameters
 
         if next_url is not None and self._allow_next is True:
             assert isinstance(next_url, str)
-            raw_parameters.append(URLParameter('then', next_url))
+            base_parameters = self.strip_next(query=base_parameters).parameters
+            base_parameters.append(URLParameter('then', next_url))
 
         if self._preserve_arguments is False:
-            parameters = URLParameters(raw_parameters)
+            parameters = URLParameters(base_parameters)
             return parameters.add_to(destination)
 
         raw_query_string = query_string.decode()
+        existing_keys = [p.key for p in base_parameters]
         elements = raw_query_string.split('&')
         for element in elements:
             if len(element) < 1:
@@ -61,17 +63,21 @@ class Redirect(Exception):
                 element = element[1:]
             pieces = element.split('=')
             assert len(pieces) == 2
-            raw_parameters.append(URLParameter(pieces[0], pieces[1]))
+            key = pieces[0]
+            value = pieces[1]
+            if key in existing_keys:
+                continue
+            base_parameters.append(URLParameter(key, value))
             continue
 
-        parameters = URLParameters(raw_parameters)
+        parameters = URLParameters(base_parameters)
 
         return parameters.add_to(destination)
 
     @classmethod
     def strip_next(
         cls: Type[T],
-        query: Optional[Union[bytes, QueryString]]
+        query: Optional[Union[bytes, QueryString, List[URLParameters]]]
     ) -> URLParameters:
         """
         Return a query string, of type string, stripped of all "then"
@@ -82,6 +88,16 @@ class Redirect(Exception):
 
         if query is None:
             return URLParameters(parameters)
+
+        if isinstance(query, list):
+            assert False not in [isinstance(q, URLParameter) for q in query]
+            stripped_targets: List[URLParameter] = list()
+            for target in query:
+                if target.key == 'then':
+                    continue
+                stripped_targets.append(target)
+                continue
+            return URLParameters(stripped_targets)
 
         if isinstance(query, QueryString):
 
