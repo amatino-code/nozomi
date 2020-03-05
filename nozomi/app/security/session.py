@@ -215,7 +215,11 @@ Nozomi Application')
         if session is None:
             if signin_path is None:
                 raise NotAuthenticated
-            raise Redirect(signin_path)
+            raise Redirect(
+                destination=signin_path,
+                allow_next=True,
+                preserve_arguments=True,
+            )
         return session
 
     @classmethod
