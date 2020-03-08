@@ -77,3 +77,7 @@ from nozomi.security.request_credentials import RequestCredentials
 
 from nozomi import api
 from nozomi import app
+
+from nozomi.translation.language import Language
+from nozomi.translation.text import Text
+from nozomi.translation.translated import Translated

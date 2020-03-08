@@ -13,6 +13,9 @@ from nozomi.security.considers_perspective import ConsidersPerspective
 from typing import Optional, Set
 from nozomi.security.agent import Agent
 from nozomi.security.request_credentials import RequestCredentials
+from nozomi.http.redirect import Redirect
+from nozomi.errors.not_authenticated import NotAuthenticated
+from nozomi.security.abstract_session import AbstractSession
 
 
 class SecureView(OpenView, ConsidersPerspective):
@@ -20,6 +23,12 @@ class SecureView(OpenView, ConsidersPerspective):
 
     allowed_perspectives: Set[Perspective] = NotImplemented
     login_redirect_path: Optional[str] = None
+
+    def login_redirect(
+        self,
+        query: Optional[QueryString]
+    ) -> Optional[Redirect]:
+        return None
 
     def compute_response(
         self,
@@ -37,32 +46,42 @@ class SecureView(OpenView, ConsidersPerspective):
         self,
         headers: Headers,
         query: Optional[QueryString],
+        context: Optional[Context] = None,
+        session: Optional[AbstractSession] = None
     ) -> str:
 
-        session = self.session_implementation.require_from_headers(
-            headers=headers,
-            configuration=self.configuration,
-            credentials=RequestCredentials.on_behalf_of_agent(
-                agent=self.configuration.api_agent,
-                configuration=self.configuration
-            ),
-            signin_path=self.login_redirect_path,
-            request_may_change_state=self.requests_may_change_state
-        )
+        if session is None:
+            session = self.session_implementation.from_headers(
+                headers=headers,
+                configuration=self.configuration,
+                credentials=RequestCredentials.on_behalf_of_agent(
+                    agent=self.configuration.api_agent,
+                    configuration=self.configuration
+                ),
+                request_may_change_state=self.requests_may_change_state
+            )
+
+        if session is None:
+            redirect = self.login_redirect(query)
+            if redirect is not None:
+                raise redirect
+            if self.login_redirect_path is not None:
+                raise Redirect(
+                    destination=self.login_redirect_path,
+                    allow_next=True,
+                    preserve_arguments=True,
+                )
+            raise NotAuthenticated
+
+        if context is None:
+            context = Context()
+
         assert isinstance(session, Session)
         self.enforce_perspective(session)
-        context = Context()
-        context.add('agent', session.agent)
-        context.add_javascript_constant('global_api_key', session.api_key)
-        context.add_javascript_constant(
-            'global_session_id',
-            session.session_id
-        )
-        context.add_javascript_constant('requesting_agent_id', session.agent_id)
-        context = self.compute_response(
-            query=query,
-            requesting_agent=session,
-            context=context
-        )
 
-        return self.render(with_context=context)
+        return super().serve(
+            headers=headers,
+            query=query,
+            context=context,
+            session=session
+        )

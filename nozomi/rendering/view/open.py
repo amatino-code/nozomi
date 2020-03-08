@@ -11,7 +11,6 @@ from nozomi.ancillary.configuration import Configuration
 from nozomi.security.abstract_session import AbstractSession
 from typing import List, Dict, Optional, Any, Type
 from nozomi.http.query_string import QueryString
-from nozomi.security.agent import Agent
 from nozomi.security.request_credentials import RequestCredentials
 
 
@@ -55,52 +54,43 @@ class OpenView(BaseView):
 
         return
 
-    def compute_response(
-        self,
-        query: Optional[QueryString],
-        requesting_agent: Optional[Agent],
-        context: Context
-    ) -> Context:
-        """
-        Method returning the context as formed for the supplied request
-        parameters
-        """
-        raise NotImplementedError
-
     def serve(
         self,
         headers: Headers,
-        query: Optional[QueryString]
+        query: Optional[QueryString],
+        context: Optional[Context] = None,
+        session: Optional[AbstractSession] = None
     ) -> str:
 
-        session = self.session_implementation.from_headers(
+        if session is None:
+            session = self.session_implementation.from_headers(
+                headers=headers,
+                configuration=self.configuration,
+                credentials=RequestCredentials.on_behalf_of_agent(
+                    agent=self.configuration.api_agent,
+                    configuration=self.configuration
+                ),
+                request_may_change_state=self.requests_may_change_state
+            )
+
+        if context is None:
+            context = Context()
+
+        if session is not None:
+            context.add('agent', session.agent)
+            context.add_javascript_constant('global_api_key', session.api_key)
+            context.add_javascript_constant(
+                'global_session_id',
+                session.session_id
+            )
+            context.add_javascript_constant(
+                'requesting_agent_id',
+                session.agent_id
+            )
+
+        return super().serve(
             headers=headers,
-            configuration=self.configuration,
-            credentials=RequestCredentials.on_behalf_of_agent(
-                agent=self.configuration.api_agent,
-                configuration=self.configuration
-            ),
-            request_may_change_state=self.requests_may_change_state
-        )
-
-        context = Context()
-        context.add('agent', session.agent if session is not None else None)
-        context.add_javascript_constant(
-            'global_api_key',
-            session.api_key if session is not None else None
-        )
-        context.add_javascript_constant(
-            'global_session_id',
-            session.session_id if session is not None else None
-        )
-        context.add_javascript_constant(
-            'requesting_agent_id',
-            session.agent_id if session is not None else None
-        )
-        context = self.compute_response(
             query=query,
-            requesting_agent=session,
-            context=context
+            context=context,
+            session=session
         )
-
-        return self.render(with_context=context)

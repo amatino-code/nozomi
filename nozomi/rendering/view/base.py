@@ -59,6 +59,3 @@ class BaseView(View):
         )
 
         return
-
-    def compute_response(self, context: Context) -> Context:
-        return context

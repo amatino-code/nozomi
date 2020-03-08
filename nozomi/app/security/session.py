@@ -158,7 +158,7 @@ class Session(AbstractSession):
         headers: Headers,
         credentials: RequestCredentials,
         configuration: Configuration,
-        request_may_change_state: bool = True
+        request_may_change_state: bool
     ) -> Optional[T]:
         """
         Return a Session parsed from supplied headers, or None if no
