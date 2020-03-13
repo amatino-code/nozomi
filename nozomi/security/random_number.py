@@ -30,3 +30,6 @@ class RandomNumber:
     dash_free_urlsafe_base64 = Immutable(
         lambda s: s.urlsafe_base64.replace('-', 'X').replace('_', 'Y')
     )
+    clean_base64 = Immutable(
+        lambda s: s.dash_free_urlsafe_base64.replace('=', '')
+    )
