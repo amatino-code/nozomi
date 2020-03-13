@@ -29,6 +29,15 @@ class Headers:
         """
         value = self._raw.get(key)
         if value is None:
+
+            for item in self._raw:
+                if isinstance(item, tuple) and len(item) > 1:
+                    if isinstance(item[0], str):
+                        if item[0].lower() == key.lower():
+                            return item[1]
+                if isinstance(item, str) and item.lower() == key.lower():
+                    return self._raw[key.lower()]
+
             return None
 
         if not isinstance(value, str):
