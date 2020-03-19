@@ -4,9 +4,10 @@ HTTP Request QueryString Module
 Copyright Amatino Pty Ltd
 """
 from collections.abc import Mapping
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from nozomi.errors.bad_request import BadRequest
 import string
+from decimal import Decimal
 
 
 class ParseableData:
@@ -145,6 +146,49 @@ class ParseableData:
             raise BadRequest(key + ' parameter missing')
 
         return value
+
+    def optionally_parse_decimal(
+        self,
+        key: str,
+        max_value: Optional[Decimal] = None,
+        min_value: Optional[Decimal] = None
+    ) -> Optional[Decimal]:
+
+        value = self._raw.get(key)
+        if value is None:
+            return None
+
+        try:
+            decimal_value = Decimal(value)
+        except Exception:
+            raise BadRequest(key + ' must be a string encoded decimal')
+
+        if min_value is not None and decimal_value < min_value:
+            raise BadRequest(key + ' below mininum value: ' + str(min_value))
+
+        if max_value is not None and decimal_value > max_value:
+            raise BadRequest(key + ' above maximum value: ' + str(max_value))
+
+        return decimal_value
+
+    def parse_decimal(
+        self,
+        key: str,
+        max_value: Optional[Decimal] = None,
+        min_value: Optional[Decimal] = None
+    ) -> Decimal:
+
+        decimal = self.optionally_parse_decimal(
+            key=key,
+            max_value=max_value,
+            min_value=min_value
+        )
+
+        if decimal is None:
+            raise BadRequest(key + ' missing string encoded decimal for key \
+`{k}`'.format(k=key))
+
+        return decimal
 
     def __iter__(self):
         return ParseableData.Iterator(self._raw)
