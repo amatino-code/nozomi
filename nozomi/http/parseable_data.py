@@ -4,10 +4,12 @@ HTTP Request QueryString Module
 Copyright Amatino Pty Ltd
 """
 from collections.abc import Mapping
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List, TypeVar, Type
 from nozomi.errors.bad_request import BadRequest
 import string
 from decimal import Decimal
+
+T = TypeVar('T', bound='ParseableData')
 
 
 class ParseableData:
@@ -214,3 +216,9 @@ class ParseableData:
 
     def __getitem__(self, key):
         return self._raw[key]
+
+    @classmethod
+    def many(cls: Type[T], data: List[Any]) -> List[T]:
+        if not isinstance(data, list):
+            raise BadRequest('Expected array/sequence of data in body')
+        return [cls(d) for d in data]
