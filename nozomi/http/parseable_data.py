@@ -192,6 +192,19 @@ class ParseableData:
 
         return decimal
 
+    def parse_integer_array(
+        self,
+        key: str
+    ) -> List[int]:
+
+        value = self.raw.get(key)
+        error = key + ' must be an array of integers'
+        if not isinstance(value, list):
+            raise BadRequest(error)
+        if False in [isinstance(v, int) for v in value]:
+            raise BadRequest(error)
+        return value
+
     def __iter__(self):
         return ParseableData.Iterator(self._raw)
 
