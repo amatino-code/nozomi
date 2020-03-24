@@ -131,6 +131,9 @@ class ParseableData:
         if value is None:
             return None
 
+        if isinstance(value, bool):
+            return value
+
         if value == 'true':
             return True
         if value == 'false':
