@@ -5,7 +5,7 @@ Copyright Amatino Pty Ltd
 """
 from nozomi.data.datastore import Datastore
 from nozomi.security.internal_key import InternalKey
-from nozomi.api.resource import Resource
+from nozomi.resources.resource import Resource
 from nozomi.http.query_string import QueryString
 from typing import Optional, Tuple, Union, List
 from nozomi.security.agent import Agent
