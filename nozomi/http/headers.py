@@ -15,6 +15,10 @@ class Headers:
     A set of HTTP headers. Feed Headers a Mapping-conformant data type, for
     example a Dict or a Werkzeug ImmutableMultiDict.
     """
+    _TYPE_ERROR = 'The data structure underlying a Headers instance \
+unexpectedly contained non-string data for key "{k}", of type {t}. Headers \
+must only contain string values. Consider examining the data you fed to the \
+Headers initialiser.'
 
     def __init__(self, raw: Mapping = {}) -> None:
         self._raw = raw
@@ -41,10 +45,13 @@ class Headers:
             return None
 
         if not isinstance(value, str):
-            raise NozomiError('The data structure underlying a Headers instance\
-unexpectedly contained non-string data for key "{k}", of type {t}. Headers \
-must only contain string values. Consider examining the data you fed to the \
-Headers initialiser.', HTTPStatusCode.BAD_REQUEST)
+            raise NozomiError(
+                self._TYPE_ERROR.format(
+                    k=key,
+                    t=str(type(value))
+                ),
+                HTTPStatusCode.BAD_REQUEST
+            )
 
         return value
 
