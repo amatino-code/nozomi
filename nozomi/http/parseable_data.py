@@ -80,8 +80,8 @@ class ParseableData:
 
         return value
 
-    def get(self, key: str) -> Optional[str]:
-        value = self.optionally_parse_string(key)
+    def get(self, key: str) -> Optional[Any]:
+        value = self._raw[key]
         return value
 
     def optionally_parse_int(
