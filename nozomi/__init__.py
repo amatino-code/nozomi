@@ -54,6 +54,7 @@ from nozomi.rendering.script import Script
 from nozomi.resources.open import OpenResource
 from nozomi.resources.resource import Resource
 from nozomi.resources.secure import SecureResource
+from nozomi.resources.internal import InternalResource
 
 from nozomi.security.agent import Agent
 from nozomi.security.standalone_agent import StandaloneAgent

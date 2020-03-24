@@ -7,10 +7,14 @@ from nozomi.data.datastore import Datastore
 from nozomi.security.internal_key import InternalKey
 from nozomi.api.resource import Resource
 from nozomi.http.query_string import QueryString
-from nozomi.http.status_code import HTTPStatusCode
-from nozomi.errors.error import NozomiError
-from typing import Optional
-from typing import Any
+from typing import Optional, Tuple, Union, List
+from nozomi.security.agent import Agent
+from nozomi.security.broadcastable import Broadcastable
+from nozomi.ancillary.configuration import Configuration
+from nozomi.http.parseable_data import ParseableData
+from nozomi.http.headers import Headers
+from nozomi.security.forwarded_agent import ForwardedAgent
+from nozomi.errors.not_authorised import NotAuthorised
 
 
 class InternalResource(Resource):
@@ -23,25 +27,67 @@ class InternalResource(Resource):
     def __init__(
         self,
         datastore: Datastore,
-        internal_key: InternalKey
+        configuration: Configuration
     ) -> None:
 
-        super().__init__(datastore)
-        assert isinstance(internal_key, InternalKey)
-        self._internal_key = internal_key
+        super().__init__(
+            datastore=datastore,
+            configuration=configuration
+        )
+
+        assert isinstance(self.session_implementation, type)
+        assert isinstance(self.requests_may_change_state, bool)
+
+        if not isinstance(configuration.internal_psk, InternalKey):
+            raise RuntimeError('Internal Resources require an InternalKey')
+
         return
+
+    def compute_response(
+        self,
+        query: Optional[QueryString],
+        unauthorised_agent: Agent,
+        request_data: Optional[Union[ParseableData, List[ParseableData]]],
+    ) -> Tuple[Union[Broadcastable, List[Broadcastable]], Agent]:
+        # Method returning an encodable response, and an Agent authorised to
+        # make the request.
+        raise NotImplementedError
 
     def serve(
         self,
-        request_data: Optional[Any],
+        request_data: Optional[ParseableData],
         request_arguments: Optional[QueryString],
-        request_headers: QueryString
+        headers: Headers
     ) -> str:
 
-        if not self._internal_key.matches_headers(request_headers):
-            raise NozomiError(
-                'Not internally authorised',
-                HTTPStatusCode.NOT_AUTHORISED
+        unauthorised_agent = ForwardedAgent.from_headers(
+            internal_key=self.configuration.internal_psk,
+            headers=headers,
+            datastore=self.datastore,
+            configuration=self.configuration
+        )
+
+        response, authorised_agent = self.compute_response(
+            request_arguments,
+            unauthorised_agent,
+            request_data
+        )
+
+        if not isinstance(authorised_agent, Agent):
+            raise NotAuthorised
+
+        if authorised_agent != unauthorised_agent:
+            raise NotAuthorised
+        assert authorised_agent == unauthorised_agent
+
+        self.assert_read_available_to(
+            unauthorised_agent=authorised_agent,
+            broadcast_candidate=response
+        )
+
+        if isinstance(response, list):
+            return Broadcastable.serialise_many(
+                Broadcastable.broadcast_many_to(response, authorised_agent)
             )
 
-        return super().serve(request_data, request_arguments, request_headers)
+        return response.broadcast_to(authorised_agent).serialise()
