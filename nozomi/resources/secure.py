@@ -13,7 +13,6 @@ from nozomi.http.query_string import QueryString
 from nozomi.http.headers import Headers
 from nozomi.security.perspective import Perspective
 from nozomi.security.forwarded_agent import ForwardedAgent
-from nozomi.security.protected import Protected
 from nozomi.data.encodable import Encodable
 from typing import Optional, Tuple, Set, Type
 from nozomi.security.abstract_session import AbstractSession
@@ -127,34 +126,17 @@ class SecureResource(Resource):
                 raise NotAuthorised
             assert authorised_agent == session.agent
 
-        if isinstance(response, list):
-            for candidate in response:
-                self.assert_read_available_to(
-                    unauthorised_agent=authorised_agent,
-                    broadcast_candidate=candidate
-                )
-            return Broadcastable.serialise_many(
-                Broadcastable.broadcast_many_to(response, authorised_agent)
-            )
-
         self.assert_read_available_to(
             unauthorised_agent=authorised_agent,
             broadcast_candidate=response
         )
 
-        return response.broadcast_to(authorised_agent).serialise()
+        if isinstance(response, list):
+            return Broadcastable.serialise_many(
+                Broadcastable.broadcast_many_to(response, authorised_agent)
+            )
 
-    def assert_read_available_to(
-        self,
-        unauthorised_agent: Agent,
-        broadcast_candidate: Protected
-    ) -> Agent:
-        """
-        Raise a NotAuthorised error if this Agent may not read the candidate
-        """
-        if not broadcast_candidate.grants_read_to(unauthorised_agent):
-            raise NotAuthorised
-        return unauthorised_agent
+        return response.broadcast_to(authorised_agent).serialise()
 
     class AcknowledgementBroadcast(Broadcastable):
         """

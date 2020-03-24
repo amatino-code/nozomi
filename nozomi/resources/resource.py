@@ -10,8 +10,10 @@ from nozomi.data.datastore import Datastore
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.encodable import Encodable
 from nozomi.ancillary.configuration import Configuration
-from typing import Any
-from typing import Optional
+from typing import Any, Optional, Union, List
+from nozomi.security.read_protected import ReadProtected
+from nozomi.security.agent import Agent
+from nozomi.errors.not_authorised import NotAuthorised
 
 
 class Resource:
@@ -53,3 +55,22 @@ class Resource:
             request_arguments,
             request_headers
         ).serialise()
+
+    def assert_read_available_to(
+        self,
+        unauthorised_agent: Agent,
+        broadcast_candidate: Union[ReadProtected, List[ReadProtected]]
+    ) -> Agent:
+        """
+        Raise a NotAuthorised error if this Agent may not read the candidate
+        """
+        if isinstance(broadcast_candidate, list):
+            for candidate in broadcast_candidate:
+                if not candidate.grants_read_to(unauthorised_agent):
+                    raise NotAuthorised
+                continue
+            return broadcast_candidate
+
+        if not broadcast_candidate.grants_read_to(unauthorised_agent):
+            raise NotAuthorised
+        return unauthorised_agent
