@@ -63,7 +63,7 @@ Headers initialiser.'
         return self._raw.getlist(key)
 
     def add(self, key: str, value: str) -> None:
-        if (hasattr(self, 'add')):
+        if (hasattr(self._raw, 'add')):
             self._raw.add(key, value)
             return
         self._raw[key] = value
