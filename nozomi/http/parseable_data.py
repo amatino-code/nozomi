@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any, List, TypeVar, Type
 from nozomi.errors.bad_request import BadRequest
 import string
 from decimal import Decimal
+from nozomi.ancillary.immutable import Immutable
 
 T = TypeVar('T', bound='ParseableData')
 
@@ -18,6 +19,8 @@ class ParseableData:
     def __init__(self, raw: Mapping) -> None:
         self._raw = raw
         return
+
+    raw = Immutable(lambda s: s._raw)
 
     def parse_string(
         self,
