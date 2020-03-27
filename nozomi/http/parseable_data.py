@@ -83,10 +83,27 @@ class ParseableData:
 
         return value
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str, of_type: Optional[Type] = None) -> Optional[Any]:
         if key not in self._raw.keys():
             return None
-        return self._raw[key]
+
+        value = self._raw[key]
+        if of_type is not None and not isinstance(value, of_type):
+            raise BadRequest('Value for key ' + key + ' has incorrect type')
+
+        return value
+
+    def require(
+        self,
+        key: str,
+        of_type: Optional[Type] = None
+    ) -> Any:
+
+        value = self.get(key, of_type)
+        if value is None:
+            raise BadRequest('Missing value for key ' + key)
+
+        return value
 
     def optionally_parse_int(
         self,
