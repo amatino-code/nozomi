@@ -254,6 +254,9 @@ class ParseableData:
     def __getitem__(self, key):
         return self._raw[key]
 
+    def __str__(self) -> str:
+        return str(self._raw)
+
     @classmethod
     def many(cls: Type[T], data: List[Any]) -> List[T]:
         if not isinstance(data, list):
