@@ -32,7 +32,8 @@ class Datastore:
         self,
         query: str,
         arguments: Optional[Dict[str, AnySQLConforming]] = None,
-        atomic=False
+        atomic: bool = False,
+        threadsafe: bool = False
     ) -> Optional[Any]:
         """
         Execute a supplied SQL query string with the supplied arguments. The
