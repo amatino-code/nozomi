@@ -35,9 +35,6 @@ class InternalResource(Resource):
             configuration=configuration
         )
 
-        assert isinstance(self.session_implementation, type)
-        assert isinstance(self.requests_may_change_state, bool)
-
         if not isinstance(configuration.internal_psk, InternalKey):
             raise RuntimeError('Internal Resources require an InternalKey')
 
