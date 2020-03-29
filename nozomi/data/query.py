@@ -29,12 +29,18 @@ class Query:
         datastore: Datastore,
         arguments: Optional[Dict[str, AnySQLConforming]] = None,
         dynamic_arguments: Optional[Dict[str, str]] = None,
-        atomic=False
+        atomic: bool = False,
+        threadsafe: bool = False
     ) -> Optional[Union[Sequence, Mapping]]:
         query = self._query
         if dynamic_arguments is not None:
             query = self._query.format(**dynamic_arguments)
-        return datastore.execute(query, arguments, atomic)
+        return datastore.execute(
+            query=query,
+            arguments=arguments,
+            atomic=atomic,
+            threadsafe=threadsafe
+        )
 
     def mogrify(
         self,
