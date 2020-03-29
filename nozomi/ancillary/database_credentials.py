@@ -40,8 +40,8 @@ class DatabaseCredentials(Decodable):
         dsn = 'host=' + self._host
         dsn += ' dbname=' + self._database_name
         dsn += ' user=' + self._user
-        dsn += ' password=' + self._secret
         dsn += ' port=' + self._port
+        dsn += ' password=' + self._secret
         return dsn
 
     def apply_to_template(
