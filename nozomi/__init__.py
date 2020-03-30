@@ -3,6 +3,7 @@ from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.database_credentials import DatabaseCredentials
 from nozomi.ancillary.server_name import ServerName
 from nozomi.ancillary.file_content import FileBody
+from nozomi.ancillary.command_line import CommandLine
 
 from nozomi.temporal.time import NozomiTime
 from nozomi.temporal.date import NozomiDate
