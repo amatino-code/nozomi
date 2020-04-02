@@ -32,3 +32,8 @@ class Protected(ReadProtected):
         if not isinstance(self.permission_record, PermissionRecord):
             raise NotImplementedError('.permission_record not implemented')
         return self.permission_record.records_admin_permission_for(agent)
+
+    def is_owned_by(self, agent: Agent) -> bool:
+        if not isinstance(self.permission_record, PermissionRecord):
+            raise NotImplementedError('.permission_record not implemented')
+        return self.permission_record.records_ownership_by(agent)
