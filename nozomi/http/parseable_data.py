@@ -82,7 +82,8 @@ class ParseableData:
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         filter_threats: bool = True,
-        allow_whitespace: bool = False
+        allow_whitespace: bool = False,
+        minimum_count: int = 0
     ) -> List[str]:
 
         if not hasattr(self._raw, 'getlist'):
@@ -90,6 +91,9 @@ class ParseableData:
 not provide a .getlist() method for multiple values per key')
 
         values = self._raw.getlist()
+
+        if len(values) < minimum_count:
+            raise BadRequest('Supply at least one value for key: ' + key)
 
         for value in values:
             self._validate_string(
