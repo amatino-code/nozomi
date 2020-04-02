@@ -91,7 +91,7 @@ class ParseableData:
             raise RuntimeError('Data structure underpinning ParseableData does \
 not provide a .getlist() method for multiple values per key')
 
-        values = self._raw.getlist()
+        values = self._raw.getlist(key)
 
         if len(values) < minimum_count:
             raise BadRequest('Supply at least {c} value for key {k}'.format(
