@@ -42,24 +42,17 @@ class ParseableData:
         if value is None:
             raise BadRequest('Missing value for key ' + key)
 
-        if not isinstance(value, str):
-            raise BadRequest('Value for key ' + key + ' must be string')
-
         return value
 
-    def optionally_parse_string(
+    def _validate_string(
         self,
+        value: Any,
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         filter_threats: bool = True,
         allow_whitespace: bool = False
-    ) -> Optional[str]:
-
-        value = self._raw.get(key)
-
-        if value is None:
-            return None
+    ) -> str:
 
         if not isinstance(value, str):
             raise BadRequest('Value for key ' + key + ' must be string')
@@ -82,6 +75,56 @@ class ParseableData:
                 raise BadRequest('Yikes!')
 
         return value
+
+    def parse_many_strings(
+        self,
+        key: str,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        filter_threats: bool = True,
+        allow_whitespace: bool = False
+    ) -> List[str]:
+
+        if not hasattr(self._raw, 'getlist'):
+            raise RuntimeError('Data structure underpinning ParseableData does \
+not provide a .getlist() method for multiple values per key')
+
+        values = self._raw.getlist()
+
+        for value in values:
+            self._validate_string(
+                value=value,
+                key=key,
+                max_length=max_length,
+                min_length=min_length,
+                filter_threats=filter_threats,
+                allow_whitespace=allow_whitespace
+            )
+
+        return values
+
+    def optionally_parse_string(
+        self,
+        key: str,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        filter_threats: bool = True,
+        allow_whitespace: bool = False
+    ) -> Optional[str]:
+
+        value = self._raw.get(key)
+
+        if value is None:
+            return None
+
+        return self._validate_string(
+            value=value,
+            key=key,
+            max_length=max_length,
+            min_length=min_length,
+            filter_threats=filter_threats,
+            allow_whitespace=allow_whitespace
+        )
 
     def get(self, key: str, of_type: Optional[Type] = None) -> Optional[Any]:
         if key not in self._raw.keys():
