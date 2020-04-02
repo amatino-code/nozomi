@@ -65,9 +65,9 @@ class InternalResource(Resource):
         )
 
         response, authorised_agent = self.compute_response(
-            request_arguments,
-            unauthorised_agent,
-            request_data
+            query=request_arguments,
+            unauthorised_agent=unauthorised_agent,
+            request_data=request_data
         )
 
         if not isinstance(authorised_agent, Agent):
