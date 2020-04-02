@@ -12,7 +12,7 @@ from nozomi.security.read_protected import ReadProtected
 T = TypeVar('T', bound='Broadcastable')
 
 
-class Broadcastable(Encodable, ReadProtected):
+class Broadcastable(ReadProtected):
     """
     Abstract class defining an interface for concrete classes who may be asked
     to provide a broadcastable representation of themselves. For example,
