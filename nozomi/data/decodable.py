@@ -30,6 +30,15 @@ class Decodable:
         return cls.decode(loads(serial))
 
     @classmethod
+    def optionally_deserialise(
+        cls: Type[T],
+        serial: Optional[str]
+    ) -> Optional[T]:
+        if serial is None:
+            return None
+        return self.deserialise(serial)
+
+    @classmethod
     def decode_many(cls: Type[T], data: Any) -> List[T]:
         """Return list of decoded instances of an object"""
         return [cls.decode(d) for d in data]
