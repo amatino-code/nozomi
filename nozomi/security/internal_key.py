@@ -5,6 +5,7 @@ Copyright Amatino Pty Ltd
 """
 import hmac
 from nozomi.http.headers import Headers
+from collections.abc import Mapping
 
 
 class InternalKey:
@@ -21,6 +22,10 @@ class InternalKey:
         self._key = key
         self._header_key = header_key
 
+        return
+
+    def add_to(self, headers: Mapping) -> Mapping:
+        headers[self._header_key] = self._key
         return
 
     def matches_headers(self, headers: Headers) -> bool:
