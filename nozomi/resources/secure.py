@@ -34,7 +34,7 @@ class SecureResource(Resource):
 
     session_implementation: Type[AbstractSession] = NotImplemented
     requests_may_change_state: bool = NotImplemented
-    allowed_perspectives: Set[Perspective] = NotImplemented
+    allowed_perspectives: Optional[Set[Perspective]] = NotImplemented
     allows_unconfirmed_agents: bool = NotImplemented
 
     def __init__(
@@ -47,12 +47,11 @@ class SecureResource(Resource):
             datastore=datastore,
             configuration=configuration
         )
-        if not isinstance(self.allowed_perspectives, set):
+        if (
+            self.allowed_perspectives is not None
+            and not isinstance(self.allowed_perspectives, set)
+        ):
             raise NotImplementedError('Implement .allowed_perspectives')
-        if False in [
-            isinstance(p, Perspective) for p in self.allowed_perspectives
-        ]:
-            raise TypeError('.allowed_perspectives must be Set[Perspective]')
 
         assert isinstance(self.session_implementation, type)
         assert isinstance(self.requests_may_change_state, bool)
@@ -87,7 +86,8 @@ class SecureResource(Resource):
             )
         if session is not None:
             if (
-                    session.perspective not in self.allowed_perspectives
+                    self.allowed_perspectives is not None
+                    and session.perspective not in self.allowed_perspectives
             ):
                 raise NotAuthorised
 
