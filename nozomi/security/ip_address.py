@@ -9,7 +9,7 @@ from nozomi.http.status_code import HTTPStatusCode
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
 from nozomi.errors.error import NozomiError
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Optional
 
 T = TypeVar('T', bound='IpAddress')
 
@@ -44,6 +44,32 @@ class IpAddress(SQLConforming, Encodable):
             return cls(debug_address)
 
         addresses = request_headers.getlist(cls.IP_HEADER)
+
+        # We presume that headers are being set by HAProxy. If these checks
+        # fail, HAProxy is not configured properly.
+
+        if len(addresses) != 1:
+            raise NozomiError('Internal error', HTTPStatusCode.INTERNAL_ERROR)
+
+        if len(addresses[0].split(',')) != 1:
+            raise NozomiError('Internal error', HTTPStatusCode.INTERNAL_ERROR)
+
+        return cls(addresses[0])
+
+    @classmethod
+    def from_headers(
+        cls: Type[T],
+        headers: Headers,
+        boundary_ip_header: str,
+        debug: bool = False,
+        debug_address: Optional[str] = None
+    ) -> T:
+
+        if debug is True:
+            assert isinstance(debug_address, str)
+            return cls(debug_address)
+
+        addresses = headers.getlist(boundary_ip_header)
 
         # We presume that headers are being set by HAProxy. If these checks
         # fail, HAProxy is not configured properly.

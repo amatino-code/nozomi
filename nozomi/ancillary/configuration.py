@@ -46,3 +46,5 @@ class Configuration:
 
     # Other
     server_name: str = NotImplemented
+    boundary_ip_header: str = NotImplemented
+

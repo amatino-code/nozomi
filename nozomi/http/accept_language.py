@@ -5,6 +5,7 @@ author: hugh@blinkybeach.com
 """
 from typing import TypeVar, Type, Optional, Tuple, List
 from nozomi.ancillary.immutable import Immutable
+from nozomi.http.headers import Headers
 
 T = TypeVar('T', bound='AcceptLanguage')
 
@@ -28,6 +29,14 @@ class AcceptLanguage:
 
     primary = Immutable(lambda s: s._primary.lower())
     variant = Immutable(lambda s: s._variant)
+
+    @classmethod
+    def from_headers(cls: Type[T], headers: Headers) -> Optional[T]:
+        raw = headers.get('accept-language')
+        if raw is None:
+            return None
+
+        return cls.from_header_item(raw)
 
     @classmethod
     def from_header_item(cls: Type[T], string: str) -> Optional[T]:

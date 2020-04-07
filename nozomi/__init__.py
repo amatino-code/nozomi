@@ -42,6 +42,7 @@ from nozomi.http.url_parameter import URLParameter
 from nozomi.http.url_parameters import URLParameters
 from nozomi.http.api_request import ApiRequest
 from nozomi.http.user_agent import UserAgent
+from nozomi.http.disposition import Disposition
 
 from nozomi.rendering.context import Context
 from nozomi.rendering.open_graph import OpenGraph
