@@ -37,15 +37,7 @@ class ForwardedAgent(StandaloneAgent):
         if forwarded_agent_id is None:
             raise NotAuthorised
 
-        agent = cls.optionally_retrieve(
-            public_id=forwarded_agent_id,
-            datastore=datastore
-        )
-
-        if agent is None:
-            raise NotAuthorised
-
-        return agent
+        return cls(forwarded_agent_id)
 
     @classmethod
     def optionally_from_headers(
@@ -68,12 +60,4 @@ class ForwardedAgent(StandaloneAgent):
         if forwarded_agent_id is None:
             return None
 
-        agent = cls.optionally_retrieve(
-            public_id=forwarded_agent_id,
-            datastore=datastore
-        )
-
-        if agent is None:
-            raise None
-
-        return agent
+        return cls(forwarded_agent_id)

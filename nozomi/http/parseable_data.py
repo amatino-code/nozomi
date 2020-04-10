@@ -17,6 +17,8 @@ class ParseableData:
     """Generic parseable data, underlain by a mapping"""
 
     def __init__(self, raw: Mapping) -> None:
+        if raw is None:
+            raise BadRequest('Expected a key/value object')
         self._raw = raw
         return
 

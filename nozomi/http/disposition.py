@@ -42,14 +42,14 @@ class Disposition:
                 debug=self._configuration.debug,
                 debug_address='127.0.0.1'
             )
-        
+
         return self._ip_address
 
     def _parse_user_agent(self) -> UserAgent:
 
         if self._user_agent is None:
             self._user_agent = UserAgent.from_headers(self._headers)
-        
+
         return self._user_agent
 
     def _parse_accept_language(self) -> Optional[AcceptLanguage]:
