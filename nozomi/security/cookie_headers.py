@@ -9,6 +9,7 @@ from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.immutable import Immutable
 from typing import Optional
 from typing import TypeVar, Type
+from collections.abc import Mapping
 
 T = TypeVar('T', bound='CookieHeaders')
 
@@ -49,6 +50,11 @@ class CookieHeaders(Headers):
         return
 
     dictionary = Immutable(lambda s: s._raw.dictionary)
+
+    def add_to(self, other: Mapping) -> Mapping:
+        for key in self._raw.keys():
+            other[key] = self._raw[key]
+        return other
 
     def _generate_session_cookie(self, debug: bool = False) -> str:
         """Return a set cookie string"""
