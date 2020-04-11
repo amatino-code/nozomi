@@ -25,11 +25,12 @@ class StandaloneAgent(Agent):
 
     def __init__(
         self,
-        agent_id: Union[int, str]
+        agent_id: Union[int, str],
+        agent_id_type: Type = int
     ) -> None:
 
         assert isinstance(agent_id, int) or isinstance(agent_id, str)
-        self._agent_id = agent_id
+        self._agent_id = agent_id_type(agent_id)
 
         return
 

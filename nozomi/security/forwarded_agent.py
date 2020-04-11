@@ -22,7 +22,8 @@ class ForwardedAgent(StandaloneAgent):
         internal_key: InternalKey,
         headers: Headers,
         datastore: Datastore,
-        configuration: Configuration
+        configuration: Configuration,
+        agent_id_type: Type = int
     ) -> T:
 
         assert isinstance(internal_key, InternalKey)
@@ -37,7 +38,7 @@ class ForwardedAgent(StandaloneAgent):
         if forwarded_agent_id is None:
             raise NotAuthorised
 
-        return cls(forwarded_agent_id)
+        return cls(forwarded_agent_id, agent_id_type=agent_id_type)
 
     @classmethod
     def optionally_from_headers(
@@ -45,7 +46,8 @@ class ForwardedAgent(StandaloneAgent):
         internal_key: InternalKey,
         headers: Headers,
         datastore: Datastore,
-        configuration: Configuration
+        configuration: Configuration,
+        agent_id_type: Type = int
     ) -> Optional[T]:
 
         assert isinstance(internal_key, InternalKey)
@@ -60,4 +62,4 @@ class ForwardedAgent(StandaloneAgent):
         if forwarded_agent_id is None:
             return None
 
-        return cls(forwarded_agent_id)
+        return cls(forwarded_agent_id, agent_id_type=agent_id_type)
