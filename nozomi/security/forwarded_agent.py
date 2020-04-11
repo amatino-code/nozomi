@@ -23,7 +23,7 @@ class ForwardedAgent(StandaloneAgent):
         headers: Headers,
         datastore: Datastore,
         configuration: Configuration,
-        agent_id_type: Type = int
+        agent_id_type: Type = str
     ) -> T:
 
         assert isinstance(internal_key, InternalKey)
@@ -47,7 +47,7 @@ class ForwardedAgent(StandaloneAgent):
         headers: Headers,
         datastore: Datastore,
         configuration: Configuration,
-        agent_id_type: Type = int
+        agent_id_type: Type = str
     ) -> Optional[T]:
 
         assert isinstance(internal_key, InternalKey)
