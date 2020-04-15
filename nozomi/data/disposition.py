@@ -3,7 +3,8 @@ Nozomi
 Disposition Module
 author: hugh@blinkybeach.com
 """
-from nozomi.data.codable import Codable, Immutable
+from nozomi.data.codable import Codable
+from nozomi.ancillary.immutable Immutable
 from typing import TypeVar, Type, Any, Dict
 
 T = TypeVar('T', bound='Disposition')
