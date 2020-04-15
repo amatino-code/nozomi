@@ -70,10 +70,7 @@ class ParseableData:
                 raise BadRequest('Whitespace not allowed')
 
         if filter_threats is True:
-            if True in [f in value for f in ('UNION', 'union', 'SELECT',
-                                             'select', 'DELETE', 'delete',
-                                             'char(', 'CHAR(', 'CASE WHEN',
-                                             'case when')]:
+            if True in [f in value for f in ()]:
                 raise BadRequest('Yikes!')
 
         return value
