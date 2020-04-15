@@ -3,7 +3,7 @@ Nozomi
 Disposition Module
 author: hugh@blinkybeach.com
 """
-from nozomi.data.codable import Codable
+from nozomi.data.codable import Codable, Immutable
 from typing import TypeVar, Type, Any, Dict
 
 T = TypeVar('T', bound='Disposition')
@@ -25,6 +25,11 @@ class Disposition(Codable):
         self._offset = offset
 
         return
+
+    sequence = Immutable(lambda s: s._sequence)
+    count = Immutable(lambda s: s._count)
+    limit = Immutable(lambda s: s._limit)
+    offset = Immutable(lambda s: s._offset)
 
     def encode(self) -> Dict[str, int]:
         return {
