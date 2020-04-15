@@ -24,6 +24,7 @@ from nozomi.data.sql_conforming import AnySQLConforming
 from nozomi.data.index_equitable import IndexEquitable
 from nozomi.data.order import Order
 from nozomi.data.fragment import Fragment
+from nozomi.data.disposition import Disposition
 
 from nozomi.errors.error import NozomiError
 from nozomi.errors.bad_request import BadRequest
@@ -42,7 +43,7 @@ from nozomi.http.url_parameter import URLParameter
 from nozomi.http.url_parameters import URLParameters
 from nozomi.http.api_request import ApiRequest
 from nozomi.http.user_agent import UserAgent
-from nozomi.http.disposition import Disposition
+from nozomi.http.character import Character
 
 from nozomi.rendering.context import Context
 from nozomi.rendering.open_graph import OpenGraph

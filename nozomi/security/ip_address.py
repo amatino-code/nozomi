@@ -19,9 +19,11 @@ class IpAddress(SQLConforming, Encodable):
     A client IP address, discerned from examining headers written by a
     network boundary, presumed to be HAProxy
     """
-    IP_HEADER = 'X-Ip-At-Boundary'
 
-    def __init__(self, raw_address: str) -> None:
+    def __init__(
+        self,
+        raw_address: str
+    ) -> None:
 
         assert isinstance(raw_address, str)
         self._raw_address = raw_address
@@ -34,7 +36,8 @@ class IpAddress(SQLConforming, Encodable):
         cls: Type[T],
         request_headers: Headers,
         debug: bool = False,
-        debug_address: str = None
+        debug_address: str = None,
+        boundary_header: str = 'X-Ip-At-Boundary'
     ) -> T:
 
         assert isinstance(debug, bool)
@@ -43,7 +46,7 @@ class IpAddress(SQLConforming, Encodable):
             assert isinstance(debug_address, str)
             return cls(debug_address)
 
-        addresses = request_headers.getlist(cls.IP_HEADER)
+        addresses = request_headers.getlist(boundary_header)
 
         # We presume that headers are being set by HAProxy. If these checks
         # fail, HAProxy is not configured properly.

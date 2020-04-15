@@ -1,6 +1,6 @@
 """
 Nozomi
-Disposition Module
+Character Module
 author: hugh@blinkybeach.com
 """
 from nozomi.security.ip_address import IpAddress
@@ -12,7 +12,7 @@ from typing import Optional
 from nozomi.ancillary.immutable import Immutable
 
 
-class Disposition:
+class Character:
 
     def __init__(
         self,
