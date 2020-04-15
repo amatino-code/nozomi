@@ -69,9 +69,9 @@ class ParseableData:
             if True in [c in value for c in string.whitespace]:
                 raise BadRequest('Whitespace not allowed')
 
-        if filter_threats is True:
-            if True in [f in value for f in ()]:
-                raise BadRequest('Yikes!')
+        #if filter_threats is True:
+        #    if True in [f in value for f in ()]:
+        #        raise BadRequest('Yikes!')
 
         return value
 
