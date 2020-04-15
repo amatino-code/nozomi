@@ -25,6 +25,7 @@ from nozomi.data.index_equitable import IndexEquitable
 from nozomi.data.order import Order
 from nozomi.data.fragment import Fragment
 from nozomi.data.disposition import Disposition
+from nozomi.data.partial_format import PartialFormat
 
 from nozomi.errors.error import NozomiError
 from nozomi.errors.bad_request import BadRequest
