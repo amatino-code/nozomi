@@ -25,7 +25,7 @@ class NozomiError(Exception):
             try:
                 http_status_code = HTTPStatusCode(int(http_status_code))
             except Exception:
-                raise TypeError('status must be of type `HTTPStatusCode`')
+                raise TypeError('status must be a valid `HTTPStatusCode`')
 
         if not isinstance(client_description, str):
             raise TypeError('descriptions must be of type `str`')
@@ -46,6 +46,7 @@ class NozomiError(Exception):
     client_description = Immutable(lambda s: s._client_description)
     stack_trace = Immutable(lambda s: s._stack_trace)
     info_package = Immutable(lambda s: s._info_package())
+    is_500_class = Immutable(lambda s: str(s._http_code)[0] == '5')
 
     def _info_package(self) -> Dict[str, Any]:
         """
