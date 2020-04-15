@@ -16,6 +16,8 @@ class URLParameter:
     ) -> None:
 
         assert isinstance(key, str)
+        if isinstance(value, bool):
+            value = str(value).lower()
         str(value)  # provoke error early
         self._key = key
         self._value = value
