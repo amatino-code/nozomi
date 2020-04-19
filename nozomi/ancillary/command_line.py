@@ -23,7 +23,10 @@ class CommandLine(ParseableData):
             value: Optional[str] = None
             argument = arguments[index]
             if argument[0] == '-':
-                value = arguments[index + 1]
+                if (index + 1) < len(arguments):
+                    value = arguments[index + 1]
+                else:
+                    value = None
                 index += 1
             data[argument] = value
             index += 1
