@@ -38,7 +38,7 @@ class CommandLine(ParseableData):
         return
 
     def contains_flag(self, flag: str) -> bool:
-        if flag in self.data.keys():
+        if flag in self._data.keys():
             return True
         return False
 
