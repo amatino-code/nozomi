@@ -11,6 +11,7 @@ from nozomi.temporal.tz_utc import TimeZoneUTC
 
 from nozomi.data.datastore import Datastore
 from nozomi.data.encodable import Encodable
+from nozomi.data.abstract_encodable import AbstractEncodable
 from nozomi.data.format import Format
 from nozomi.data.encoder import Encoder
 from nozomi.data.decodable import Decodable
