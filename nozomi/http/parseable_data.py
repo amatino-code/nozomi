@@ -194,7 +194,11 @@ not provide a .getlist() method for multiple values per key')
         min_value: Optional[int] = None
     ) -> int:
 
-        value = self.optionally_parse_int(key)
+        value = self.optionally_parse_int(
+            key,
+            max_value=max_value,
+            min_value=min_value
+        )
         if value is None:
             raise BadRequest('Missing ' + key + ' parameter')
         return value
