@@ -11,11 +11,11 @@ from nozomi.security.perspective import Perspective
 from nozomi.rendering.context import Context
 from nozomi.security.considers_perspective import ConsidersPerspective
 from typing import Optional, Set
-from nozomi.security.agent import Agent
 from nozomi.security.request_credentials import RequestCredentials
 from nozomi.http.redirect import Redirect
 from nozomi.errors.not_authenticated import NotAuthenticated
 from nozomi.security.abstract_session import AbstractSession
+from nozomi.translation.language import Language
 
 
 class SecureView(OpenView, ConsidersPerspective):
@@ -33,13 +33,10 @@ class SecureView(OpenView, ConsidersPerspective):
     def compute_response(
         self,
         query: Optional[QueryString],
-        requesting_agent: Agent,
         context: Context,
+        requesting_agent: AbstractSession,
+        requested_language: Optional[Language]
     ) -> Context:
-        """
-        Method returning the context as formed for the supplied request
-        parameters
-        """
         raise NotImplementedError
 
     def serve(
