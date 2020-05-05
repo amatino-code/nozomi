@@ -16,6 +16,9 @@ T = TypeVar('T', bound='ParseableData')
 class ParseableData:
     """Generic parseable data, underlain by a mapping"""
 
+    _MULTI_KEY_ERROR = 'Data structure underpinning ParseableData does \
+not provide a .getlist() method for multiple values per key
+
     def __init__(self, raw: Mapping) -> None:
         if raw is None:
             raise BadRequest('Expected a key/value object')
@@ -87,8 +90,7 @@ class ParseableData:
     ) -> List[str]:
 
         if not hasattr(self._raw, 'getlist'):
-            raise RuntimeError('Data structure underpinning ParseableData does \
-not provide a .getlist() method for multiple values per key')
+            raise RuntimeError(self._MULTI_KEY_ERROR)
 
         values = self._raw.getlist(key)
 
@@ -174,10 +176,23 @@ not provide a .getlist() method for multiple values per key')
         if value is None:
             return None
 
+        return self._validate_integer(
+            candidate=value,
+            max_value=max_value,
+            min_value=min_value
+        )
+
+    def _validate_integer(
+        self,
+        candidate: Any,
+        max_value: Optional[int] = None,
+        min_value: Optional[int] = None
+    ) -> int:
+
         try:
             integer_value = int(value)
         except Exception:
-            raise BadRequest(key + ' must be a string encoded integer')
+            raise BadRequest(key + ' must be integer or string encoded integer')
 
         if min_value is not None and integer_value < min_value:
             raise BadRequest(key + ' below mininum value: ' + str(min_value))
@@ -201,7 +216,44 @@ not provide a .getlist() method for multiple values per key')
         )
         if value is None:
             raise BadRequest('Missing ' + key + ' parameter')
+
         return value
+
+    def parse_many_ints(
+        self,
+        key: str,
+        max_value: Optional[int] = None,
+        min_value: Optional[int] = None,
+        minimum_count: int = 0,
+        maximum_count: Optional[int] = None
+    ) -> List[int]:
+
+        if not hasattr(self._raw, 'getlist'):
+            raise RuntimeError(self._MULTI_KEY_ERROR)
+
+        values = self._raw.getlist(key)
+
+        if len(values) < minimum_count:
+            raise BadRequest('{k} must provide at least {n} integers'.format(
+                k=key,
+                n=str(minimum_count)
+            ))
+
+        if maximum_count is not None and len(values) > maximum_count:
+            raise BadRequest('{k} must provide no more than {n} \
+integers'.format(
+                k=key,
+                n=str(maximum_count)
+            ))
+
+        for value in values:
+            self._validate_integer(
+                candidate=value,
+                max_value=max_value,
+                min_value=min_value
+            )
+
+        return values
 
     def optionally_parse_bool(
         self,
