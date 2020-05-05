@@ -15,7 +15,7 @@ from nozomi.security.request_credentials import RequestCredentials
 from nozomi.http.redirect import Redirect
 from nozomi.errors.not_authenticated import NotAuthenticated
 from nozomi.security.abstract_session import AbstractSession
-from nozomi.translation.language import Language
+from nozomi.http.character import Character
 
 
 class SecureView(OpenView, ConsidersPerspective):
@@ -35,7 +35,7 @@ class SecureView(OpenView, ConsidersPerspective):
         query: Optional[QueryString],
         context: Context,
         requesting_agent: AbstractSession,
-        requested_language: Optional[Language]
+        character: Character
     ) -> Context:
         raise NotImplementedError
 
