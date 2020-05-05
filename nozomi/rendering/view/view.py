@@ -10,7 +10,7 @@ from nozomi.rendering.static_context import StaticContext
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.immutable import Immutable
-from nozomi.translation.language import Language
+from nozomi.http.character import Character
 from nozomi.http.headers import Headers
 from nozomi.http.query_string import QueryString
 from nozomi.security.abstract_session import AbstractSession
@@ -29,7 +29,6 @@ class View:
     """
 
     _transient_context = None
-    fallback_language: Optional[Language] = None
 
     def __init__(
         self,
@@ -120,20 +119,13 @@ class View:
         if context is None:
             context = Context()
 
-        requested_language = Language.derive_from_headers(
-            available_languages=self.retrieve_available_languages(
-                headers=headers,
-                query=query
-            ),
-            headers=headers,
-            fallback_to=self.fallback_language
-        )
+        character = Character(headers, self.configuration)
 
         computed_context = self.compute_response(
             query=query,
             context=context,
             requesting_agent=session,
-            requested_language=requested_language
+            character=character
         )
         assert isinstance(computed_context, Context)
         return self._template.render(computed_context)
@@ -143,7 +135,7 @@ class View:
         query: Optional[QueryString],
         context: Context,
         requesting_agent: Optional[Agent],
-        requested_language: Optional[Language]
+        character: Character
     ) -> Context:
         raise NotImplementedError
 
@@ -154,16 +146,3 @@ class View:
 
     def render(self, with_context: Context) -> str:
         return self._template.render(with_context)
-
-    def retrieve_available_languages(
-        self,
-        headers: Headers,
-        query: Optional[QueryString]
-    ) -> Optional[List[Language]]:
-        """
-        Return a list of languages available for serving this request. The
-        agent's requested Language will be derived and provided in the
-        .compute_response() method. Return None for no Language preference
-        to be expressed.
-        """
-        return None
