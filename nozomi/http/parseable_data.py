@@ -17,7 +17,7 @@ class ParseableData:
     """Generic parseable data, underlain by a mapping"""
 
     _MULTI_KEY_ERROR = 'Data structure underpinning ParseableData does \
-not provide a .getlist() method for multiple values per key
+not provide a .getlist() method for multiple values per key'
 
     def __init__(self, raw: Mapping) -> None:
         if raw is None:
@@ -177,6 +177,7 @@ not provide a .getlist() method for multiple values per key
             return None
 
         return self._validate_integer(
+            key=key,
             candidate=value,
             max_value=max_value,
             min_value=min_value
@@ -184,13 +185,14 @@ not provide a .getlist() method for multiple values per key
 
     def _validate_integer(
         self,
+        key: str,
         candidate: Any,
         max_value: Optional[int] = None,
         min_value: Optional[int] = None
     ) -> int:
 
         try:
-            integer_value = int(value)
+            integer_value = int(candidate)
         except Exception:
             raise BadRequest(key + ' must be integer or string encoded integer')
 
@@ -248,6 +250,7 @@ integers'.format(
 
         for value in values:
             self._validate_integer(
+                key=key,
                 candidate=value,
                 max_value=max_value,
                 min_value=min_value
