@@ -34,10 +34,8 @@ class UserAgent(SQLConforming):
         fallback_to: str = 'Unavailable'
     ) -> T:
 
-        body = headers.optionally_parse_string('User-Agent')
+        body = headers.value_for('User-Agent')
         if body is None:
-            body = headers.optionally_parse_string('user-agent')
-            if body is None:
-                return cls(body=fallback_to)
+            return cls(body=fallback_to)
 
         return cls(body=body)
