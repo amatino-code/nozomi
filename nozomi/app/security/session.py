@@ -22,6 +22,7 @@ from typing import Optional, TypeVar, Type, Any
 import hmac
 from nozomi.security.agent import Agent
 from nozomi.security.request_credentials import RequestCredentials
+from nozomi.errors.bad_request import BadRequest
 
 T = TypeVar('T', bound='Session')
 
@@ -174,6 +175,12 @@ Nozomi Application')
             return None
 
         session_id = cookies.value_for(configuration.session_id_name)
+        if isinstance(session_id, str):
+            try:
+                session_id = int(session_id)
+            except ValueError:
+                raise BadRequest('Session ID cookie values must be integers')
+
         try:
             session = cls.retrieve(
                 session_id=session_id,
