@@ -7,6 +7,7 @@ from nozomi.ancillary.database_credentials import DatabaseCredentials
 from typing import Optional, List
 from nozomi.security.internal_key import InternalKey
 from nozomi.security.agent import Agent
+from nozomi.ancillary.immutable import Immutable
 
 
 class Configuration:
@@ -17,6 +18,9 @@ class Configuration:
 
     debug: bool = NotImplemented
     api_endpoint: str = NotImplemented
+    public_api_endpoint: str = Immutable(
+        lambda s: s.api_endpoint
+    )
 
     # Sessions
 

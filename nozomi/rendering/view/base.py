@@ -32,7 +32,7 @@ class BaseView(View):
     ) -> None:
 
         all_static_js_constants = {
-            'global_api_endpoint': configuration.api_endpoint,
+            'global_api_endpoint': configuration.public_api_endpoint,
             'global_debug_flag': configuration.debug
         }
         if static_js_constants is not None:
