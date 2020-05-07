@@ -89,7 +89,7 @@ class Session(AbstractSession):
             return False
         supplied_id = cookies.value_for(configuration.session_id_name)
         supplied_key = cookies.value_for(configuration.session_cookie_key_name)
-        if supplied_id != self._session_id:
+        if str(supplied_id) != str(self._session_id):
             return False
         return self._authenticate_raw_credentials(supplied_key)
 
