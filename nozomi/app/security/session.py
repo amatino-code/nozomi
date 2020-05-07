@@ -63,6 +63,7 @@ class Session(AbstractSession):
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
     session_id: int = Immutable(lambda s: s._session_id)
+    session_key: str = Immutable(lambda s: s._session_key)
 
     agent_id = Immutable(lambda s: s.agent.agent_id)
 
