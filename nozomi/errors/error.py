@@ -46,7 +46,7 @@ class NozomiError(Exception):
     client_description = Immutable(lambda s: s._client_description)
     stack_trace = Immutable(lambda s: s._stack_trace)
     info_package = Immutable(lambda s: s._info_package())
-    is_500_class = Immutable(lambda s: str(s._http_code)[0] == '5')
+    is_500_class = Immutable(lambda s: str(s._http_code.value)[0] == '5')
 
     def _info_package(self) -> Dict[str, Any]:
         """
