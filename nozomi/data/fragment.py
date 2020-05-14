@@ -22,6 +22,7 @@ class Fragment(SQLConforming):
     sql_representation = Immutable(
         lambda s: s.adapt_string(s._wildcard_fragment)
     )
+    value = Immutable(lambda s: s._fragment)
 
     @classmethod
     def from_arguments(

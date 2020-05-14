@@ -3,6 +3,7 @@ Nozomi
 Character Module
 author: hugh@blinkybeach.com
 """
+from nozomi.temporal.time import NozomiTime
 from nozomi.security.ip_address import IpAddress
 from nozomi.http.user_agent import UserAgent
 from nozomi.http.accept_language import AcceptLanguage
