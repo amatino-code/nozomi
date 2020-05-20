@@ -35,7 +35,7 @@ class NozomiTime(datetime, Encodable, Decodable):
             time = cls.strptime(parsable, cls._DB_FORMAT_STRING)
         except ValueError:
             time = cls.strptime(parsable, cls._NO_MS_FORMAT)
-        decoded = NozomiTime(
+        decoded = cls(
             year=time.year,
             month=time.month,
             day=time.day,
