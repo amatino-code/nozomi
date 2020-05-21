@@ -191,6 +191,9 @@ not provide a .getlist() method for multiple values per key'
         min_value: Optional[int] = None
     ) -> int:
 
+        if isinstance(candidate, bool):
+            raise BadRequest(key + ' must be integer or string encoded integer')
+
         try:
             integer_value = int(candidate)
         except Exception:
