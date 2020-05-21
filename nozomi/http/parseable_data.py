@@ -257,7 +257,7 @@ integers'.format(
                 min_value=min_value
             ))
 
-        return values
+        return validated
 
     def optionally_parse_bool(
         self,
