@@ -248,13 +248,14 @@ integers'.format(
                 n=str(maximum_count)
             ))
 
+        validated: List[int] = list()
         for value in values:
-            self._validate_integer(
+            validated.append(self._validate_integer(
                 key=key,
                 candidate=value,
                 max_value=max_value,
                 min_value=min_value
-            )
+            ))
 
         return values
 
