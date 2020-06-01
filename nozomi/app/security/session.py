@@ -18,13 +18,13 @@ from nozomi.http.url_parameters import URLParameters
 from nozomi.http.url_parameter import URLParameter
 from nozomi.errors.not_authenticated import NotAuthenticated
 from urllib.request import HTTPError
-from typing import Optional, TypeVar, Type, Any
+from typing import Optional, TypeVar, Type, Any, Union
 import hmac
 from nozomi.security.agent import Agent
 from nozomi.security.request_credentials import RequestCredentials
-from nozomi.errors.bad_request import BadRequest
 
 T = TypeVar('T', bound='Session')
+ID_TYPE = Union[int, str]
 
 
 class Session(AbstractSession):
@@ -33,7 +33,7 @@ class Session(AbstractSession):
 
     def __init__(
         self,
-        session_id: int,
+        session_id: ID_TYPE,
         session_key: str,
         api_key: str,
         agent: Agent,
@@ -42,7 +42,6 @@ class Session(AbstractSession):
         perspective: Perspective
     ) -> None:
 
-        assert isinstance(session_id, int)
         assert isinstance(session_key, str)
         assert isinstance(api_key, str)
         assert isinstance(agent, Agent)
@@ -63,7 +62,7 @@ class Session(AbstractSession):
     agent: Agent = Immutable(lambda s: s._agent)
     perspective: Perspective = Immutable(lambda s: s._perspective)
     api_key: str = Immutable(lambda s: s._api_key)
-    session_id: int = Immutable(lambda s: s._session_id)
+    session_id: ID_TYPE = Immutable(lambda s: s._session_id)
     session_key: str = Immutable(lambda s: s._session_key)
 
     agent_id = Immutable(lambda s: s.agent.agent_id)
@@ -115,13 +114,11 @@ class Session(AbstractSession):
     @classmethod
     def retrieve(
         cls: Type[T],
-        session_id: int,
+        session_id: ID_TYPE,
         credentials: RequestCredentials,
         configuration: Configuration
     ) -> Optional[T]:
         """Return a Session with the given Session ID, if it exists"""
-
-        assert isinstance(session_id, int)
 
         target = URLParameter('session_id', str(session_id))
         parameters = URLParameters([target])
@@ -175,11 +172,6 @@ Nozomi Application')
             return None
 
         session_id = cookies.value_for(configuration.session_id_name)
-        if isinstance(session_id, str):
-            try:
-                session_id = int(session_id)
-            except ValueError:
-                raise BadRequest('Session ID cookie values must be integers')
 
         try:
             session = cls.retrieve(
