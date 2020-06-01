@@ -36,6 +36,7 @@ class SecureResource(Resource):
     requests_may_change_state: bool = NotImplemented
     allowed_perspectives: Optional[Set[Perspective]] = NotImplemented
     allows_unconfirmed_agents: bool = NotImplemented
+    forwarded_agent_implementation: Type[ForwardedAgent] = ForwardedAgent
 
     def __init__(
         self,
@@ -76,6 +77,7 @@ class SecureResource(Resource):
     ) -> str:
 
         SessionImplementation = self.session_implementation
+        ForwardedAgentImplementation = self.forwarded_agent_implementation
 
         if session is None:
             session = SessionImplementation.from_headers(
@@ -95,7 +97,7 @@ class SecureResource(Resource):
             raise NotAuthorised
 
         if session is None:
-            unauthorised_agent = ForwardedAgent.from_headers(
+            unauthorised_agent = ForwardedAgentImplementation.from_headers(
                 internal_key=self.configuration.internal_psk,
                 headers=headers,
                 datastore=self.datastore,
