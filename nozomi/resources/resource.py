@@ -14,6 +14,7 @@ from typing import Any, Optional, Union, List
 from nozomi.security.read_protected import ReadProtected
 from nozomi.security.agent import Agent
 from nozomi.errors.not_authorised import NotAuthorised
+from nozomi.security.broadcastable import Broadcastable
 
 
 class Resource:
@@ -74,3 +75,13 @@ class Resource:
         if not broadcast_candidate.grants_read_to(unauthorised_agent):
             raise NotAuthorised
         return unauthorised_agent
+
+    class AcknowledgementBroadcast(Broadcastable):
+        """
+        Canned Broadcastable response useful in cases where an acknolwedgement
+        response is desired but a broadcast of a protect object is not.
+        """
+        _DATA = {'result': 'ok'}
+
+        def broadcast_to(self, _) -> Encodable:
+            return Resource.ResponseData(self._DATA)

@@ -139,13 +139,3 @@ class SecureResource(Resource):
             )
 
         return response.broadcast_to(authorised_agent).serialise()
-
-    class AcknowledgementBroadcast(Broadcastable):
-        """
-        Canned Broadcastable response useful in cases where an acknolwedgement
-        response is desired but a broadcast of a protect object is not.
-        """
-        _DATA = {'result': 'ok'}
-
-        def broadcast_to(self, _) -> Encodable:
-            return Resource.ResponseData(self._DATA)
