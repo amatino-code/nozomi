@@ -16,7 +16,8 @@ class Datastore:
 
     def __init__(
         self,
-        credentials: DatabaseCredentials
+        credentials: DatabaseCredentials,
+        debug: bool = False
     ) -> None:
 
         raise NotImplementedError
@@ -67,4 +68,4 @@ class Datastore:
     @classmethod
     def from_config(cls: Type[T], configuration: Any):
         credentials = configuration.database_credentials
-        return cls(credentials)
+        return cls(credentials, configuration.debug)
