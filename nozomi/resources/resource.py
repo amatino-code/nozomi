@@ -76,7 +76,7 @@ class Resource:
             raise NotAuthorised
         return unauthorised_agent
 
-    class AcknowledgementBroadcast(Broadcastable):
+    class AcknowledgementBroadcast(Broadcastable, Encodable):
         """
         Canned Broadcastable response useful in cases where an acknolwedgement
         response is desired but a broadcast of a protect object is not.
@@ -85,3 +85,6 @@ class Resource:
 
         def broadcast_to(self, _) -> Encodable:
             return Resource.ResponseData(self._DATA)
+
+        def encode(self) -> Dict[str, str]:
+            return self._DATA
