@@ -134,7 +134,7 @@ class SecureResource(Resource):
         )
 
         if isinstance(response, list):
-            return Broadcastable.serialise_many(
+            return Encodable.serialise_many(
                 Broadcastable.broadcast_many_to(response, authorised_agent)
             )
 
