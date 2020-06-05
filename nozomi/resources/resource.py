@@ -10,7 +10,7 @@ from nozomi.data.datastore import Datastore
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.encodable import Encodable
 from nozomi.ancillary.configuration import Configuration
-from typing import Any, Optional, Union, List
+from typing import Any, Optional, Union, List, Dict
 from nozomi.security.read_protected import ReadProtected
 from nozomi.security.agent import Agent
 from nozomi.errors.not_authorised import NotAuthorised
