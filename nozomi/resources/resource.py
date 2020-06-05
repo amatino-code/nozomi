@@ -84,7 +84,7 @@ class Resource:
         _DATA = {'result': 'ok'}
 
         def broadcast_to(self, _) -> Encodable:
-            return Resource.ResponseData(self._DATA)
+            return self
 
         def encode(self) -> Dict[str, str]:
             return self._DATA
