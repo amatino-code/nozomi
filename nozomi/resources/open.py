@@ -28,6 +28,7 @@ class OpenResource(Resource):
     session_implementation: Type[AbstractSession] = NotImplemented
     requests_may_change_state: bool = NotImplemented
     allows_unconfirmed_agents: bool = NotImplemented
+    forwarded_agent_implementation: Type[ForwardedAgent] = ForwardedAgent
 
     def __init__(
         self,
@@ -62,6 +63,7 @@ class OpenResource(Resource):
     ) -> str:
 
         SessionImplementation = self.session_implementation
+        ForwardedAgentClass = self.forwarded_agent_implementation
 
         requesting_agent: Optional[Agent] = None
 
@@ -83,7 +85,7 @@ class OpenResource(Resource):
             raise NotAuthorised
 
         if requesting_agent is None:
-            requesting_agent = ForwardedAgent.optionally_from_headers(
+            requesting_agent = ForwardedAgentClass.optionally_from_headers(
                 internal_key=self.configuration.internal_psk,
                 headers=headers,
                 datastore=self.datastore,

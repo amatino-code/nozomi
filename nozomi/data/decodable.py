@@ -36,7 +36,7 @@ class Decodable:
     ) -> Optional[T]:
         if serial is None:
             return None
-        return self.deserialise(serial)
+        return cls.deserialise(serial)
 
     @classmethod
     def decode_many(cls: Type[T], data: Any) -> List[T]:
