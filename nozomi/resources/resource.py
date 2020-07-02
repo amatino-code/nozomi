@@ -83,6 +83,9 @@ class Resource:
         """
         _DATA = {'result': 'ok'}
 
+        def grants_read_to(self, agent: Agent) -> bool:
+            return True
+
         def broadcast_to(self, _) -> Encodable:
             return self
 
