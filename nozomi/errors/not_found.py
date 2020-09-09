@@ -5,6 +5,9 @@ author: hugh@blinkybeach.com
 """
 from nozomi.errors.error import NozomiError
 from nozomi.http.status_code import HTTPStatusCode
+from typing import TypeVar, Type
+
+T = TypeVar('T', bound='NotFound')
 
 
 class NotFound(NozomiError):
@@ -20,3 +23,12 @@ class NotFound(NozomiError):
         )
 
         return
+
+    @classmethod
+    def for_object(cls: Type[T], name: str, id_: str) -> T:
+        return cls(
+            client_description='No {n} with id {i} could not found'.format(
+                n=name,
+                i=id_
+            )
+        )
