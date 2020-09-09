@@ -141,23 +141,34 @@ not provide a .getlist() method for multiple values per key'
             allow_whitespace=allow_whitespace
         )
 
-    def get(self, key: str, of_type: Optional[Type] = None) -> Optional[Any]:
+    def get(
+        self,
+        key: str,
+        of_type: Optional[Type] = None,
+        type_name: Optional[str] = None
+    ) -> Optional[Any]:
         if key not in self._raw.keys():
             return None
 
         value = self._raw[key]
         if of_type is not None and not isinstance(value, of_type):
-            raise BadRequest('Value for key ' + key + ' has incorrect type')
+            if type_name is None:
+                raise BadRequest('Value for key ' + key + ' has incorrect type')
+            raise BadRequest('Value for key {k} must be {t}'.format(
+                k=key,
+                t=type_name
+            ))
 
         return value
 
     def require(
         self,
         key: str,
-        of_type: Optional[Type] = None
+        of_type: Optional[Type] = None,
+        type_name: Optional[str] = None
     ) -> Any:
 
-        value = self.get(key, of_type)
+        value = self.get(key, of_type, type_name=type_name)
         if value is None:
             raise BadRequest('Missing value for key ' + key)
 
