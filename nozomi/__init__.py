@@ -23,6 +23,7 @@ from nozomi.data.offset import Offset
 from nozomi.data.sql_conforming import SQLConforming
 from nozomi.data.sql_conforming import AnySQLConforming
 from nozomi.data.index_equitable import IndexEquitable
+from nozomi.data.publicly_identified import PubliclyIdentified
 from nozomi.data.order import Order
 from nozomi.data.fragment import Fragment
 from nozomi.data.disposition import Disposition

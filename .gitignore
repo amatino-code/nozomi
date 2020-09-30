@@ -11,3 +11,4 @@ queries/
 /nozomi.egg-info
 .mypy_cache/*
 deploy
+pyvenv.cfg
