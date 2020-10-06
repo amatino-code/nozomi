@@ -42,7 +42,7 @@ class AccessControl:
         headers.add(
             'Access-Control-Allow-Methods',
             self._ALLOWED_METHODS
-        ),
+        )
         headers.add(
             'Access-Control-Allow-Credentials',
             self._ALLOW_CREDENTIALS
