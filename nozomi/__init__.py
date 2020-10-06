@@ -16,6 +16,7 @@ from nozomi.data.format import Format
 from nozomi.data.encoder import Encoder
 from nozomi.data.decodable import Decodable
 from nozomi.data.codable import Codable
+from nozomi.data.codable import CodingDefinition
 from nozomi.data.query import Query
 from nozomi.data.index_sql_conforming import IndexSQLConforming
 from nozomi.data.limit import Limit
