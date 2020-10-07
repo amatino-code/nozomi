@@ -70,7 +70,7 @@ class Resource:
                 if not candidate.grants_read_to(unauthorised_agent):
                     raise NotAuthorised
                 continue
-            return broadcast_candidate
+            return unauthorised_agent
 
         if not broadcast_candidate.grants_read_to(unauthorised_agent):
             raise NotAuthorised
