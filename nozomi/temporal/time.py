@@ -3,8 +3,7 @@ Nozomi
 Time Module
 author: hugh@blinkybeach.com
 """
-from nozomi.data.encodable import Encodable
-from nozomi.data.decodable import Decodable
+from nozomi.data.codable import Codable
 from datetime import timedelta
 from datetime import datetime
 from typing import TypeVar, Type, Any
@@ -13,7 +12,7 @@ from nozomi.temporal.tz_utc import UTC
 T = TypeVar('T', bound='NozomiTime')
 
 
-class NozomiTime(datetime, Encodable, Decodable):
+class NozomiTime(datetime, Codable):
 
     _DB_FORMAT_STRING = '%Y-%m-%d %H:%M:%S.%f'
     _NO_MS_FORMAT = '%Y-%m-%d %H:%M:%S'
