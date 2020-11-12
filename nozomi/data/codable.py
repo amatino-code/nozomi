@@ -30,11 +30,23 @@ class CodingDefinition:
         default_value_generator: Optional[Callable[[], CodableType]] = None
     ) -> None:
 
+        def recurse_bases(class_definition) -> bool:
+            if Codable in class_definition.__bases__:
+                return True
+            if len(object.__bases__) < 1:
+                return False
+            for base in class_definition.__bases__:
+                result = recurse_bases(base)
+                if result is True:
+                    return result
+                continue
+            return False
+
         if (
                 codable_type not in _QUANTUM_TYPES
                 and Enum not in codable_type.__bases__
                 and codable_type != Decimal
-                and Codable not in codable_type.__bases__
+                and not recurse_bases(codable_type)
         ):
             raise TypeError('CodingDefinition  requires that the `codable_type\
 ` parameter be one of either (int, str, float, bool, dict, list, Enum, Decimal\

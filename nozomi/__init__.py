@@ -5,7 +5,6 @@ from nozomi.ancillary.server_name import ServerName
 from nozomi.ancillary.file_content import FileBody
 from nozomi.ancillary.command_line import CommandLine
 
-from nozomi.temporal.time import NozomiTime
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
 
@@ -97,3 +96,5 @@ from nozomi.translation.text import Text
 from nozomi.translation.translated import Translated
 
 from nozomi.data.order_by import OrderBy
+
+from nozomi.temporal.time import NozomiTime
