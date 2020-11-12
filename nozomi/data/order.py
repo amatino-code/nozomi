@@ -7,7 +7,7 @@ from nozomi.http.query_string import QueryString
 from nozomi.errors.bad_request import BadRequest
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
-from typing import TypeVar, Type
+from typing import TypeVar, Type, Any
 
 T = TypeVar('T', bound='Order')
 
@@ -31,6 +31,19 @@ class Order(SQLConforming):
 
     def __str__(self) -> str:
         return 'asc' if self._ascending else 'desc'
+
+    def encode(self) -> str:
+        if self._ascending is True:
+            return 'ascending'
+        return 'descending'
+
+    @classmethod
+    def decode(cls: Type[T], data: Any) -> T:
+        if data == 'asc' or data == 'ascending':
+            return cls(ascending=True)
+        if data == 'desc' or data == 'descending':
+            return cls(ascending=False)
+        raise ValueError
 
     @classmethod
     def from_arguments(
