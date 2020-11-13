@@ -5,6 +5,7 @@ author: hugh@blinkybeach.com
 """
 from nozomi.data.codable import Codable
 from nozomi.ancillary.immutable import Immutable
+from nozomi.data.order import Order
 from typing import TypeVar, Type, Any, Dict
 
 T = TypeVar('T', bound='Disposition')
@@ -17,13 +18,15 @@ class Disposition(Codable):
         sequence: int,
         count: int,
         limit: int,
-        offset: int
+        offset: int,
+        order: Order
     ) -> None:
 
         self._sequence = sequence
         self._count = count
         self._limit = limit
         self._offset = offset
+        self._order = order
 
         return
 
@@ -31,13 +34,15 @@ class Disposition(Codable):
     count = Immutable(lambda s: s._count)
     limit = Immutable(lambda s: s._limit)
     offset = Immutable(lambda s: s._offset)
+    order = Immutable(lambda s: s._order)
 
     def encode(self) -> Dict[str, int]:
         return {
             'sequence': self._sequence,
             'count': self._count,
             'limit': self._limit,
-            'offset': self._offset
+            'offset': self._offset,
+            'order': self._order.encode()
         }
 
     @classmethod
@@ -46,5 +51,6 @@ class Disposition(Codable):
             sequence=data['sequence'],
             count=data['count'],
             limit=data['limit'],
-            offset=data['offset']
+            offset=data['offset'],
+            order=Order.decode(data['order'])
         )
