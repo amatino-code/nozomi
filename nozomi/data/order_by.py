@@ -3,7 +3,10 @@ Nozomi
 Order By Module
 author: hugh@blinkybeach.com
 """
-from nozomi import QueryString, Immutable, BadRequest, SQLConforming
+from nozomi.http.query_string import QueryString
+from nozomi.ancillary.immutable import Immutable
+from nozomi.errors.bad_request import BadRequest
+from nozomi.data.sql_conforming import SQLConforming
 from typing import TypeVar, Type, Optional, Dict
 
 T = TypeVar('T', bound='OrderBy')
