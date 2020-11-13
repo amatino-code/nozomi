@@ -3,15 +3,14 @@ Nozomi
 Permission Record Module
 Copyright Amatino Pty Ltd
 """
-from nozomi.data.encodable import Encodable
-from nozomi.data.decodable import Decodable
+from nozomi.data.codable import Codable
 from nozomi.security.agent import Agent
 from typing import Union, TypeVar, Any, Type, List
 
 T = TypeVar('T', bound='PermissionRecord')
 
 
-class PermissionRecord(Encodable, Decodable):
+class PermissionRecord(Codable):
     """A record of ownership and read / write permissions for an object"""
 
     def __init__(

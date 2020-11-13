@@ -4,15 +4,14 @@ Date Module
 author: hugh@blinkybeach.com
 """
 from nozomi.errors.bad_request import BadRequest
-from nozomi.data.encodable import Encodable
-from nozomi.data.decodable import Decodable
+from nozomi.data.codable import Codable
 from typing import TypeVar, Type, Any
 from datetime import datetime
 
 T = TypeVar('T', bound='NozomiDate')
 
 
-class NozomiDate(datetime, Encodable, Decodable):
+class NozomiDate(datetime, Codable):
 
     _DB_FORMAT_STRING = "%Y-%m-%d"
     _REQUEST_FORMAT_STRING = "%Y-%m-%d"
