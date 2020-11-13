@@ -20,6 +20,19 @@ CodableType = Union[T, int, Object, Array, str, float, Enum, Decimal]
 _QUANTUM_TYPES = (int, str, float, dict, list, bool)
 
 
+def _recurse_bases(target: Type, class_definition: Type) -> bool:
+    if target in class_definition.__bases__:
+        return True
+    if len(class_definition.__bases__) < 1:
+        return False
+    for base in class_definition.__bases__:
+        result = _recurse_bases(target, base)
+        if result is True:
+            return result
+        continue
+    return False
+
+
 class CodingDefinition:
 
     def __init__(
@@ -30,23 +43,11 @@ class CodingDefinition:
         default_value_generator: Optional[Callable[[], CodableType]] = None
     ) -> None:
 
-        def recurse_bases(class_definition) -> bool:
-            if Codable in class_definition.__bases__:
-                return True
-            if len(class_definition.__bases__) < 1:
-                return False
-            for base in class_definition.__bases__:
-                result = recurse_bases(base)
-                if result is True:
-                    return result
-                continue
-            return False
-
         if (
                 codable_type not in _QUANTUM_TYPES
-                and Enum not in codable_type.__bases__
+                and not _recurse_bases(Enum, codable_type)
                 and codable_type != Decimal
-                and not recurse_bases(codable_type)
+                and not _recurse_bases(Codable, codable_type)
         ):
             raise TypeError('CodingDefinition  requires that the `codable_type\
 ` parameter be one of either (int, str, float, bool, dict, list, Enum, Decimal\
@@ -76,7 +77,7 @@ type {x} does not appear to meet these requirements.\
                     return None
                 raise RuntimeError('Unexpectedly null data when decoding')
 
-            if Enum in self._codable_type.__bases__:
+            if _recurse_bases(Enum, self._codable_type):
                 if self._array is True:
                     return [self._codable_type(d) for d in data]
                 return self._codable_type(data)
@@ -84,7 +85,7 @@ type {x} does not appear to meet these requirements.\
             if self._codable_type == Decimal:
                 return Decimal(data)
 
-            if Codable not in self._codable_type.__bases__:
+            if not _recurse_bases(Codable, self._codable_type):
                 return data
 
             if self._array is True and self._optional is True:
@@ -134,7 +135,7 @@ class Codable(Encodable, Decodable):
             if isinstance(attribute, list):
                 return [recurse(a) for a in attribute]
 
-            if Codable in type(attribute).__bases__:
+            if _recurse_bases(Codable, type(attribute)):
                 return attribute.encode()
 
             raise RuntimeError('Unexpected type: ' + str(attribute))
