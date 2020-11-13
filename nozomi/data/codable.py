@@ -33,7 +33,7 @@ class CodingDefinition:
         def recurse_bases(class_definition) -> bool:
             if Codable in class_definition.__bases__:
                 return True
-            if len(object.__bases__) < 1:
+            if len(class_definition.__bases__) < 1:
                 return False
             for base in class_definition.__bases__:
                 result = recurse_bases(base)
