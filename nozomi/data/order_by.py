@@ -4,15 +4,16 @@ Order By Module
 author: hugh@blinkybeach.com
 """
 from nozomi.http.query_string import QueryString
+from nozomi.data.codable import Codable
 from nozomi.ancillary.immutable import Immutable
 from nozomi.errors.bad_request import BadRequest
 from nozomi.data.sql_conforming import SQLConforming
-from typing import TypeVar, Type, Optional, Dict
+from typing import TypeVar, Type, Optional, Dict, Any
 
 T = TypeVar('T', bound='OrderBy')
 
 
-class OrderBy(SQLConforming):
+class OrderBy(SQLConforming, Codable):
     """
     An object that may act as an order by term in a query
     """
@@ -42,6 +43,13 @@ class OrderBy(SQLConforming):
         if not self._term == other._term:
             return False
         return True
+
+    def encode(self) -> str:
+        return self._term
+
+    @classmethod
+    def decode(cls: Type[T], data: Any) -> T:
+        return cls.available[data]
 
     @classmethod
     def optionally_from_arguments(
