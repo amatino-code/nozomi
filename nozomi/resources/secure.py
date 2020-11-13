@@ -32,6 +32,7 @@ class SecureResource(Resource):
     Machine Agent.
     """
 
+    path: str = NotImplemented
     session_implementation: Type[AbstractSession] = NotImplemented
     requests_may_change_state: bool = NotImplemented
     allowed_perspectives: Optional[Set[Perspective]] = NotImplemented
@@ -83,7 +84,7 @@ class SecureResource(Resource):
             session = SessionImplementation.from_headers(
                 headers=headers,
                 datastore=self.datastore,
-                configuration=self.configuration,
+                path=self.path,
                 request_may_change_state=self.requests_may_change_state
             )
         if session is not None:
