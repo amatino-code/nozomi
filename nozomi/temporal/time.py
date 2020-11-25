@@ -4,9 +4,11 @@ Time Module
 author: hugh@blinkybeach.com
 """
 from nozomi.data.codable import Codable
+from nozomi.http.parseable_data import ParseableData
+from nozomi.errors.bad_request import BadRequest
 from datetime import timedelta
 from datetime import datetime
-from typing import TypeVar, Type, Any
+from typing import TypeVar, Type, Any, Optional
 from nozomi.temporal.tz_utc import UTC
 
 T = TypeVar('T', bound='NozomiTime')
@@ -98,3 +100,34 @@ class NozomiTime(datetime, Codable):
         time = datetime.strptime(timestring, timeformat)
         utc_time = time.replace(tzinfo=UTC)
         return cls._from_datetime(utc_time)
+
+    @classmethod
+    def from_request(
+        cls: Type[T],
+        data: ParseableData,
+        key: str
+    ) -> T:
+
+        time = cls.optionally_from_request(data, key)
+        if time is None:
+            raise BadRequest('Supply a time, in format {f}, under key \
+{k}'.format(f=cls._NO_MS_FORMAT, k=key))
+        return time
+
+    @classmethod
+    def optionally_from_request(
+        cls: Type[T],
+        data: ParseableData,
+        key: str
+    ) -> Optional[T]:
+
+        raw_time = data.optionally_parse_string(key, allow_whitespace=True)
+        if raw_time is None:
+            return None
+        try:
+            time = cls.decode(raw_time)
+        except ValueError:
+            raise BadRequest('Time must be in the format {f}'.format(
+                f=cls._NO_MS_FORMAT
+            ))
+        return time
