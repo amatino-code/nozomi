@@ -3,11 +3,11 @@ Nozomi
 Order Module
 author: hugh@blinkybeach.com
 """
-from nozomi.http.query_string import QueryString
+from nozomi.http.parseable_data import ParseableData
 from nozomi.errors.bad_request import BadRequest
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
-from typing import TypeVar, Type, Any
+from typing import TypeVar, Type, Any, Optional
 
 T = TypeVar('T', bound='Order')
 
@@ -46,23 +46,19 @@ class Order(SQLConforming):
         raise ValueError
 
     @classmethod
-    def from_arguments(
+    def optionally_from_request(
         cls: Type[T],
-        arguments: QueryString,
-        default_to_descending: bool = False
-    ) -> T:
+        request_data: ParseableData,
+        default_to: Optional[T] = None
+    ) -> Optional[T]:
 
-        order = arguments.optionally_parse_string(
+        order = request_data.optionally_parse_string(
             key='order',
             max_length=32
         )
 
         if order is None:
-            if default_to_descending is False:
-                raise BadRequest(
-                    'Supply order=[ascending|descending] parameter'
-                )
-            return cls(True)
+            return default_to
 
         if order.lower() == 'ascending':
             return cls(True)
@@ -71,3 +67,19 @@ class Order(SQLConforming):
             return cls(False)
 
         raise BadRequest('Acceptable `order` values: ascending, descending')
+
+    @classmethod
+    def from_request(
+        cls: Type[T],
+        request_data: ParseableData,
+        default_to: Optional[T] = None
+    ) -> T:
+
+        order = cls.optionally_from_request(request_data, default_to)
+
+        if order is None:
+            raise BadRequest(
+                'Supply order=[ascending|descending] parameter'
+            )
+
+        return order
