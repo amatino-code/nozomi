@@ -60,22 +60,22 @@ class NozomiTime(datetime, Codable):
     @classmethod
     def from_unix_timestamp(cls: Type[T], timestamp: int) -> T:
         time = datetime.fromtimestamp(timestamp)
-        return cls._from_datetime(time)
+        return cls._from_datetime(time.replace(tzinfo=UTC))
 
     @classmethod
     def in_seconds_from_now(cls: Type[T], seconds: int) -> T:
         time = datetime.utcnow() + timedelta(seconds=seconds)
-        return cls._from_datetime(time)
+        return cls._from_datetime(time.replace(tzinfo=UTC))
 
     @classmethod
     def in_minutes_from_now(cls: Type[T], minutes: int) -> T:
         time = datetime.utcnow() + timedelta(minutes=minutes)
-        return cls._from_datetime(time)
+        return cls._from_datetime(time.replace(tzinfo=UTC))
 
     @classmethod
     def in_days_from_now(cls: Type[T], days: int) -> T:
         time = datetime.utcnow() + timedelta(days=days)
-        return cls._from_datetime(time)
+        return cls._from_datetime(time.replace(tzinfo=UTC))
 
     @classmethod
     def _from_datetime(cls: Type[T], time: datetime) -> T:
