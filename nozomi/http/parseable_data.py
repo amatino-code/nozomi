@@ -34,7 +34,9 @@ not provide a .getlist() method for multiple values per key'
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         filter_threats: bool = True,
-        allow_whitespace: bool = False
+        allow_whitespace: bool = False,
+        allowed_characters: Optional[Any] = None,  # Regex object
+        allowed_character_hint: Optional[str] = None
     ) -> str:
 
         value = self.optionally_parse_string(
@@ -42,7 +44,9 @@ not provide a .getlist() method for multiple values per key'
             max_length=max_length,
             min_length=min_length,
             filter_threats=filter_threats,
-            allow_whitespace=allow_whitespace
+            allow_whitespace=allow_whitespace,
+            allowed_characters=allowed_characters,
+            allowed_character_hint=allowed_character_hint
         )
 
         if value is None:
@@ -56,8 +60,10 @@ not provide a .getlist() method for multiple values per key'
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        filter_threats: bool = True,
-        allow_whitespace: bool = False
+        filter_threats: bool = True,  # deprecated
+        allow_whitespace: bool = False,
+        allowed_characters: Optional[Any] = None,  # Regex object
+        allowed_character_hint: Optional[str] = None
     ) -> str:
 
         if not isinstance(value, str):
@@ -73,7 +79,17 @@ not provide a .getlist() method for multiple values per key'
             if True in [c in value for c in string.whitespace]:
                 raise BadRequest('Whitespace not allowed')
 
-        # filter threats deprecated
+        if allowed_characters is not None:
+            good = not bool(allowed_characters.search(value))
+            if not good:
+                raise BadRequest('Value for key {k} contains unacceptable char\
+acters{h}'.format(
+                        k=key,
+                        h='. Acceptable characters: {a}'.format(
+                            a=allowed_character_hint
+                        ) if allowed_character_hint else '.'
+                    )
+                )
 
         return value
 
@@ -123,7 +139,9 @@ not provide a .getlist() method for multiple values per key'
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         filter_threats: bool = True,
-        allow_whitespace: bool = False
+        allow_whitespace: bool = False,
+        allowed_characters: Optional[Any] = None,  # Regex object
+        allowed_character_hint: Optional[str] = None
     ) -> Optional[str]:
 
         value = self._raw.get(key)
@@ -137,7 +155,9 @@ not provide a .getlist() method for multiple values per key'
             max_length=max_length,
             min_length=min_length,
             filter_threats=filter_threats,
-            allow_whitespace=allow_whitespace
+            allow_whitespace=allow_whitespace,
+            allowed_characters=allowed_characters,
+            allowed_character_hint=allowed_character_hint
         )
 
     def get(
