@@ -5,6 +5,7 @@ Copyright Amatino Pty Ltd
 """
 from collections.abc import Mapping
 from typing import Optional, Dict, Any, List, TypeVar, Type
+from enum import Enum
 from nozomi.errors.bad_request import BadRequest
 import string
 from decimal import Decimal
@@ -72,9 +73,7 @@ not provide a .getlist() method for multiple values per key'
             if True in [c in value for c in string.whitespace]:
                 raise BadRequest('Whitespace not allowed')
 
-        #if filter_threats is True:
-        #    if True in [f in value for f in ()]:
-        #        raise BadRequest('Yikes!')
+        # filter threats deprecated
 
         return value
 
@@ -153,7 +152,9 @@ not provide a .getlist() method for multiple values per key'
         value = self._raw[key]
         if of_type is not None and not isinstance(value, of_type):
             if type_name is None:
-                raise BadRequest('Value for key ' + key + ' has incorrect type')
+                raise BadRequest(
+                    'Value for key ' + key + ' has incorrect type'
+                )
             raise BadRequest('Value for key {k} must be {t}'.format(
                 k=key,
                 t=type_name
@@ -173,6 +174,48 @@ not provide a .getlist() method for multiple values per key'
             raise BadRequest('Missing value for key ' + key)
 
         return value
+
+    def optionally_parse_enum(
+        self,
+        key: str,
+        enum_type: Type[Enum],
+        type_name: str
+    ) -> Optional[Enum]:
+
+        value = self.get(key, of_type=type([v.value for v in enum_type][0]))
+        if value is None:
+            return None
+
+        try:
+            result = enum_type(value)
+        except ValueError:
+            raise BadRequest('Bad {t} value for enumeration at key {k}. Accept\
+able values: {v}'.format(
+                t=type_name,
+                k=key,
+                v=str([v.value for v in enum_type])
+                )
+            )
+
+        return result
+
+    def parse_enum(
+        self,
+        key: str,
+        enum_type: Type[Enum],
+        type_name: str
+    ) -> Optional[Enum]:
+
+        value = self.optionally_parse_enum(
+            key=key,
+            enum_type=enum_type,
+            type_name=type_name
+        )
+
+        if value is not None:
+            return value
+
+        raise BadRequest('Missing {k} parameter'.format(k=key))
 
     def optionally_parse_int(
         self,
@@ -203,12 +246,16 @@ not provide a .getlist() method for multiple values per key'
     ) -> int:
 
         if isinstance(candidate, bool):
-            raise BadRequest(key + ' must be integer or string encoded integer')
+            raise BadRequest(
+                key + ' must be integer or string encoded integer'
+            )
 
         try:
             integer_value = int(candidate)
         except Exception:
-            raise BadRequest(key + ' must be integer or string encoded integer')
+            raise BadRequest(
+                key + ' must be integer or string encoded integer'
+            )
 
         if min_value is not None and integer_value < min_value:
             raise BadRequest(key + ' below mininum value: ' + str(min_value))
