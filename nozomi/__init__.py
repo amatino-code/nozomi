@@ -39,6 +39,7 @@ from nozomi.errors.not_authenticated import NotAuthenticated
 from nozomi.errors.already_exists import AlreadyExists
 from nozomi.errors.too_many_requests import TooManyRequests
 
+from nozomi.http.abstract_headers import AbstractHeaders
 from nozomi.http.headers import Headers
 from nozomi.http.method import HTTPMethod
 from nozomi.http.query_string import QueryString

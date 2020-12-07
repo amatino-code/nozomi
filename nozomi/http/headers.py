@@ -8,9 +8,10 @@ from collections.abc import Mapping
 from nozomi.errors.error import NozomiError
 from nozomi.ancillary.immutable import Immutable
 from nozomi.http.status_code import HTTPStatusCode
+from nozomi.http.abstract_headers import AbstractHeaders
 
 
-class Headers:
+class Headers(AbstractHeaders):
     """
     A set of HTTP headers. Feed Headers a Mapping-conformant data type, for
     example a Dict or a Werkzeug ImmutableMultiDict.

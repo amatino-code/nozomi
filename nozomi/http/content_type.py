@@ -4,7 +4,7 @@ HTTP Content Type Module
 author: hugh@blinkybeach.com
 """
 from enum import Enum
-from nozomi import Headers
+from nozomi.http.abstract_headers import AbstractHeaders
 from typing import TypeVar, Optional, Type
 
 T = TypeVar('T', bound='ContentType')
@@ -25,7 +25,7 @@ class ContentType(Enum):
     @classmethod
     def from_headers(
         cls: Type[T],
-        headers: Headers,
+        headers: AbstractHeaders,
         header: str = 'content-type'
     ) -> Optional[T]:
 
