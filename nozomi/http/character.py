@@ -3,14 +3,14 @@ Nozomi
 Character Module
 author: hugh@blinkybeach.com
 """
-from nozomi.temporal.time import NozomiTime
 from nozomi.security.ip_address import IpAddress
 from nozomi.http.user_agent import UserAgent
 from nozomi.http.accept_language import AcceptLanguage
 from nozomi.http.headers import Headers
 from nozomi.ancillary.configuration import Configuration
-from typing import Optional
+from typing import Optional, Union
 from nozomi.ancillary.immutable import Immutable
+from nozomi.http.content_type import ContentType
 
 
 class Character:
@@ -27,12 +27,16 @@ class Character:
         self._ip_address: Optional[IpAddress] = None
         self._user_agent: Optional[UserAgent] = None
         self._language: Optional[AcceptLanguage] = None
+        self._accept: Union[int, Optional[ContentType]] = -1
+        self._content_type: Union[int, Optional[ContentType]] = -1
 
         return
 
     ip_address = Immutable(lambda s: s._parse_ip_address())
     user_agent = Immutable(lambda s: s._parse_user_agent())
     accept_language = Immutable(lambda s: s._parse_accept_language())
+    content_type = Immutable(lambda s: s._parse_content_type())
+    accept = Immutable(lambda s: s._parse_accept())
 
     def _parse_ip_address(self) -> IpAddress:
 
@@ -59,3 +63,23 @@ class Character:
             self._language = AcceptLanguage.from_headers(self._headers)
 
         return self._language
+
+    def _parse_content_type(self) -> Optional[ContentType]:
+
+        if self._content_type == -1:  # Flagged as unparsed
+            self._content_type = ContentType.from_headers(
+                self._headers,
+                header='content-type'
+            )
+        
+        return self._content_type
+
+    def _parse_accept(self) -> Optional[ContentType]:
+
+        if self._accept == -1:  # Flagged as unparsed
+            self._accept = ContentType.from_haeders(
+                self._headers,
+                header='accept'
+            )
+
+        return self._accept
