@@ -71,13 +71,13 @@ class Character:
                 self._headers,
                 header='content-type'
             )
-        
+
         return self._content_type
 
     def _parse_accept(self) -> Optional[ContentType]:
 
         if self._accept == -1:  # Flagged as unparsed
-            self._accept = ContentType.from_haeders(
+            self._accept = ContentType.from_headers(
                 self._headers,
                 header='accept'
             )
