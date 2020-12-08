@@ -29,7 +29,7 @@ class ContentType(Enum):
         header: str = 'content-type'
     ) -> Optional[T]:
 
-        value = headers.value_for('content-type')
+        value = headers.value_for(header)
         if value is None:
             return None
 
