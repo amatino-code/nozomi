@@ -5,8 +5,18 @@ author: hugh@blinkybeach.com
 """
 from nozomi.security.random_number import RandomNumber
 from typing import Union
-from psycopg2.extensions import ISQLQuote
-from psycopg2.extensions import QuotedString
+
+
+class _Placebo:
+    pass
+
+
+try:
+    from psycopg2.extensions import ISQLQuote
+    from psycopg2.extensions import QuotedString
+except ImportError:
+    ISQLQuote = _Placebo
+    QuotedString = None
 
 
 class SQLConforming(ISQLQuote):
@@ -25,6 +35,8 @@ class SQLConforming(ISQLQuote):
 
     def quote_string(self, string: str) -> bytes:
         """Return a quoted string"""
+        if not QuotedString:
+            raise NotImplementedError('Install Psycopg2')
         return QuotedString(string).getquoted()
 
     def dollar_quote_string(self, string: str) -> str:

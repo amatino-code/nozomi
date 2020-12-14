@@ -47,6 +47,7 @@ class Configuration:
     local_origin: str = NotImplemented
     restricted_origin: str = NotImplemented
     disable_cors_restriction: bool = NotImplemented
+    development_origins: Optional[List[str]] = None
 
     # Other
     server_name: str = NotImplemented
