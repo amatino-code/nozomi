@@ -426,6 +426,50 @@ integers'.format(
             raise BadRequest(error)
         return value
 
+    def parse_enum_array(
+        self,
+        key: str,
+        enum_type: Type[Enum],
+        type_name: str,
+        min_elements: Optional[int] = None,
+        max_elements: Optional[int] = None
+    ) -> List[Enum]:
+
+        array = self.require(key, of_type=list, type_name='array')
+
+        if min_elements is not None:
+            if len(array) < min_elements:
+                raise BadRequest('{k} array minimum elements is {i}'.format(
+                    k=key,
+                    i=str(min_elements)
+                ))
+            pass
+
+        if len(array) < 1:
+            return array
+
+        if max_elements is not None:
+            if len(array) < min_elements:
+                raise BadRequest('{k} array maximum length is {i}'.format(
+                    k=key,
+                    i=str(max_elements)
+                ))
+            pass
+
+        valid_values = [c.value for c in enum_type]
+        for item in array:
+            if item not in valid_values:
+                raise BadRequest('Bad {t} value for enumeration at key {k}. Ac\
+ceptable values: {v}'.format(
+                        t=type_name,
+                        k=key,
+                        v=str(valid_values)
+                    )
+                )
+            continue
+
+        return [enum_type(i) for i in array]
+
     def parse_string_array(
         self,
         key: str,
