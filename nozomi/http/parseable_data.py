@@ -438,7 +438,7 @@ integers'.format(
         max_elements: Optional[int] = None
     ) -> List[str]:
 
-        array = self.get(key=key, of_type=list, type_name='array')
+        array = self.require(key=key, of_type=list, type_name='array')
 
         if min_elements is not None:
             if len(array) < min_elements:
