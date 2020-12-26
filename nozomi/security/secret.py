@@ -8,9 +8,15 @@ from nozomi.ancillary.immutable import Immutable
 from nozomi.errors.error import NozomiError
 from nozomi.security.salt import Salt
 from nozomi.data.datastore import Datastore
-import argon2
 from typing import TypeVar, Type, Optional
 from nozomi.data.query import Query
+
+
+try:
+    import argon2
+except ImportError:
+    argon2 = None
+
 
 T = TypeVar('T', bound='Secret')
 
@@ -59,6 +65,8 @@ class Secret:
         """Compute the Argon2 hash of the provided secret"""
         assert isinstance(raw_secret, str)
         assert isinstance(salt, Salt)
+        if not argon2:
+            raise NotImplementedError('Install argon2-cffi')
         computed_hash = argon2.low_level.hash_secret(
             raw_secret.encode('utf-8'),
             salt=salt.utf8_bytes,
