@@ -426,6 +426,51 @@ integers'.format(
             raise BadRequest(error)
         return value
 
+    def parse_string_array(
+        self,
+        key: str,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        allow_whitespace: bool = False,
+        allowed_characters: Optional[Any] = None,  # Regex object
+        allowed_character_hint: Optional[str] = None,
+        min_elements: Optional[int] = None,
+        max_elements: Optional[int] = None
+    ) -> List[str]:
+
+        array = self.get(key=key, of_type=list, type_name='array')
+
+        if min_elements is not None:
+            if len(array) < min_elements:
+                raise BadRequest('{k} array minimum elements is {i}'.format(
+                    k=key,
+                    i=str(min_elements)
+                ))
+
+        if len(array) < 1:
+            return array
+
+        if max_elements is not None:
+            if len(array) < min_elements:
+                raise BadRequest('{k} array maximum length is {i}'.format(
+                    k=key,
+                    i=str(max_elements)
+                ))
+
+        for item in array:
+            self._validate_string(
+                value=item,
+                key=key,
+                max_length=max_length,
+                min_length=min_length,
+                allow_whitespace=allow_whitespace,
+                allowed_characters=allowed_characters,
+                allowed_character_hint=allowed_character_hint
+            )
+            continue
+
+        return array
+
     def __iter__(self):
         return ParseableData.Iterator(self._raw)
 
