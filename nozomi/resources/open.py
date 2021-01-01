@@ -20,9 +20,9 @@ from nozomi.errors.not_authorised import NotAuthorised
 class OpenResource(Resource):
     """
     Abstract class defining an interface for for resources that do not require
-    authentication, but that are aware of a requesting agent. For example, a web
-    page that may be served differently depending on whether a user is logged in
-    or not.
+    authentication, but that are aware of a requesting agent. For example, a
+    an API path that may be served differently depending on whether a user is
+    logged in or not.
     """
 
     session_implementation: Type[AbstractSession] = NotImplemented
@@ -70,7 +70,7 @@ class OpenResource(Resource):
         requesting_agent = SessionImplementation.from_headers(
             headers=headers,
             datastore=self.datastore,
-            configuration=self.configuration,
+            path=self.path,
             request_may_change_state=self.requests_may_change_state
         )
 
