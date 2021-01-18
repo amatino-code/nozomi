@@ -7,12 +7,13 @@ from nozomi.http.parseable_data import ParseableData
 from nozomi.errors.bad_request import BadRequest
 from nozomi.ancillary.immutable import Immutable
 from nozomi.data.sql_conforming import SQLConforming
+from nozomi.data.codable import Codable
 from typing import TypeVar, Type, Any, Optional
 
 T = TypeVar('T', bound='Order')
 
 
-class Order(SQLConforming):
+class Order(SQLConforming, Codable):
 
     def __init__(
         self,
