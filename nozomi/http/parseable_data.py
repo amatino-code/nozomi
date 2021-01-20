@@ -382,7 +382,7 @@ integers'.format(
             return None
 
         try:
-            decimal_value = Decimal(value)
+            decimal_value = Decimal(str(value))
         except Exception:
             raise BadRequest(key + ' must be a string encoded decimal')
 

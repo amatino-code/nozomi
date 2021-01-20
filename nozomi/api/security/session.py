@@ -134,8 +134,8 @@ class Session(Encodable, AbstractSession):
         request_may_change_state: bool = True
     ) -> Optional[T]:
         """
-        Return a Session parsed from Headers, if it exists and supplied credentials
-        are authentic
+        Return a Session parsed from Headers, if it exists and supplied
+        credentials are authentic
         """
         assert isinstance(request_may_change_state, bool)
         if headers is None:
