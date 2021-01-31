@@ -4,7 +4,7 @@ HTTP Request QueryString Module
 Copyright Amatino Pty Ltd
 """
 from collections.abc import Mapping
-from typing import Optional, Dict, Any, List, TypeVar, Type
+from typing import Optional, Dict, Any, List, TypeVar, Type, Generic
 from enum import Enum
 from nozomi.errors.bad_request import BadRequest
 import string
@@ -12,6 +12,7 @@ from decimal import Decimal
 from nozomi.ancillary.immutable import Immutable
 
 T = TypeVar('T', bound='ParseableData')
+_Number = TypeVar('_Number')
 
 
 class ParseableData:
@@ -277,13 +278,12 @@ able values: {v}'.format(
                 key + ' must be integer or string encoded integer'
             )
 
-        if min_value is not None and integer_value < min_value:
-            raise BadRequest(key + ' below mininum value: ' + str(min_value))
-
-        if max_value is not None and integer_value > max_value:
-            raise BadRequest(key + ' above maximum value: ' + str(max_value))
-
-        return integer_value
+        return self._constrain_number(
+            key=key,
+            number=integer_value,
+            max_value=max_value,
+            min_value=min_value
+        )
 
     def parse_int(
         self,
@@ -386,13 +386,12 @@ integers'.format(
         except Exception:
             raise BadRequest(key + ' must be a string encoded decimal')
 
-        if min_value is not None and decimal_value < min_value:
-            raise BadRequest(key + ' below mininum value: ' + str(min_value))
-
-        if max_value is not None and decimal_value > max_value:
-            raise BadRequest(key + ' above maximum value: ' + str(max_value))
-
-        return decimal_value
+        return self._constrain_number(
+            key=key,
+            number=decimal_value,
+            max_value=max_value,
+            min_value=min_value
+        )
 
     def parse_decimal(
         self,
@@ -514,6 +513,85 @@ ceptable values: {v}'.format(
             continue
 
         return array
+
+    def _constrain_number(
+        self,
+        key: str,
+        number: _Number,
+        max_value: Optional[_Number],
+        min_value: Optional[_Number]
+    ) -> _Number:
+
+        if min_value is not None and number < min_value:
+            raise BadRequest(key + ' below mininum value: ' + str(min_value))
+
+        if max_value is not None and number > max_value:
+            raise BadRequest(key + ' above maximum value: ' + str(max_value))
+
+        return number
+
+    def _validate_float(
+        self,
+        key: str,
+        candidate: Any,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None
+    ) -> float:
+
+        if isinstance(candidate, bool):
+            raise BadRequest(
+                key + ' must be float or string encoded float'
+            )
+
+        try:
+            float_value = float(candidate)
+        except Exception:
+            raise BadRequest(
+                key + ' must be float or string encoded integer'
+            )
+
+        return self._constrain_number(
+            key=key,
+            number=float_value,
+            max_value=max_value,
+            min_value=min_value
+        )
+
+    def optionally_parse_float(
+        self,
+        key: str,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None
+    ) -> Optional[float]:
+
+        value = self._raw.get(key)
+        if value is None:
+            return None
+
+        return self._validate_float(
+            key=key,
+            candidate=value,
+            max_value=max_value,
+            min_value=min_value
+        )
+
+    def parse_float(
+        self,
+        key: str,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None
+    ) -> float:
+
+        value = self.optionally_parse_float(
+            key=key,
+            max_value=max_value,
+            min_value=min_value
+        )
+
+        if value is None:
+            raise BadRequest('Missing ' + key + ' parameter')
+
+        return value
 
     def __iter__(self):
         return ParseableData.Iterator(self._raw)
