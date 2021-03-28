@@ -172,6 +172,12 @@ acters{h}'.format(
 
         value = self._raw[key]
         if of_type is not None and not isinstance(value, of_type):
+            if of_type == int and isinstance(value, str):
+                try:
+                    int_value = int(value)
+                    return int_value
+                except Exception:
+                    pass
             if type_name is None:
                 raise BadRequest(
                     'Value for key ' + key + ' has incorrect type'
@@ -547,7 +553,7 @@ ceptable values: {v}'.format(
             float_value = float(candidate)
         except Exception:
             raise BadRequest(
-                key + ' must be float or string encoded integer'
+                key + ' must be float or string encoded float'
             )
 
         return self._constrain_number(
