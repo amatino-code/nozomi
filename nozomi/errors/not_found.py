@@ -5,7 +5,7 @@ author: hugh@blinkybeach.com
 """
 from nozomi.errors.error import NozomiError
 from nozomi.http.status_code import HTTPStatusCode
-from typing import TypeVar, Type, Union
+from typing import TypeVar, Type, Union, Optional
 from nozomi.data.named import Named
 
 T = TypeVar('T', bound='NotFound')

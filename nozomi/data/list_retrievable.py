@@ -3,7 +3,7 @@ Nozomi
 List Retrievable Module
 author: hugh@blinkybeach.com
 """
-from makara_api.data.publicly_identified import PubliclyIdentified
+from nozomi.data.publicly_identified import PubliclyIdentified
 from typing import TypeVar, Type, Optional, List
 from nozomi import Datastore
 
