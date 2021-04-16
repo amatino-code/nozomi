@@ -4,7 +4,8 @@ Codable Data Module
 author: hugh@blinkybeach.com
 """
 import sys
-from nozomi import Encodable, Decodable
+from nozomi.data.encodable import Encodable
+from nozomi.data.decodable import Decodable
 from typing import TypeVar, Type, Any, Union, Dict, Optional, List
 from typing import Callable
 from enum import Enum
