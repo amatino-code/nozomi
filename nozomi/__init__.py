@@ -26,6 +26,8 @@ from nozomi.data.fragment import Fragment
 from nozomi.data.disposition import Disposition
 from nozomi.data.partial_format import PartialFormat
 from nozomi.data.order_by import OrderBy
+from nozomi.data.named import Named
+from nozomi.data.list_retrievable import ListRetrievable
 
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
