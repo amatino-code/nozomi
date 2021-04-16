@@ -18,15 +18,13 @@ class Disposition(Codable):
         sequence: int,
         count: int,
         limit: int,
-        offset: int,
-        order: Order
+        offset: int
     ) -> None:
 
         self._sequence = sequence
         self._count = count
         self._limit = limit
         self._offset = offset
-        self._order = order
 
         return
 
@@ -34,15 +32,13 @@ class Disposition(Codable):
     count = Immutable(lambda s: s._count)
     limit = Immutable(lambda s: s._limit)
     offset = Immutable(lambda s: s._offset)
-    order = Immutable(lambda s: s._order)
 
     def encode(self) -> Dict[str, int]:
         return {
             'sequence': self._sequence,
             'count': self._count,
             'limit': self._limit,
-            'offset': self._offset,
-            'order': self._order.encode()
+            'offset': self._offset
         }
 
     @classmethod
@@ -51,6 +47,5 @@ class Disposition(Codable):
             sequence=data['sequence'],
             count=data['count'],
             limit=data['limit'],
-            offset=data['offset'],
-            order=Order.decode(data['order'])
+            offset=data['offset']
         )
