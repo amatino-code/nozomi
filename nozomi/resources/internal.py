@@ -24,6 +24,8 @@ class InternalResource(Resource):
     For example, requests from a web application server to an API.
     """
 
+    forwarded_agent_implementation = ForwardedAgent
+
     def __init__(
         self,
         datastore: Datastore,
@@ -56,6 +58,8 @@ class InternalResource(Resource):
         request_arguments: Optional[QueryString],
         headers: Headers
     ) -> str:
+
+        ForwardedAgent = self.forwarded_agent_implementation
 
         unauthorised_agent = ForwardedAgent.from_headers(
             internal_key=self.configuration.internal_psk,
