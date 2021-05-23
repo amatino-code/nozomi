@@ -17,7 +17,9 @@ class NozomiError(Exception):
     def __init__(
         self,
         client_description: str,
-        http_status_code: Union[HTTPStatusCode, int, str]
+        http_status_code: Union[HTTPStatusCode, int, str],
+        original_error: Optional[Exception] = None,
+        technical_description: Optional[str] = None
     ) -> None:
 
         if not isinstance(http_status_code, HTTPStatusCode):
@@ -28,15 +30,26 @@ class NozomiError(Exception):
                 raise TypeError('status must be a valid `HTTPStatusCode`')
 
         if not isinstance(client_description, str):
-            raise TypeError('descriptions must be of type `str`')
+            raise TypeError('client_description must be of type `str`')
+
+        if (
+                technical_description is not None
+                and not isinstance(technical_description, str)
+        ):
+            raise TypeError(
+                'technical_description must be of type Optional[str]'
+            )
 
         self._http_code = http_status_code
         self._client_description = client_description
+        self._technical_description = technical_description
+
+        tb_target = original_error or self
 
         self._stack_trace = ''.join(traceback.format_exception(
-            etype=type(self),
-            value=self,
-            tb=self.__traceback__
+            etype=type(tb_target),
+            value=tb_target,
+            tb=tb_target.__traceback__
         ))
 
         super().__init__(client_description)
@@ -44,6 +57,7 @@ class NozomiError(Exception):
 
     http_status_code = Immutable(lambda s: s._http_code)
     client_description = Immutable(lambda s: s._client_description)
+    technical_description = Immutable(lambda s: s._technical_description)
     stack_trace = Immutable(lambda s: s._stack_trace)
     info_package = Immutable(lambda s: s._info_package())
     is_500_class = Immutable(lambda s: str(s._http_code.value)[0] == '5')
@@ -69,7 +83,7 @@ class NozomiError(Exception):
         Return human-readable a string describing the error, including
         a traceback
         """
-        report = '\n\n--##-- Procuret API Error Report --##--\n'
+        report = '\n\n--##-- Nozomi Error Report --##--\n'
         report += str(datetime.datetime.utcnow()) + ' UTC\n'
         report += 'Exception: ' + str(self) + '\n'
         report += '--//-- Begin traceback --//--\n\n'
