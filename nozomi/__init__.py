@@ -28,6 +28,7 @@ from nozomi.data.partial_format import PartialFormat
 from nozomi.data.order_by import OrderBy
 from nozomi.data.named import Named
 from nozomi.data.list_retrievable import ListRetrievable
+from nozomi.data.argument_parseable import ArgumentParseable
 
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
