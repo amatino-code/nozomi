@@ -348,12 +348,13 @@ integers'.format(
 
     def optionally_parse_bool(
         self,
-        key: str
+        key: str,
+        fallback_to: Optional[bool] = None
     ) -> Optional[bool]:
 
         value = self.get(key)
         if value is None:
-            return None
+            return fallback_to
 
         if isinstance(value, bool):
             return value
