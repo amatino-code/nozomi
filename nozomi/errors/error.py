@@ -42,6 +42,7 @@ class NozomiError(Exception):
 
         self._http_code = http_status_code
         self._client_description = client_description
+        self._original_error = original_error
         self._technical_description = technical_description
 
         tb_target = original_error or self
@@ -85,12 +86,24 @@ class NozomiError(Exception):
         """
         report = '\n\n--##-- Nozomi Error Report --##--\n'
         report += str(datetime.datetime.utcnow()) + ' UTC\n'
-        report += 'Exception: ' + str(self) + '\n'
+        report += 'Exception:\n' + str(self) + '\n'
+        if self._original_error:
+            report += '\nOriginal exception:\n'
+            report += str(self._original_error) + '\n'
         report += '--//-- Begin traceback --//--\n\n'
         trace = traceback.format_tb(self.__traceback__)
         for line in trace:
             report += line
-        report += '\n--//-- End traceback --//--\n'
+        report += '\n--//-- End traceback   --//--\n'
+        if self._original_error:
+            report += '\n--//-- Begin original exception traceback --//--'
+            trace = traceback.format_tb(self._original_error.__traceback__)
+            for line in trace:
+                report += line
+            report += '\n--//-- End original exception traceback   --//--\n'
+        if self._technical_description:
+            report += '\nTechnical description:\n'
+            report += self._technical_description
         report += '\nRequest headers: \n'
         report += str(request_headers)
         report += '\nRequest JSON: \n'
