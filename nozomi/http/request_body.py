@@ -9,34 +9,17 @@ from nozomi.http.status_code import HTTPStatusCode
 from nozomi.errors.bad_request import BadRequest
 from nozomi.errors.error import NozomiError
 from nozomi.data.xml import XML
-from typing import Union
-from flask import Request
-from collections.abc import Mapping
 import json
-
-
-class TestArticle:
-
-    def __init__(self, data: bytes, headers: Mapping) -> None:
-        self._headers = headers
-        self._data = data
-        return
-
-    headers = property(lambda s: s._headers)
-
-    def get_data(self) -> bytes:
-        return self._data
 
 
 class RequestBody(ParseableData):
 
     def __init__(
         self,
-        request: Union[Request, TestArticle],
+        headers: Headers,
+        request_body: bytes,
         max_content_length: int = 10000
     ) -> None:
-
-        headers = Headers(request.headers)
 
         length = headers.value_for('content-length')
         if length is None:
@@ -51,8 +34,6 @@ class RequestBody(ParseableData):
             raise NozomiError('Content too large, max: {s}'.format(
                 s=str(max_content_length)
             ), HTTPStatusCode.PAYLOAD_TOO_LARGE.value)
-
-        request_body = request.get_data()
 
         try:
             string_data = request_body.decode('utf-8')
