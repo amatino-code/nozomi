@@ -4,8 +4,13 @@ View Template Module
 author: hugh@blinkybeach.com
 """
 from typing import Optional
-from jinja2 import Environment, FileSystemLoader
 from nozomi.rendering.context import Context
+
+try:
+    from jinja2 import Environment, FileSystemLoader
+except ImportError:
+    Environment = None
+    FileSystemLoader = None
 
 LOADER = FileSystemLoader('templates')
 STAGE_1_ENVIRONMENT = Environment(  # Static context
@@ -29,10 +34,19 @@ class ViewTemplate:
     An HTML template to be populated by runtime View data. Template rendering
     occurs in two stages. Stage 1 renders data known at application start, such
     as CSS files. Stage 2 renders data known at request time, such as a logged
-    in user name . The two are separated by different Jinja2 templating markers.
+    in user name . The two are separated by different Jinja2 templating
+    markers.
     """
 
-    def __init__(self, template_filename: str, static_context: Context) -> None:
+    def __init__(
+        self,
+        template_filename: str,
+        static_context: Context
+    ) -> None:
+
+        if Environment is None:
+            raise NotImplementedError('Install jinja2')
+
         with open('templates/' + template_filename) as template_file:
             template_string = template_file.read()
         self._stage_1_render = STAGE_1_ENVIRONMENT.from_string(
