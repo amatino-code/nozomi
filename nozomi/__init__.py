@@ -29,6 +29,7 @@ from nozomi.data.order_by import OrderBy
 from nozomi.data.named import Named
 from nozomi.data.list_retrievable import ListRetrievable
 from nozomi.data.argument_parseable import ArgumentParseable
+from nozomi.data.xml import XML
 
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
@@ -55,6 +56,7 @@ from nozomi.http.url_parameters import URLParameters
 from nozomi.http.api_request import ApiRequest
 from nozomi.http.user_agent import UserAgent
 from nozomi.http.character import Character
+from nozomi.http.request_body import RequestBody
 
 from nozomi.rendering.context import Context
 from nozomi.rendering.open_graph import OpenGraph

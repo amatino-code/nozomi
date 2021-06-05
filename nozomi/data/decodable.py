@@ -26,7 +26,7 @@ class Decodable:
 
     @classmethod
     def deserialise(cls: Type[T], serial: str) -> T:
-        """Return a JSON string representation of the object"""
+        """Return a decoded object from serialised JSON data"""
         return cls.decode(loads(serial))
 
     @classmethod
