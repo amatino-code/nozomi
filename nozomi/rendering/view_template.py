@@ -47,7 +47,7 @@ class ViewTemplate:
         if Environment is None:
             raise NotImplementedError('Install jinja2')
 
-        with open('templates/' + template_filename) as template_file:
+        with open(template_filename) as template_file:
             template_string = template_file.read()
         self._stage_1_render = STAGE_1_ENVIRONMENT.from_string(
             template_string
