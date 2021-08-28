@@ -7,12 +7,13 @@ from nozomi.errors.not_found import NotFound
 from nozomi.data.decodable import Decodable
 from nozomi.data.datastore import Datastore
 from nozomi.data.query import Query
+from nozomi.data.named import Named
 from typing import Type, TypeVar, Optional
 
 T = TypeVar('T', bound='PubliclyIdentified')
 
 
-class PubliclyIdentified(Decodable):
+class PubliclyIdentified(Decodable, Named):
     """
     Abstract class defining a protocol for classes that are publicly
     identified and consequently gain certain capabilities.
@@ -63,9 +64,8 @@ class PubliclyIdentified(Decodable):
         result = cls.retrieve(public_id, datastore, in_transaction)
 
         if result is None:
-            raise NotFound.for_object(
-                name=cls.__name__,
-                id_=public_id
-            )
+            raise NotFound('No {n} found with supplied public id'.format(
+                n=cls.name if isinstance(cls.name, str) else 'object'
+            ))
 
         return result
