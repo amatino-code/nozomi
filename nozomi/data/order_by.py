@@ -8,7 +8,7 @@ from nozomi.data.codable import Codable
 from nozomi.ancillary.immutable import Immutable
 from nozomi.errors.bad_request import BadRequest
 from nozomi.data.sql_conforming import SQLConforming
-from typing import TypeVar, Type, Optional, Dict, Any
+from typing import TypeVar, Type, Optional, Dict, Any, List
 
 T = TypeVar('T', bound='OrderBy')
 
@@ -77,6 +77,38 @@ class OrderBy(SQLConforming, Codable):
             ))
 
         return available[term]
+
+    @classmethod
+    def optionally_many_from_arguments(
+        cls: Type[T],
+        arguments: QueryString,
+        available: Optional[Dict[str, T]] = None,
+        key: str = 'order_by',
+        fallback_to: Optional[T] = None
+    ) -> Optional[List[T]]:
+
+        if available is None:
+            if not isinstance(cls.available, dict):
+                raise RuntimeError('implement .available order by values')
+            available = cls.available
+
+        values = arguments.parse_string(key).split(',')
+
+        if values is None or len(values) < 1:
+            return fallback_to
+
+        parsed: List[T] = []
+
+        for term in values:
+            if term not in available.keys():
+                raise BadRequest('Invalid {k} value. Valid values: {v}'.format(
+                    k=key,
+                    v=', '.join(available.keys())
+                ))
+            parsed.append(available[term])
+            continue
+
+        return parsed
 
     @classmethod
     def from_arguments(
