@@ -37,24 +37,24 @@ class Resource:
 
     def compute_response(
         self,
-        request_data: Optional[Any],
-        request_arguments: Optional[QueryString],
-        headers: Optional[Headers] = None
+        body: Optional[Any],
+        query: Optional[QueryString],
+        headers: Headers = None
     ) -> Encodable:
         """Return serialisable response data"""
         raise NotImplementedError
 
     def serve(
         self,
-        request_data: Optional[ParseableData],
-        request_arguments: Optional[QueryString] = None,
-        request_headers: Optional[Headers] = None
+        body: Optional[ParseableData],
+        query: Optional[QueryString] = None,
+        headers: Headers = None
     ) -> str:
         """Return a string response body to a request"""
         return self.compute_response(
-            request_data,
-            request_arguments,
-            request_headers
+            body=body,
+            query=query,
+            headers=headers
         ).serialise()
 
     def assert_read_available_to(

@@ -61,9 +61,9 @@ class SecureResource(Resource):
 
     def compute_response(
         self,
+        body: Optional[ParseableData],
         query: Optional[QueryString],
         unauthorised_agent: Agent,
-        request_data: Optional[ParseableData],
     ) -> Tuple[Union[Broadcastable, List[Broadcastable]], Agent]:
         # Method returning an encodable response, and an Agent authorised to
         # make the request.
@@ -71,8 +71,8 @@ class SecureResource(Resource):
 
     def serve(
         self,
-        request_data: Optional[ParseableData],
-        request_arguments: Optional[QueryString],
+        body: Optional[ParseableData],
+        query: Optional[QueryString],
         headers: Headers,
         session: AbstractSession = None
     ) -> str:
@@ -116,9 +116,9 @@ class SecureResource(Resource):
             raise NotAuthorised
 
         response, authorised_agent = self.compute_response(
-            request_arguments,
-            unauthorised_agent,
-            request_data
+            body=body,
+            query=query,
+            unauthorised_agent=unauthorised_agent,
         )
 
         if not isinstance(authorised_agent, Agent):

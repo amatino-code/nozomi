@@ -46,9 +46,9 @@ class OpenResource(Resource):
 
     def compute_response(
         self,
-        request_data: Optional[ParseableData],
-        request_arguments: Optional[QueryString],
-        requesting_agent: Optional[Agent]
+        body: Optional[ParseableData],
+        query: Optional[QueryString],
+        unauthorised_agent: Optional[Agent]
     ) -> Union[Encodable, List[Encodable]]:
         """
         Method returning an Encodable response
@@ -57,8 +57,8 @@ class OpenResource(Resource):
 
     def serve(
         self,
-        request_data: Optional[ParseableData],
-        request_arguments: Optional[QueryString],
+        body: Optional[ParseableData],
+        query: Optional[QueryString],
         headers: Headers
     ) -> str:
 
@@ -93,9 +93,9 @@ class OpenResource(Resource):
             )
 
         response = self.compute_response(
-            request_data,
-            request_arguments,
-            requesting_agent
+            body=body,
+            query=query,
+            unauthorised_agent=requesting_agent
         )
 
         if isinstance(response, list):
