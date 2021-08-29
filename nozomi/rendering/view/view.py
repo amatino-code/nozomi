@@ -10,7 +10,6 @@ from nozomi.rendering.static_context import StaticContext
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
 from nozomi.ancillary.immutable import Immutable
-from nozomi.http.character import Character
 from nozomi.http.headers import Headers
 from nozomi.http.query_string import QueryString
 from nozomi.security.abstract_session import AbstractSession
@@ -119,13 +118,10 @@ class View:
         if context is None:
             context = Context()
 
-        character = Character(headers, self.configuration)
-
         computed_context = self.compute_response(
             query=query,
             context=context,
-            requesting_agent=session,
-            character=character
+            requesting_agent=session
         )
         assert isinstance(computed_context, Context)
         return self._template.render(computed_context)
@@ -134,8 +130,7 @@ class View:
         self,
         query: Optional[QueryString],
         context: Context,
-        requesting_agent: Optional[Agent],
-        character: Character
+        requesting_agent: Optional[Agent]
     ) -> Context:
         raise NotImplementedError
 
