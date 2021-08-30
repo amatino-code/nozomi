@@ -33,6 +33,7 @@ class OrderBy(SQLConforming, Codable):
 
     term = Immutable(lambda s: s._term)
     sql_representation = Immutable(lambda s: bytes(s._query_term, 'utf-8'))
+    query_term = Immutable(lambda s: s._query_term)
 
     def __str__(self) -> str:
         return self._query_term
