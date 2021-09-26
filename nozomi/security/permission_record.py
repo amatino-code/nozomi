@@ -16,9 +16,9 @@ class PermissionRecord(Codable):
     def __init__(
         self,
         owned_by: Union[str, int],
-        readable_by: Optional[List[Union[str, int]]],
-        writable_by: Optional[List[Union[str, int]]],
-        administered_by: Optional[List[Union[str, int]]]
+        readable_by: Optional[List[Union[str, int]]] = None,
+        writable_by: Optional[List[Union[str, int]]] = None,
+        administered_by: Optional[List[Union[str, int]]] = None
     ) -> None:
 
         self._owned_by = owned_by
