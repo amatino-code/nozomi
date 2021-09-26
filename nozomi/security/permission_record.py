@@ -5,7 +5,7 @@ Copyright Amatino Pty Ltd
 """
 from nozomi.data.codable import Codable
 from nozomi.security.agent import Agent
-from typing import Union, TypeVar, Any, Type, List
+from typing import Union, TypeVar, Any, Type, List, Optional
 
 T = TypeVar('T', bound='PermissionRecord')
 
@@ -16,19 +16,15 @@ class PermissionRecord(Codable):
     def __init__(
         self,
         owned_by: Union[str, int],
-        readable_by: List[Union[str, int]],
-        writable_by: List[Union[str, int]],
-        administered_by: List[Union[str, int]]
+        readable_by: Optional[List[Union[str, int]]],
+        writable_by: Optional[List[Union[str, int]]],
+        administered_by: Optional[List[Union[str, int]]]
     ) -> None:
 
-        assert isinstance(readable_by, list)
-        assert isinstance(writable_by, list)
-        assert isinstance(administered_by, list)
-
         self._owned_by = owned_by
-        self._readable_by = readable_by
-        self._writable_by = writable_by
-        self._administered_by = administered_by
+        self._readable_by = readable_by if readable_by else []
+        self._writable_by = writable_by if writable_by else []
+        self._administered_by = administered_by if administered_by else []
 
         return
 
