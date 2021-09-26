@@ -41,3 +41,6 @@ class URLParameters:
             return url
 
         return url + self.query_string
+
+
+QueryParameters = URLParameters

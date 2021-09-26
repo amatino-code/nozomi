@@ -51,8 +51,8 @@ from nozomi.http.status_code import HTTPStatusCode
 from nozomi.http.parseable_data import ParseableData
 from nozomi.http.content_type import ContentType
 from nozomi.http.redirect import Redirect
-from nozomi.http.url_parameter import URLParameter
-from nozomi.http.url_parameters import URLParameters
+from nozomi.http.url_parameter import URLParameter, QueryParameter
+from nozomi.http.url_parameters import URLParameters, QueryParameters
 from nozomi.http.api_request import ApiRequest
 from nozomi.http.user_agent import UserAgent
 from nozomi.http.character import Character
