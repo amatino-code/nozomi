@@ -32,6 +32,8 @@ class RenderDependency:
         self._script_name = script_name
 
         assert isinstance(path, str)
+        if path[-1] != '/':
+            path += '/'
 
         self._full_path = path + self._script_name + self._extension
         self._content = self._load_file(self._full_path)
