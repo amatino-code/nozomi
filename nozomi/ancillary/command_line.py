@@ -1,6 +1,6 @@
 """
-Draft Sport API
-Extract Argument Function
+Nozomi
+Command Line Module
 author: hugh@blinkybeach.com
 """
 import sys
@@ -23,11 +23,12 @@ class CommandLine(ParseableData):
             value: Optional[str] = None
             argument = arguments[index]
             if argument[0] == '-':
-                if (index + 1) < len(arguments):
-                    value = arguments[index + 1]
+                n = index + 1
+                if (n) < len(arguments) and arguments[n][0] != '-':
+                    value = arguments[n]
+                    index += 1
                 else:
                     value = None
-                index += 1
             data[argument] = value
             index += 1
             continue
