@@ -3,10 +3,13 @@ Nozomi
 Base View Module
 author: hugh@blinkybeach.com
 """
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.style import Style
+from nozomi.rendering.script import Script
 from nozomi.rendering.view.view import View
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Union
 from nozomi.rendering.context import Context
 
 
@@ -23,9 +26,9 @@ class BaseView(View):
         title: str,
         description: str,
         key_words: List[str],
-        styles: List[str],
-        scripts: List[str],
-        classes: List[str],
+        styles: List[Union[str, Style]],
+        scripts: List[Union[str, Script]],
+        classes: List[Union[str, JavaScriptClass]],
         open_graph: Optional[OpenGraph] = None,
         static_variables: Optional[Dict[str, Any]] = None,
         static_js_constants: Optional[Dict[str, Any]] = None

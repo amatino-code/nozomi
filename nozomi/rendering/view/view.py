@@ -3,7 +3,7 @@ Nozomi
 View Module
 author: hugh@blinkybeach.com
 """
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from nozomi.rendering.view_template import ViewTemplate
 from nozomi.rendering.context import Context
 from nozomi.rendering.static_context import StaticContext
@@ -14,6 +14,9 @@ from nozomi.http.headers import Headers
 from nozomi.http.query_string import QueryString
 from nozomi.security.abstract_session import AbstractSession
 from nozomi.security.agent import Agent
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.style import Style
+from nozomi.rendering.script import Script
 
 
 class View:
@@ -36,9 +39,9 @@ class View:
         title: str,
         description: str,
         key_words: List[str],
-        styles: List[str],
-        scripts: List[str],
-        classes: List[str],
+        styles: List[Union[str, Style]],
+        scripts: List[Union[str, Script]],
+        classes: List[Union[str, JavaScriptClass]],
         open_graph: Optional[OpenGraph] = None,
         static_variables: Optional[Dict[str, Any]] = None,
         static_js_constants: Optional[Dict[str, Any]] = None
@@ -52,17 +55,14 @@ class View:
         assert self._template_name[-5:] == '.html'
 
         assert isinstance(styles, list)
-        assert False not in [isinstance(s, str) for s in styles]
         all_styles = self._standard_css_styles + styles
 
         assert isinstance(classes, list)
-        assert False not in [isinstance(c, str) for c in classes]
         for jsclass in classes:
             assert jsclass not in self._standard_js_classes
         all_classes = self._standard_js_classes + classes
 
         assert isinstance(scripts, list)
-        assert False not in [isinstance(s, str) for s in scripts]
         for script in scripts:
             assert script not in self._standard_js_scripts
         all_scripts = scripts + self._standard_js_scripts

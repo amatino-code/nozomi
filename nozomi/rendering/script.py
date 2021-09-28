@@ -11,15 +11,18 @@ class Script(RenderDependency):
     """
     A javascript (.js) file required by a template
     """
-    _PATH = 'javascript/scripts/'
     _EXTENSION = '.js'
     _NAME = 'Script'
 
-    def __init__(self, script_name) -> None:
+    def __init__(
+        self,
+        filename: str,
+        path: str = 'javascript/scripts/'
+    ) -> None:
 
         super().__init__(
-            script_name=script_name,
-            path=self._PATH,
+            script_name=filename,
+            path=path,
             extension=self._EXTENSION,
             name=self._NAME
         )

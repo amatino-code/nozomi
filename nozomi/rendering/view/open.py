@@ -3,13 +3,16 @@ Nozomi
 Open View Module
 author: hugh@blinkybeach.com
 """
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.style import Style
+from nozomi.rendering.script import Script
 from nozomi.rendering.view.base import BaseView
 from nozomi.http.headers import Headers
 from nozomi.rendering.context import Context
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.ancillary.configuration import Configuration
 from nozomi.security.abstract_session import AbstractSession
-from typing import List, Dict, Optional, Any, Type
+from typing import List, Dict, Optional, Any, Type, Union
 from nozomi.http.query_string import QueryString
 from nozomi.security.request_credentials import RequestCredentials
 
@@ -27,9 +30,9 @@ class OpenView(BaseView):
         title: str,
         description: str,
         key_words: List[str],
-        styles: List[str],
-        scripts: List[str],
-        classes: List[str],
+        styles: List[Union[str, Style]],
+        scripts: List[Union[str, Script]],
+        classes: List[Union[str, JavaScriptClass]],
         open_graph: Optional[OpenGraph] = None,
         static_variables: Optional[Dict[str, Any]] = None,
         static_js_constants: Optional[Dict[str, Any]] = None

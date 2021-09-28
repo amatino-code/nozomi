@@ -14,11 +14,15 @@ class JavaScriptClass(RenderDependency):
     _EXTENSION = '.js'
     _NAME = 'JavaScriptClass'
 
-    def __init__(self, script_name) -> None:
+    def __init__(
+        self,
+        filename: str,
+        path: str = 'javascript/classes/'
+    ) -> None:
 
         super().__init__(
-            script_name=script_name,
-            path=self._PATH,
+            script_name=filename,
+            path=path,
             extension=self._EXTENSION,
             name=self._NAME
         )

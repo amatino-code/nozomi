@@ -4,7 +4,7 @@ Static Context Module
 Copyright Amatino Pty Ltd
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from nozomi.rendering.open_graph import OpenGraph
 from nozomi.rendering.script import Script
 from nozomi.rendering.javascript_class import JavaScriptClass
@@ -19,9 +19,9 @@ class StaticContext(Context):
     """
     def __init__(
         self,
-        styles: List[str],
-        scripts: List[str],
-        classes: List[str],
+        styles: List[Union[str, Style]],
+        scripts: List[Union[str, Style]],
+        classes: List[Union[str, Style]],
         title: str,
         open_graph: Optional[OpenGraph],
         description: str,
@@ -37,9 +37,18 @@ class StaticContext(Context):
 
         assert isinstance(title, str)
         assert isinstance(description, str)
-        assert False not in [isinstance(s, str) for s in styles]
-        assert False not in [isinstance(s, str) for s in scripts]
-        assert False not in [isinstance(c, str) for c in classes]
+
+        JSC = JavaScriptClass
+
+        assert False not in [
+            (isinstance(s, str) or isinstance(s, Style)) for s in styles
+        ]
+        assert False not in [
+            (isinstance(s, str) or isinstance(s, Script)) for s in scripts
+        ]
+        assert False not in [
+            (isinstance(c, str) or isinstance(c, JSC)) for c in classes
+        ]
         assert False not in [isinstance(k, str) for k in key_words]
 
         self._open_graph = None
@@ -48,9 +57,15 @@ class StaticContext(Context):
             self._open_graph = open_graph.as_dict()
 
         static_context = {
-            'styles': [Style(s) for s in styles],
-            'scripts': [Script(s) for s in scripts],
-            'classes': [JavaScriptClass(c) for c in classes],
+            'styles': [
+                (Style(s) if isinstance(s, str) else s) for s in styles
+            ],
+            'scripts': [
+                (Script(s) if isinstance(s, str) else s) for s in scripts
+            ],
+            'classes': [
+                (JSC(c) if isinstance(c, str) else c) for c in classes
+            ],
             'title': title,
             'open_graph': self._open_graph,
             'description': description,

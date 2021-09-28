@@ -4,10 +4,13 @@ Configuration Module
 author: hugh@blinkybeach.com
 """
 from nozomi.ancillary.database_credentials import DatabaseCredentials
-from typing import Optional, List
+from typing import Optional, List, Union
 from nozomi.security.internal_key import InternalKey
 from nozomi.security.agent import Agent
 from nozomi.ancillary.immutable import Immutable
+from nozomi.rendering.javascript_class import JavaScriptClass
+from nozomi.rendering.style import Style
+from nozomi.rendering.script import Script
 
 
 class Configuration:
@@ -35,9 +38,9 @@ class Configuration:
 
     forwarded_agent_header: str = NotImplemented
 
-    standard_css_styles: List[str] = NotImplemented
-    standard_js_classes: List[str] = NotImplemented
-    standard_js_scripts: List[str] = NotImplemented
+    standard_css_styles: List[Union[str, Style]] = NotImplemented
+    standard_js_classes: List[Union[str, JavaScriptClass]] = NotImplemented
+    standard_js_scripts: List[Union[str, Script]] = NotImplemented
 
     database_credentials: DatabaseCredentials = NotImplemented
 
@@ -52,3 +55,6 @@ class Configuration:
     # Other
     server_name: str = NotImplemented
     boundary_ip_header: str = NotImplemented
+
+    # Template Rendering
+    template_directory = 'templates'

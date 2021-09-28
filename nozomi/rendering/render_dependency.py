@@ -7,8 +7,8 @@ Author: hugh@blinkybeach.com
 
 class RenderDependency:
     """
-    Abstract class providing underlying functionality for rendering dependencies
-    built from files.
+    Abstract class providing underlying functionality for rendering
+    dependencies built from files.
     """
 
     _DEFAULT_NAME = 'Render Dependency'
