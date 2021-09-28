@@ -68,6 +68,7 @@ from nozomi.rendering.view.secure import SecureView
 from nozomi.rendering.render_dependency import RenderDependency
 from nozomi.rendering.javascript_class import JavaScriptClass
 from nozomi.rendering.script import Script
+from nozomi.rendering.style import Style
 
 from nozomi.resources.open import OpenResource
 from nozomi.resources.resource import Resource
