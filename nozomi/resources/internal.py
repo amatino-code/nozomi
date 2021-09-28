@@ -44,9 +44,9 @@ class InternalResource(Resource):
 
     def compute_response(
         self,
+        body: Optional[Union[ParseableData, List[ParseableData]]],
         query: Optional[QueryString],
-        unauthorised_agent: Agent,
-        request_data: Optional[Union[ParseableData, List[ParseableData]]],
+        unauthorised_agent: Agent
     ) -> Tuple[Union[Broadcastable, List[Broadcastable]], Agent]:
         # Method returning an encodable response, and an Agent authorised to
         # make the request.
@@ -54,8 +54,8 @@ class InternalResource(Resource):
 
     def serve(
         self,
-        request_data: Optional[ParseableData],
-        request_arguments: Optional[QueryString],
+        body: Optional[ParseableData],
+        query: Optional[QueryString],
         headers: Headers
     ) -> str:
 
@@ -69,9 +69,9 @@ class InternalResource(Resource):
         )
 
         response, authorised_agent = self.compute_response(
-            query=request_arguments,
+            query=query,
             unauthorised_agent=unauthorised_agent,
-            request_data=request_data
+            body=body
         )
 
         if not isinstance(authorised_agent, Agent):
