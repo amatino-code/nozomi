@@ -87,8 +87,9 @@ class View:
         )
 
         self._template = ViewTemplate(
-            self._template_name,
-            static_context
+            template_filename=self._template_name,
+            static_context=static_context,
+            configuration=configuration
         )
 
         return
