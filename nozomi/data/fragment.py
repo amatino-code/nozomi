@@ -27,7 +27,7 @@ class Fragment(SQLConforming):
     _wildcard_fragment = Immutable(lambda s: '%' + s._fragment + '%')
     sql_representation = Immutable(
         lambda s: s.adapt_string(s._wildcard_fragment) if s._wildcarded
-        is True else s.adapt_string(s._gragment)
+        is True else s.adapt_string(s._fragment)
     )
     value = Immutable(lambda s: s._fragment)
 
@@ -57,8 +57,8 @@ class Fragment(SQLConforming):
         max_length: int = 64,
         min_length: int = 3,
         fallback_to_wildcard: bool = False,
+        key='fragment',
         wildcard_bookend: bool = True
-        key='fragment'
     ) -> Optional[T]:
 
         fragment = arguments.optionally_parse_string(
