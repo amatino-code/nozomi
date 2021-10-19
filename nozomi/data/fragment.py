@@ -13,14 +13,21 @@ T = TypeVar('T', bound='Fragment')
 
 class Fragment(SQLConforming):
 
-    def __init__(self, fragment: str) -> None:
-        assert isinstance(fragment, str)
+    def __init__(
+        self,
+        fragment: str,
+        wildcarded: bool = True
+    ) -> None:
+
         self._fragment = fragment
+        self._wildcarded = wildcarded
+
         return
 
     _wildcard_fragment = Immutable(lambda s: '%' + s._fragment + '%')
     sql_representation = Immutable(
-        lambda s: s.adapt_string(s._wildcard_fragment)
+        lambda s: s.adapt_string(s._wildcard_fragment) if s._wildcarded
+        is True else s.adapt_string(s._gragment)
     )
     value = Immutable(lambda s: s._fragment)
 
@@ -30,7 +37,8 @@ class Fragment(SQLConforming):
         arguments: QueryString,
         max_length: int = 64,
         min_length: int = 3,
-        key: str = 'fragment'
+        key: str = 'fragment',
+        wildcard_bookend: bool = True
     ) -> T:
 
         fragment = arguments.parse_string(
@@ -40,7 +48,7 @@ class Fragment(SQLConforming):
             allow_whitespace=True
         )
 
-        return cls(fragment)
+        return cls(fragment, wildcarded=wildcard_bookend)
 
     @classmethod
     def optionally_from_arguments(
@@ -49,6 +57,7 @@ class Fragment(SQLConforming):
         max_length: int = 64,
         min_length: int = 3,
         fallback_to_wildcard: bool = False,
+        wildcard_bookend: bool = True
         key='fragment'
     ) -> Optional[T]:
 
@@ -65,7 +74,7 @@ class Fragment(SQLConforming):
         if fragment is None and fallback_to_wildcard is True:
             return cls.with_wildcard()
 
-        return cls(fragment)
+        return cls(fragment, wildcarded=wildcard_bookend)
 
     @classmethod
     def with_wildcard(cls: Type[T]) -> T:
