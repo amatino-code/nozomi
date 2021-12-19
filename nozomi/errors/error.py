@@ -1,8 +1,9 @@
 """
 Nozomi
-Nozomi rror Module
+Nozomi Error Module
 Copyright Amatino Pty Ltd
 """
+import sys
 import datetime
 from nozomi.http.status_code import HTTPStatusCode
 from collections.abc import Mapping
@@ -47,11 +48,18 @@ class NozomiError(Exception):
 
         tb_target = original_error or self
 
-        self._stack_trace = ''.join(traceback.format_exception(
-            etype=type(tb_target),
-            value=tb_target,
-            tb=tb_target.__traceback__
-        ))
+        if sys.version_info < (3, 10):
+            self._stack_trace = ''.join(traceback.format_exception(
+                etype=type(tb_target),
+                value=tb_target,
+                tb=tb_target.__traceback__
+            ))
+        else:
+            self._stack_trace = ''.join(traceback.format_exception(
+                tb_target,
+                value=tb_target,
+                tb=tb_target.__traceback__
+            ))
 
         super().__init__(client_description)
         return
