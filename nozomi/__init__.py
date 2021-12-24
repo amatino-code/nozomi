@@ -30,6 +30,7 @@ from nozomi.data.named import Named
 from nozomi.data.list_retrievable import ListRetrievable
 from nozomi.data.argument_parseable import ArgumentParseable
 from nozomi.data.xml import XML
+from nozomi.data.query_string_conforming import QueryStringConforming
 
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC

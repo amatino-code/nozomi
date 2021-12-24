@@ -5,6 +5,8 @@ author: hugh@blinkybeach.com
 """
 from typing import Any, TypeVar, List
 from nozomi.ancillary.immutable import Immutable
+from nozomi.data.query_string_conforming import QueryStringConforming
+from enum import Enum
 
 
 Self = TypeVar('Self', bound='URLParameter')
@@ -25,6 +27,12 @@ class URLParameter:
 
         if isinstance(value, bool):
             value = str(value).lower()
+
+        if isinstance(value, Enum):
+            value = value.value
+
+        if isinstance (value, QueryStringConforming):
+            value = value.query_string_value
 
         try:
             str(value)

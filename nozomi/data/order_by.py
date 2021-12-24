@@ -3,6 +3,7 @@ Nozomi
 Order By Module
 author: hugh@blinkybeach.com
 """
+from nozomi.data.query_string_conforming import QueryStringConforming
 from nozomi.http.query_string import QueryString
 from nozomi.data.codable import Codable
 from nozomi.ancillary.immutable import Immutable
@@ -13,7 +14,7 @@ from typing import TypeVar, Type, Optional, Dict, Any, List
 T = TypeVar('T', bound='OrderBy')
 
 
-class OrderBy(SQLConforming, Codable):
+class OrderBy(SQLConforming, Codable, QueryStringConforming):
     """
     An object that may act as an order by term in a query
     """
@@ -34,6 +35,7 @@ class OrderBy(SQLConforming, Codable):
     term = Immutable(lambda s: s._term)
     sql_representation = Immutable(lambda s: bytes(s._query_term, 'utf-8'))
     query_term = Immutable(lambda s: s._query_term)
+    query_string_value = Immutable(lambda s: str(s._term))
 
     def __str__(self) -> str:
         return self._query_term
