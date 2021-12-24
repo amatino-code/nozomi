@@ -7,11 +7,12 @@ from nozomi.data.sql_conforming import SQLConforming
 from nozomi.http.query_string import QueryString
 from nozomi.ancillary.immutable import Immutable
 from typing import TypeVar, Type, Optional
+from nozomi.data.query_string_conforming import QueryStringConforming
 
 T = TypeVar('T', bound='Fragment')
 
 
-class Fragment(SQLConforming):
+class Fragment(SQLConforming, QueryStringConforming):
 
     def __init__(
         self,
@@ -30,6 +31,7 @@ class Fragment(SQLConforming):
         is True else s.adapt_string(s._fragment)
     )
     value = Immutable(lambda s: s._fragment)
+    query_string_value = Immutable(lambda s: s.value)
 
     @classmethod
     def from_arguments(
