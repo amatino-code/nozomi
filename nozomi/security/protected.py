@@ -17,23 +17,17 @@ class Protected(ReadProtected):
     permission_record: PermissionRecord = NotImplemented
 
     def grants_read_to(self, agent: Agent) -> bool:
-        """Return True if an Agent may read this object"""
-        if not isinstance(self.permission_record, PermissionRecord):
-            raise NotImplementedError('.permission_record not implemented')
         return self.permission_record.records_read_permission_for(agent)
 
     def grants_write_to(self, agent: Agent) -> bool:
-        """Return True if an Agent may write to this object"""
-        if not isinstance(self.permission_record, PermissionRecord):
-            raise NotImplementedError('.permission_record not implemented')
         return self.permission_record.records_write_permission_for(agent)
 
     def grants_admin_to(self, agent: Agent) -> bool:
-        if not isinstance(self.permission_record, PermissionRecord):
-            raise NotImplementedError('.permission_record not implemented')
-        return self.permission_record.records_admin_permission_for(agent)
+        return self.permission_record.records_administration_rights_for(agent)
+
+    def grants_management_to(self, agent: Agent) -> bool:
+        return self.permission_record.records_management_rights_for(agent)
 
     def is_owned_by(self, agent: Agent) -> bool:
-        if not isinstance(self.permission_record, PermissionRecord):
-            raise NotImplementedError('.permission_record not implemented')
         return self.permission_record.records_ownership_by(agent)
+

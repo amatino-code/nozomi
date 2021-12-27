@@ -6,6 +6,7 @@ Copyright Amatino Pty Ltd
 from nozomi.data.codable import Codable
 from nozomi.security.agent import Agent
 from typing import Union, TypeVar, Any, Type, List, Optional
+from nozomi.security.machine_agent import MACHINE_AGENT
 
 T = TypeVar('T', bound='PermissionRecord')
 
@@ -18,13 +19,15 @@ class PermissionRecord(Codable):
         owned_by: Union[str, int],
         readable_by: Optional[List[Union[str, int]]] = None,
         writable_by: Optional[List[Union[str, int]]] = None,
+        managed_by: Optional[List[Union[str, int]]] = None,
         administered_by: Optional[List[Union[str, int]]] = None
     ) -> None:
 
         self._owned_by = owned_by
-        self._readable_by = readable_by if readable_by else []
-        self._writable_by = writable_by if writable_by else []
-        self._administered_by = administered_by if administered_by else []
+        self._readable_by = readable_by or []
+        self._writable_by = writable_by or []
+        self._managed_by = managed_by or []
+        self._administered_by = administered_by or []
 
         return
 
@@ -32,10 +35,9 @@ class PermissionRecord(Codable):
     def decode(cls: Type[T], data: Any) -> T:
         return cls(
             data['owned_by'],
-            data['readable_by'] if data['readable_by'] is not None else list(),
-            data['writable_by'] if data['writable_by'] is not None else list(),
-            data['administered_by'] if data['administered_by'] is not None
-            else list()
+            data['readable_by'] if 'readable_by' in data else None,
+            data['writable_by'] if 'writable_by' in data else None,
+            data['administered_by'] if 'administered_by' in data else None
         )
 
     def encode(self) -> Any:
@@ -43,35 +45,43 @@ class PermissionRecord(Codable):
             'owned_by': self._owned_by,
             'readable_by': self._readable_by,
             'writable_by': self._writable_by,
+            'managed_by': self._managed_by,
             'administered_by': self._administered_by
         }
 
-    def records_admin_permission_for(self, agent: Agent) -> bool:
-        """Return True if admin permissions are recorded for an Agent"""
-        if (self.records_ownership_by(agent)):
-            return True
-        if agent.agent_id in self._administered_by:
-            return True
-        return False
-
-    def records_write_permission_for(self, agent: Agent) -> bool:
-        """Return True if write permissions are recorded for an Agent"""
-        if self.records_ownership_by(agent):
-            return True
-        if self.records_admin_permission_for(agent):
-            return True
-        return agent.agent_id in self._writable_by
-
-    def records_read_permission_for(self, agent: Agent) -> bool:
+    def records_read_permissions_for(self, agent: Agent) -> bool:
         """Return True of read permissions are recorded for an Agent"""
-        if self.records_ownership_by(agent):
-            return True
-        if self.records_admin_permission_for(agent):
-            return True
-        return agent.agent_id in self._readable_by
+        return (
+            self.records_ownership_by(agent)
+            or self.records_management_rights_for(agent)
+            or self.records_administration_rights_for(agent)
+            or agent.agent_id in self._readable_by
+        )
+
+    def records_write_permissions_for(self, agent: Agent) -> bool:
+        """Return True if write permissions are recorded for an Agent"""
+        return (
+            self.records_ownership_by(agent)
+            or self.records_management_rights_for(agent)
+            or self.records_administration_rights_for(agent)
+            or agent.agent_id in self._writable_by
+        )
+
+    def records_management_rights_for(self, agent: Agent) -> bool:
+        """Return True if management permissions are recorded for an Agent"""
+        return (
+            self.records_ownership_by(agent)
+            or self.records_administration_rights_for(agent)
+            or agent.agent_id in self._managed_by
+        )
 
     def records_ownership_by(self, agent: Agent) -> bool:
         """Return True if ownership is recorded for an Agent"""
-        if agent.agent_id == self._owned_by:
-            return True
-        return False
+        return agent.agent_id == self._owned_by
+
+    def records_administration_rights_for(self, agent: Agent) -> bool:
+        """Return True if administrative rights are recorded for an Agent"""
+        return (
+            agent.agent_id in self._administered_by
+            or agent == MACHINE_AGENT
+        )
