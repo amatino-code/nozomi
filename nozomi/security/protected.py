@@ -17,10 +17,10 @@ class Protected(ReadProtected):
     permission_record: PermissionRecord = NotImplemented
 
     def grants_read_to(self, agent: Agent) -> bool:
-        return self.permission_record.records_read_permission_for(agent)
+        return self.permission_record.records_read_permissions_for(agent)
 
     def grants_write_to(self, agent: Agent) -> bool:
-        return self.permission_record.records_write_permission_for(agent)
+        return self.permission_record.records_write_permissions_for(agent)
 
     def grants_admin_to(self, agent: Agent) -> bool:
         return self.permission_record.records_administration_rights_for(agent)
