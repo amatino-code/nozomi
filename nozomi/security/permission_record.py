@@ -17,10 +17,10 @@ class PermissionRecord(Codable):
     def __init__(
         self,
         owned_by: Union[str, int],
-        readable_by: Optional[List[Union[str, int]]] = None,
-        writable_by: Optional[List[Union[str, int]]] = None,
-        managed_by: Optional[List[Union[str, int]]] = None,
-        administered_by: Optional[List[Union[str, int]]] = None
+        readable_by: Optional[List[Union[str, int]]],
+        writable_by: Optional[List[Union[str, int]]],
+        managed_by: Optional[List[Union[str, int]]],
+        administered_by: Optional[List[Union[str, int]]]
     ) -> None:
 
         self._owned_by = owned_by
@@ -34,10 +34,13 @@ class PermissionRecord(Codable):
     @classmethod
     def decode(cls: Type[T], data: Any) -> T:
         return cls(
-            data['owned_by'],
-            data['readable_by'] if 'readable_by' in data else None,
-            data['writable_by'] if 'writable_by' in data else None,
-            data['administered_by'] if 'administered_by' in data else None
+            owned_by=data['owned_by'],
+            readable_by=data['readable_by'] if 'readable_by' in data else None,
+            writable_by=data['writable_by'] if 'writable_by' in data else None,
+            managed_by=data['managed_by'] if 'managed_by' in data else None,
+            administered_by=(
+                data['administered_by'] if 'administered_by' in data else None
+            )
         )
 
     def encode(self) -> Any:
