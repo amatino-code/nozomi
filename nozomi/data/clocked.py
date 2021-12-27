@@ -3,7 +3,9 @@ Nozomi
 Clocked Module
 author: hugh@blinkybeach.com
 """
-from nozomi import NozomiTime, Immutable, TimeZoneUTC
+from nozomi.temporal.time import NozomiTime
+from nozomi.ancillary.immutable import Immutable
+from nozomi.temporal.tz_utc import TimeZoneUTC
 from datetime import timedelta
 from typing import Optional
 
