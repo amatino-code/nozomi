@@ -26,7 +26,7 @@ class InternalKey:
 
     def add_to(self, headers: Mapping) -> Mapping:
         headers[self._header_key] = self._key
-        return
+        return headers
 
     def matches_headers(self, headers: Headers) -> bool:
         """
