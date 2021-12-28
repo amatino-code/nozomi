@@ -78,7 +78,9 @@ not provide a .getlist() method for multiple values per key'
 
         if allow_whitespace is False:
             if True in [c in value for c in string.whitespace]:
-                raise BadRequest('Whitespace not allowed')
+                raise BadRequest('Whitespace not allowed for key {k}'.format(
+                    k=key
+                ))
 
         if allowed_characters is not None:
             good = not bool(allowed_characters.search(value))
