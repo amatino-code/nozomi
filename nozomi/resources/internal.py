@@ -15,6 +15,7 @@ from nozomi.http.parseable_data import ParseableData
 from nozomi.http.headers import Headers
 from nozomi.security.forwarded_agent import ForwardedAgent
 from nozomi.errors.not_authorised import NotAuthorised
+from nozomi.data.encodable import Encodable
 
 
 class InternalResource(Resource):
@@ -87,7 +88,7 @@ class InternalResource(Resource):
         )
 
         if isinstance(response, list):
-            return Broadcastable.serialise_many(
+            return Encodable.serialise_many(
                 Broadcastable.broadcast_many_to(response, authorised_agent)
             )
 
