@@ -105,6 +105,32 @@ characters. Unacceptable characters: {d}'.format(
 
         return value
 
+    def optionally_parse_many_strings(
+        self,
+        key: str,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        allow_whitespace: bool = False,
+        maximum_count: Optional[int] = None,
+        delimiter: Optional[str] = None,
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None
+    ) -> Optional[List[str]]:
+
+        values = self.parse_many_strings(
+            key=key,
+            max_length=max_length,
+            min_length=min_length,
+            allow_whitespace=allow_whitespace,
+            maximum_count=maximum_count,
+            minimum_count=0,
+            delimiter=delimiter,
+            allowed_characters=allowed_characters,
+            disallowed_characters=disallowed_characters
+        )
+
+        return values if len(values) > 1 else None
+
     def parse_many_strings(
         self,
         key: str,
