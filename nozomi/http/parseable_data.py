@@ -104,16 +104,33 @@ acters{h}'.format(
         filter_threats: bool = True,
         allow_whitespace: bool = False,
         minimum_count: int = 0,
-        maximum_count: Optional[int] = None
+        maximum_count: Optional[int] = None,
+        delimiter: Optional[str] = None
     ) -> List[str]:
 
-        if not hasattr(self._raw, 'getlist'):
-            raise RuntimeError(self._MULTI_KEY_ERROR)
+        def derive_multikey_values() -> List[str]:
+    
+            if not hasattr(self._raw, 'getlist'):
+                raise RuntimeError(self._MULTI_KEY_ERROR)
 
-        values = self._raw.getlist(key)
+            return self._raw.getlist(key)
+
+        def derive_delimited_values(delimiter: str) -> List[str]:
+
+            return (self.optionally_parse_string(
+                key=key
+            ) or '').split(delimiter)
+
+        def derive_values() -> List[str]:
+
+            if delimiter is None:
+                return derive_multikey_values()
+            return derive_delimited_values(delimiter)
+
+        values = derive_values()
 
         if len(values) < minimum_count:
-            raise BadRequest('Supply at least {c} value for key {k}'.format(
+            raise BadRequest('Supply at least {c} value(s) for key {k}'.format(
                 c=str(minimum_count),
                 k=key
             ))
