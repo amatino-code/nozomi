@@ -61,10 +61,9 @@ not provide a .getlist() method for multiple values per key'
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        filter_threats: bool = True,  # deprecated
         allow_whitespace: bool = False,
-        allowed_characters: Optional[Any] = None,  # Regex object
-        allowed_character_hint: Optional[str] = None
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None
     ) -> str:
 
         if not isinstance(value, str):
@@ -83,16 +82,26 @@ not provide a .getlist() method for multiple values per key'
                 ))
 
         if allowed_characters is not None:
-            good = not bool(allowed_characters.search(value))
-            if not good:
-                raise BadRequest('Value for key {k} contains unacceptable char\
-acters{h}'.format(
+            for character in value:
+                if character not in allowed_characters:
+                    raise BadRequest('Value for key {k} contains unacceptable \
+characters. Acceptable characters: {a}'.format(
                         k=key,
-                        h='. Acceptable characters: {a}'.format(
-                            a=allowed_character_hint
-                        ) if allowed_character_hint else '.'
-                    )
-                )
+                        a=allowed_characters
+                    ))
+                continue
+            pass
+    
+        if disallowed_characters is not None:
+            for character in value:
+                if character in disallowed_characters:
+                    raise BadRequest('Value for key {k} contains unacceptable \
+characters. Unacceptable characters: {d}'.format(
+                        k=key,
+                         d=disallowed_characters
+                    ))
+                continue
+            pass
 
         return value
 
@@ -101,11 +110,12 @@ acters{h}'.format(
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        filter_threats: bool = True,
         allow_whitespace: bool = False,
         minimum_count: int = 0,
         maximum_count: Optional[int] = None,
-        delimiter: Optional[str] = None
+        delimiter: Optional[str] = None,
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None
     ) -> List[str]:
 
         def derive_multikey_values() -> List[str]:
@@ -147,9 +157,11 @@ acters{h}'.format(
                 key=key,
                 max_length=max_length,
                 min_length=min_length,
-                filter_threats=filter_threats,
-                allow_whitespace=allow_whitespace
+                allow_whitespace=allow_whitespace,
+                allowed_characters=allowed_characters,
+                disallowed_characters=disallowed_characters
             )
+            continue
 
         return values
 
@@ -158,10 +170,9 @@ acters{h}'.format(
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        filter_threats: bool = True,
         allow_whitespace: bool = False,
-        allowed_characters: Optional[Any] = None,  # Regex object
-        allowed_character_hint: Optional[str] = None
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None
     ) -> Optional[str]:
 
         value = self._raw.get(key)
@@ -174,10 +185,9 @@ acters{h}'.format(
             key=key,
             max_length=max_length,
             min_length=min_length,
-            filter_threats=filter_threats,
             allow_whitespace=allow_whitespace,
             allowed_characters=allowed_characters,
-            allowed_character_hint=allowed_character_hint
+            disallowed_characters=disallowed_characters
         )
 
     def get(
