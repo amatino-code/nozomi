@@ -8,6 +8,7 @@ from typing import Any, TypeVar, Type, List
 from nozomi.http.content_type import ContentType
 from nozomi.data.encoder import Encoder
 from nozomi.data.abstract_encodable import AbstractEncodable
+from nozomi.data.xml import XML
 
 T = TypeVar('T', bound='Encodable')
 
@@ -24,14 +25,19 @@ class Encodable(AbstractEncodable):
         Return a string encoded representation of the object in the
         supplied format
         """
-        if format != ContentType.JSON:
-            raise NotImplementedError('Only JSON serialisation implemented')
-        return dumps(
-            cls=Encoder,
-            obj=self,
-            separators=(',', ': '),
-            sort_keys=True,
-            indent=4
+        if format == ContentType.JSON:
+            return dumps(
+                cls=Encoder,
+                obj=self,
+                separators=(',', ': '),
+                sort_keys=True,
+                indent=4
+            )
+        if format == ContentType.XML:
+            return XML.data_to_xmlstring(self.encode())
+
+        raise NotImplementedError(
+            str(format.indexid) + ', ' + str(type(format))
         )
 
     @classmethod
