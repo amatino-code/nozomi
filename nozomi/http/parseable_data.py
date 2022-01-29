@@ -35,8 +35,8 @@ not provide a .getlist() method for multiple values per key'
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         allow_whitespace: bool = False,
-        allowed_characters: Optional[Any] = None,  # Regex object
-        allowed_character_hint: Optional[str] = None
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None
     ) -> str:
 
         value = self.optionally_parse_string(
@@ -45,7 +45,7 @@ not provide a .getlist() method for multiple values per key'
             min_length=min_length,
             allow_whitespace=allow_whitespace,
             allowed_characters=allowed_characters,
-            allowed_character_hint=allowed_character_hint
+            disallowed_characters=disallowed_characters
         )
 
         if value is None:
@@ -535,8 +535,8 @@ ceptable values: {v}'.format(
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
         allow_whitespace: bool = False,
-        allowed_characters: Optional[Any] = None,  # Regex object
-        allowed_character_hint: Optional[str] = None,
+        allowed_characters: Optional[str] = None,
+        disallowed_characters: Optional[str] = None,
         min_elements: Optional[int] = None,
         max_elements: Optional[int] = None
     ) -> List[str]:
@@ -568,7 +568,7 @@ ceptable values: {v}'.format(
                 min_length=min_length,
                 allow_whitespace=allow_whitespace,
                 allowed_characters=allowed_characters,
-                allowed_character_hint=allowed_character_hint
+                disallowed_characters=disallowed_characters
             )
             continue
 
