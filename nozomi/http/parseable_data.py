@@ -34,7 +34,6 @@ not provide a .getlist() method for multiple values per key'
         key: str,
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        filter_threats: bool = True,
         allow_whitespace: bool = False,
         allowed_characters: Optional[Any] = None,  # Regex object
         allowed_character_hint: Optional[str] = None
@@ -44,7 +43,6 @@ not provide a .getlist() method for multiple values per key'
             key=key,
             max_length=max_length,
             min_length=min_length,
-            filter_threats=filter_threats,
             allow_whitespace=allow_whitespace,
             allowed_characters=allowed_characters,
             allowed_character_hint=allowed_character_hint
