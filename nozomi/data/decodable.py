@@ -5,6 +5,7 @@ author: hugh@blinkybeach.com
 """
 from json import loads
 from typing import Any, Optional, TypeVar, Type, List, Dict
+from nozomi.http.content_type import ContentType
 
 T = TypeVar('T', bound='Decodable')
 
@@ -25,9 +26,17 @@ class Decodable:
         return cls.decode(data)
 
     @classmethod
-    def deserialise(cls: Type[T], serial: str) -> T:
-        """Return a decoded object from serialised JSON data"""
-        return cls.decode(loads(serial))
+    def deserialise(
+        cls: Type[T],
+        serial: str,
+        format: ContentType = ContentType.JSON
+    ) -> T:
+        """Return a JSON string representation of the object"""
+        if format == ContentType.JSON:
+            return cls.decode(loads(serial))
+        if format == ContentType.XML:
+            return cls.decode(XML.xmlstring_to_data(serial))
+        raise NotImplementedError('Format not implemented')
 
     @classmethod
     def optionally_deserialise(
