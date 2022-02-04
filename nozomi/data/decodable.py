@@ -6,6 +6,7 @@ author: hugh@blinkybeach.com
 from json import loads
 from typing import Any, Optional, TypeVar, Type, List, Dict
 from nozomi.http.content_type import ContentType
+from nozomi.data.xml import XML
 
 T = TypeVar('T', bound='Decodable')
 
