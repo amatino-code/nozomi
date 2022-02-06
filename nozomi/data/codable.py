@@ -4,6 +4,7 @@ Codable Data Module
 author: hugh@blinkybeach.com
 """
 import sys
+import json
 from nozomi.data.encodable import Encodable
 from nozomi.data.decodable import Decodable
 from typing import TypeVar, Type, Any, Union, Dict, Optional, List
@@ -111,6 +112,7 @@ type {x} does not appear to meet these requirements.\
 class Codable(Encodable, Decodable):
 
     coding_map: Dict[str, CodingDefinition] = NotImplemented
+    codable_debug_target = False
 
     def encode(self):
 
@@ -146,4 +148,16 @@ class Codable(Encodable, Decodable):
     @classmethod
     def decode(cls: Type[T], data: Any) -> T:
         c = cls.coding_map
+        if cls.codable_debug_target is True:
+            print('decode data: ')
+            print(json.dumps(data, indent=4))
+            print('decode keys: ')
+            print([k for k in c])
+        for k in c:
+            if (k not in data or data[k] is None) and not c[k]._optional:
+                print('Container: ')
+                print(json.dumps(data, indent=4))
+                raise RuntimeError('Key "' + k + '" yields null data, but the \
+coding definition does not specify optional. Type: ' + str(c[k]._codable_type))
+
         return cls(**{k: c[k].decode(data[k]) for k in c})
