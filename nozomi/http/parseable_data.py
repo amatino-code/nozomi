@@ -151,9 +151,9 @@ characters. Unacceptable characters: {d}'.format(
 
         def derive_delimited_values(delimiter: str) -> List[str]:
 
-            return (self.optionally_parse_string(
-                key=key
-            ) or '').split(delimiter)
+            raw_string = self.optionally_parse_string(key=key)
+
+            return raw_string.split(delimiter) if raw_string else []
 
         def derive_values() -> List[str]:
 
