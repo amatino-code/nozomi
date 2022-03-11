@@ -542,7 +542,7 @@ integers'.format(
             return array
 
         if max_elements is not None:
-            if len(array) < max_elements:
+            if len(array) > max_elements:
                 raise BadRequest('{k} array maximum length is {i}'.format(
                     k=key,
                     i=str(max_elements)
