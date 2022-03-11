@@ -549,18 +549,29 @@ integers'.format(
                 ))
             pass
 
-        valid_values = [c.value for c in enum_type]
+        valid_enum_values = [c.value for c in enum_type]
+        enum_base_type = type(valid_enum_values[0])
+        supplied_type = type(array[0])
+        map_string_to_int = False
+
+        # Allow string-encoded integers to satisfy integer type requirements
+        if enum_base_type == int and supplied_type == str:
+            map_string_to_int = True
+            valid_enum_values = [str(v) for v in valid_enum_values]
+
         for item in array:
-            if item not in valid_values:
+            if item not in valid_enum_values:
                 raise BadRequest('Bad {t} value for enumeration at key {k}. Ac\
 ceptable values: {v}'.format(
                         t=type_name,
                         k=key,
-                        v=str(valid_values)
+                        v=str(valid_enum_values)
                     )
                 )
             continue
 
+        if map_string_to_int is True:
+            return [enum_type(int(i)) for i in array]
         return [enum_type(i) for i in array]
 
     def parse_string_array(
