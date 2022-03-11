@@ -199,7 +199,7 @@ characters. Unacceptable characters: {d}'.format(
         disallowed_characters: Optional[str] = None
     ) -> Optional[str]:
 
-        value = self._raw.get(key)
+        value = self.get(key)
 
         if value is None:
             return None
@@ -220,6 +220,7 @@ characters. Unacceptable characters: {d}'.format(
         of_type: Optional[Type] = None,
         type_name: Optional[str] = None
     ) -> Optional[Any]:
+
         if key not in self._raw.keys():
             return None
 
@@ -306,7 +307,7 @@ able values: {v}'.format(
 
         assert isinstance(key, str)
 
-        value = self._raw.get(key)
+        value = self.get(key)
         if value is None:
             return None
 
