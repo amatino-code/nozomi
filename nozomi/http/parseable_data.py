@@ -485,6 +485,28 @@ integers'.format(
             raise BadRequest(error)
         return value
 
+    def optionally_parse_enum_array(
+        self,
+        key: str,
+        enum_type: Type[Enum],
+        type_name: str,
+        min_elements: Optional[int] = None,
+        max_elements: Optional[int] = None
+    ) -> Optional[List[Enum]]:
+
+        array = self.get(key, of_type=list, type_name='array')
+
+        if array is None:
+            return None
+        
+        return self.parse_enum_array(
+            key=key,
+            enum_type=enum_type,
+            type_name=type_name,
+            min_elements=min_elements,
+            max_elements=max_elements
+        )
+
     def parse_enum_array(
         self,
         key: str,
