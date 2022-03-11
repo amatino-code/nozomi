@@ -170,7 +170,7 @@ characters. Unacceptable characters: {d}'.format(
             ))
 
         if maximum_count is not None and len(values) > maximum_count:
-            raise BadRequest('Supply less than {c} values for key {k}'.format(
+            raise BadRequest('Supply at most {c} values for key {k}'.format(
                 c=str(maximum_count),
                 k=key
             ))
@@ -491,12 +491,16 @@ integers'.format(
         enum_type: Type[Enum],
         type_name: str,
         min_elements: Optional[int] = None,
-        max_elements: Optional[int] = None
+        max_elements: Optional[int] = None,
+        delimiter: Optional[str] = None
     ) -> Optional[List[Enum]]:
 
-        array = self.get(key, of_type=list, type_name='array')
+        def check() -> Optional[Any]:
+            if delimiter is None:
+                return self.get(key, of_type=list, type_name='array')
+            return self.optionally_parse_string(key)
 
-        if array is None:
+        if check() is None:
             return None
         
         return self.parse_enum_array(
@@ -504,7 +508,8 @@ integers'.format(
             enum_type=enum_type,
             type_name=type_name,
             min_elements=min_elements,
-            max_elements=max_elements
+            max_elements=max_elements,
+            delimiter=delimiter
         )
 
     def parse_enum_array(
@@ -513,10 +518,16 @@ integers'.format(
         enum_type: Type[Enum],
         type_name: str,
         min_elements: Optional[int] = None,
-        max_elements: Optional[int] = None
+        max_elements: Optional[int] = None,
+        delimiter: Optional[str] = None
     ) -> List[Enum]:
 
-        array = self.require(key, of_type=list, type_name='array')
+        def derive_array() -> List[Any]:
+            if delimiter is None:
+                return self.require(key, of_type=list, type_name='array')
+            return self.parse_many_strings(key, delimiter=delimiter)
+
+        array = derive_array()
 
         if min_elements is not None:
             if len(array) < min_elements:
