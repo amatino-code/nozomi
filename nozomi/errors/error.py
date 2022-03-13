@@ -3,6 +3,7 @@ Nozomi
 Nozomi Error Module
 Copyright Amatino Pty Ltd
 """
+import json
 import sys
 import datetime
 from nozomi.http.status_code import HTTPStatusCode
@@ -85,13 +86,23 @@ class NozomiError(Exception):
     def report(
         self,
         request_headers: Optional[Mapping] = None,
-        request_json: Optional[Any] = None,
+        request_body: Optional[Any] = None,
         request_arguments: Optional[Any] = None
     ) -> str:
         """
         Return human-readable a string describing the error, including
         a traceback
         """
+
+        def coerce_body(body: Any) -> str:
+            if isinstance(body, bytes):
+                body = body.decode('utf-8')
+            try:
+                body = json.loads(body)
+                return json.dumps(body, indent=4)
+            except Exception:
+                return body
+
         report = '\n\n--##-- Nozomi Error Report --##--\n'
         report += str(datetime.datetime.utcnow()) + ' UTC\n'
         report += 'Exception:\n' + str(self) + '\n'
@@ -115,7 +126,7 @@ class NozomiError(Exception):
         report += '\nRequest headers: \n'
         report += str(request_headers)
         report += '\nRequest JSON: \n'
-        report += str(request_json)
+        report += str(coerce_body(request_body))
         report += '\nRequest arguments:\n'
         report += str(request_arguments)
         report += '\n--##-- End Error Report --##--\n'
