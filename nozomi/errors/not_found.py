@@ -5,7 +5,7 @@ author: hugh@blinkybeach.com
 """
 from nozomi.errors.error import NozomiError
 from nozomi.http.status_code import HTTPStatusCode
-from typing import TypeVar, Type, Union, Optional
+from typing import TypeVar, Type, Union, Optional, Any
 from nozomi.data.named import Named
 
 T = TypeVar('T', bound='NotFound')
@@ -28,11 +28,15 @@ class NotFound(NozomiError):
     @classmethod
     def for_object(
         cls: Type[T],
-        name: Union[str, Named, Type[Named]],
+        name: Union[str, Named, Any],
         id_: Optional[str] = None
     ) -> T:
 
-        derived_name = name if isinstance(name, str) else name.name
+        derived_name = name if (
+            isinstance(name, str)
+         ) else (
+            name.type_name
+         ) if isinstance(name, Named) else 'object'
 
         if id_ is not None:
             raise Warning('id_ parameter deprecated')

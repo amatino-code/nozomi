@@ -9,8 +9,9 @@ from nozomi.data.datastore import Datastore
 from nozomi.data.query import Query
 from nozomi.data.named import Named
 from typing import Type, TypeVar, Optional
+from nozomi.http.parseable_data import ParseableData
 
-T = TypeVar('T', bound='PubliclyIdentified')
+Self = TypeVar('Self', bound='PubliclyIdentified')
 
 
 class PubliclyIdentified(Decodable, Named):
@@ -37,13 +38,13 @@ class PubliclyIdentified(Decodable, Named):
 
     @classmethod
     def retrieve(
-        cls: Type[T],
+        Self: Type[Self],
         public_id: str,
         datastore: Datastore,
         in_transaction: bool = False
-    ) -> Optional[T]:
+    ) -> Optional[Self]:
 
-        result = cls.Q_RETRIEVE.execute(
+        result = Self.Q_RETRIEVE.execute(
             datastore=datastore,
             arguments={
                 'public_id': public_id
@@ -51,21 +52,53 @@ class PubliclyIdentified(Decodable, Named):
             atomic=(not in_transaction)
         )
 
-        return cls.optionally_decode(result)
+        return Self.optionally_decode(result)
 
     @classmethod
     def retrieve_assertively(
-        cls: Type[T],
+        Self: Type[Self],
         public_id: str,
         datastore: Datastore,
         in_transaction: bool = False
-    ) -> Optional[T]:
+    ) -> Optional[Self]:
 
-        result = cls.retrieve(public_id, datastore, in_transaction)
+        result = Self.retrieve(public_id, datastore, in_transaction)
 
         if result is None:
             raise NotFound('No {n} found with supplied public id'.format(
-                n=cls.name if isinstance(cls.name, str) else 'object'
+                n=Self.type_name if isinstance(Self.name, str) else 'object'
             ))
 
         return result
+
+    @classmethod
+    def from_request(
+        Self: Type[Self],
+        datastore: Datastore,
+        data: ParseableData,
+        key: str,
+        in_transaction: bool = False
+    ) -> Self:
+
+        return Self.retrieve_assertively(
+            public_id=data.parse_string(key),
+            datastore=datastore,
+            in_transaction=in_transaction
+        )
+
+    @classmethod
+    def optionally_from_request(
+        Self: Type[Self],
+        datastore: Datastore,
+        data: ParseableData,
+        key: str,
+        in_transaction: bool = False
+    ) -> Optional[Self]:
+
+        public_id = data.optionally_parse_string(key)
+
+        return Self.retrieve_assertively(
+            public_id=data.parse_string(key),
+            datastore=datastore,
+            in_transaction=in_transaction
+        ) if public_id is not None else None

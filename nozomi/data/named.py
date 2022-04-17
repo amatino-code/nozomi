@@ -6,4 +6,4 @@ author: hugh@blinkybeach.com
 
 
 class Named:
-    name: str = NotImplemented
+    type_name: str = NotImplemented
