@@ -35,7 +35,7 @@ from nozomi.data.clocked import Clocked
 
 from nozomi.temporal.date import NozomiDate
 from nozomi.temporal.tz_utc import TimeZoneUTC
-from nozomi.temporal.time import NozomiTime
+from nozomi.temporal.time import NozomiTime, DISTANT_PAST, DISTANT_FUTURE
 
 from nozomi.errors.error import NozomiError
 from nozomi.errors.bad_request import BadRequest

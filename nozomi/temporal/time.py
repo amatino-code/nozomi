@@ -131,3 +131,7 @@ class NozomiTime(datetime, Codable):
                 f=cls._NO_MS_FORMAT
             ))
         return time
+
+
+DISTANT_FUTURE = NozomiTime(9999, 12, 31, 23, 59, 59)
+DISTANT_PAST = NozomiTime(0000, 1, 1, 0, 0, 0)
