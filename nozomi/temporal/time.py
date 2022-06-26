@@ -3,6 +3,7 @@ Nozomi
 Time Module
 author: hugh@blinkybeach.com
 """
+from optparse import Option
 from nozomi.data.codable import Codable
 from nozomi.http.parseable_data import ParseableData
 from nozomi.errors.bad_request import BadRequest
@@ -105,30 +106,41 @@ class NozomiTime(datetime, Codable):
     def from_request(
         cls: Type[T],
         data: ParseableData,
-        key: str
+        key: str,
+        inside: Optional[str] = None
     ) -> T:
 
         time = cls.optionally_from_request(data, key)
         if time is None:
             raise BadRequest('Supply a time, in format {f}, under key \
-{k}'.format(f=cls._NO_MS_FORMAT, k=key))
+{k}'.format(
+            f=cls._NO_MS_FORMAT,
+            k=key if inside is None else f'{inside}->{key}'
+        ))
         return time
 
     @classmethod
     def optionally_from_request(
         cls: Type[T],
         data: ParseableData,
-        key: str
+        key: str,
+        inside: Optional[str] = None
     ) -> Optional[T]:
 
-        raw_time = data.optionally_parse_string(key, allow_whitespace=True)
+        raw_time = data.optionally_parse_string(
+            key=key,
+            allow_whitespace=True,
+            inside=inside
+        )
         if raw_time is None:
             return None
         try:
             time = cls.decode(raw_time)
         except ValueError:
-            raise BadRequest('Time must be in the format {f}'.format(
-                f=cls._NO_MS_FORMAT
+            raise BadRequest('Time must be in the format {f}, offending key: \
+'.format(
+                f=cls._NO_MS_FORMAT,
+                k=key if inside is None else f'{inside}->{key}'
             ))
         return time
 
