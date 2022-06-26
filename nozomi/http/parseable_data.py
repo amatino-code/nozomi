@@ -36,7 +36,8 @@ not provide a .getlist() method for multiple values per key'
         min_length: Optional[int] = None,
         allow_whitespace: bool = False,
         allowed_characters: Optional[str] = None,
-        disallowed_characters: Optional[str] = None
+        disallowed_characters: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> str:
 
         value = self.optionally_parse_string(
@@ -45,11 +46,14 @@ not provide a .getlist() method for multiple values per key'
             min_length=min_length,
             allow_whitespace=allow_whitespace,
             allowed_characters=allowed_characters,
-            disallowed_characters=disallowed_characters
+            disallowed_characters=disallowed_characters,
+            inside=inside
         )
 
         if value is None:
-            raise BadRequest('Missing value for key ' + key)
+            raise BadRequest('Missing value for key {i}'.format(
+                i=key if inside is None else f'{inside}->{key}'
+            ))
 
         return value
 
@@ -61,30 +65,31 @@ not provide a .getlist() method for multiple values per key'
         min_length: Optional[int] = None,
         allow_whitespace: bool = False,
         allowed_characters: Optional[str] = None,
-        disallowed_characters: Optional[str] = None
+        disallowed_characters: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> str:
 
+        hint = key if inside is None else f'{inside}->{key}'
+
         if not isinstance(value, str):
-            raise BadRequest('Value for key ' + key + ' must be string')
+            raise BadRequest(f'Value for key {hint} must be string')
 
         if max_length is not None and len(value) > max_length:
-            raise BadRequest(key + ' max length: ' + str(max_length))
+            raise BadRequest(f'{hint} max length: {max_length}')
 
         if min_length is not None and len(value) < min_length:
-            raise BadRequest(key + ' min length: ' + str(min_length))
+            raise BadRequest(f'{hint} min length: {min_length}')
 
         if allow_whitespace is False:
             if True in [c in value for c in string.whitespace]:
-                raise BadRequest('Whitespace not allowed for key {k}'.format(
-                    k=key
-                ))
+                raise BadRequest(f'Whitespace not allowed for key {hint}')
 
         if allowed_characters is not None:
             for character in value:
                 if character not in allowed_characters:
-                    raise BadRequest('Value for key {k} contains unacceptable \
+                    raise BadRequest('Value for key {h} contains unacceptable \
 characters. Acceptable characters: {a}'.format(
-                        k=key,
+                        h=hint,
                         a=allowed_characters
                     ))
                 continue
@@ -93,10 +98,10 @@ characters. Acceptable characters: {a}'.format(
         if disallowed_characters is not None:
             for character in value:
                 if character in disallowed_characters:
-                    raise BadRequest('Value for key {k} contains unacceptable \
+                    raise BadRequest('Value for key {h} contains unacceptable \
 characters. Unacceptable characters: {d}'.format(
-                        k=key,
-                         d=disallowed_characters
+                        h=hint,
+                        d=disallowed_characters
                     ))
                 continue
             pass
@@ -112,7 +117,8 @@ characters. Unacceptable characters: {d}'.format(
         maximum_count: Optional[int] = None,
         delimiter: Optional[str] = None,
         allowed_characters: Optional[str] = None,
-        disallowed_characters: Optional[str] = None
+        disallowed_characters: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Optional[List[str]]:
 
         values = self.parse_many_strings(
@@ -124,7 +130,8 @@ characters. Unacceptable characters: {d}'.format(
             minimum_count=0,
             delimiter=delimiter,
             allowed_characters=allowed_characters,
-            disallowed_characters=disallowed_characters
+            disallowed_characters=disallowed_characters,
+            inside=inside
         )
 
         return values if len(values) > 1 else None
@@ -139,8 +146,11 @@ characters. Unacceptable characters: {d}'.format(
         maximum_count: Optional[int] = None,
         delimiter: Optional[str] = None,
         allowed_characters: Optional[str] = None,
-        disallowed_characters: Optional[str] = None
+        disallowed_characters: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> List[str]:
+
+        hint = key if inside is None else f'{inside}->{key}'
 
         def derive_multikey_values() -> List[str]:
     
@@ -151,7 +161,7 @@ characters. Unacceptable characters: {d}'.format(
 
         def derive_delimited_values(delimiter: str) -> List[str]:
 
-            raw_string = self.optionally_parse_string(key=key)
+            raw_string = self.optionally_parse_string(key=key, inside=inside)
 
             return raw_string.split(delimiter) if raw_string else []
 
@@ -166,13 +176,13 @@ characters. Unacceptable characters: {d}'.format(
         if len(values) < minimum_count:
             raise BadRequest('Supply at least {c} value(s) for key {k}'.format(
                 c=str(minimum_count),
-                k=key
+                k=hint
             ))
 
         if maximum_count is not None and len(values) > maximum_count:
             raise BadRequest('Supply at most {c} values for key {k}'.format(
                 c=str(maximum_count),
-                k=key
+                k=hint
             ))
 
         for value in values:
@@ -196,7 +206,8 @@ characters. Unacceptable characters: {d}'.format(
         min_length: Optional[int] = None,
         allow_whitespace: bool = False,
         allowed_characters: Optional[str] = None,
-        disallowed_characters: Optional[str] = None
+        disallowed_characters: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Optional[str]:
 
         value = self.get(key)
@@ -211,15 +222,19 @@ characters. Unacceptable characters: {d}'.format(
             min_length=min_length,
             allow_whitespace=allow_whitespace,
             allowed_characters=allowed_characters,
-            disallowed_characters=disallowed_characters
+            disallowed_characters=disallowed_characters,
+            inside=inside
         )
 
     def get(
         self,
         key: str,
         of_type: Optional[Type] = None,
-        type_name: Optional[str] = None
+        type_name: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Optional[Any]:
+
+        hint = key if inside is None else f'{inside}->{key}'
 
         if key not in self._raw.keys():
             return None
@@ -233,11 +248,9 @@ characters. Unacceptable characters: {d}'.format(
                 except Exception:
                     pass
             if type_name is None:
-                raise BadRequest(
-                    'Value for key ' + key + ' has incorrect type'
-                )
+                raise BadRequest(f'Value for key {hint} has incorrect type')
             raise BadRequest('Value for key {k} must be {t}'.format(
-                k=key,
+                k=hint,
                 t=type_name
             ))
 
@@ -247,12 +260,15 @@ characters. Unacceptable characters: {d}'.format(
         self,
         key: str,
         of_type: Optional[Type] = None,
-        type_name: Optional[str] = None
+        type_name: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Any:
 
-        value = self.get(key, of_type, type_name=type_name)
+        value = self.get(key, of_type, type_name=type_name, inside=inside)
         if value is None:
-            raise BadRequest('Missing value for key ' + key)
+            raise BadRequest('Missing value for key {k}'.format(
+                k=key if inside is None else f'{inside}->{key}'
+            ))
 
         return value
 
@@ -260,7 +276,8 @@ characters. Unacceptable characters: {d}'.format(
         self,
         key: str,
         enum_type: Type[Enum],
-        type_name: str
+        type_name: str,
+        inside: Optional[str] = None
     ) -> Optional[Enum]:
 
         value = self.get(key, of_type=type([v.value for v in enum_type][0]))
@@ -273,7 +290,7 @@ characters. Unacceptable characters: {d}'.format(
             raise BadRequest('Bad {t} value for enumeration at key {k}. Accept\
 able values: {v}'.format(
                 t=type_name,
-                k=key,
+                k=key if inside is None else f'{inside}->{key}',
                 v=str([v.value for v in enum_type])
                 )
             )
@@ -284,7 +301,8 @@ able values: {v}'.format(
         self,
         key: str,
         enum_type: Type[Enum],
-        type_name: str
+        type_name: str,
+        inside: Optional[str] = None
     ) -> Optional[Enum]:
 
         value = self.optionally_parse_enum(
@@ -296,16 +314,17 @@ able values: {v}'.format(
         if value is not None:
             return value
 
-        raise BadRequest('Missing {k} parameter'.format(k=key))
+        raise BadRequest('Missing {k} parameter'.format(
+            k=key if inside is None else f'{inside}->{key}'
+        ))
 
     def optionally_parse_int(
         self,
         key: str,
         max_value: Optional[int] = None,
-        min_value: Optional[int] = None
+        min_value: Optional[int] = None,
+        inside: Optional[str] = None
     ) -> Optional[int]:
-
-        assert isinstance(key, str)
 
         value = self.get(key)
         if value is None:
@@ -315,7 +334,8 @@ able values: {v}'.format(
             key=key,
             candidate=value,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
     def _validate_integer(
@@ -323,42 +343,52 @@ able values: {v}'.format(
         key: str,
         candidate: Any,
         max_value: Optional[int] = None,
-        min_value: Optional[int] = None
+        min_value: Optional[int] = None,
+        inside: Optional[str] = None
     ) -> int:
 
         if isinstance(candidate, bool):
             raise BadRequest(
-                key + ' must be integer or string encoded integer'
+                '{k} must be integer or string encoded integer'.format(
+                    k=key if inside is None else f'{inside}->{key}'
+                )
             )
 
         try:
             integer_value = int(candidate)
         except Exception:
             raise BadRequest(
-                key + ' must be integer or string encoded integer'
+                '{k} must be integer or string encoded integer'.format(
+                    k=key if inside is None else f'{inside}->{key}'
+                )
             )
 
         return self._constrain_number(
             key=key,
             number=integer_value,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
     def parse_int(
         self,
         key: str,
         max_value: Optional[int] = None,
-        min_value: Optional[int] = None
+        min_value: Optional[int] = None,
+        inside: Optional[str] = None
     ) -> int:
 
         value = self.optionally_parse_int(
             key,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
         if value is None:
-            raise BadRequest('Missing ' + key + ' parameter')
+            raise BadRequest('Missing {k} parameter'.format(
+                key if inside is None else f'{inside}->{key}'
+            ))
 
         return value
 
@@ -368,7 +398,8 @@ able values: {v}'.format(
         max_value: Optional[int] = None,
         min_value: Optional[int] = None,
         minimum_count: int = 0,
-        maximum_count: Optional[int] = None
+        maximum_count: Optional[int] = None,
+        inside: Optional[str] = None
     ) -> List[int]:
 
         if not hasattr(self._raw, 'getlist'):
@@ -378,14 +409,14 @@ able values: {v}'.format(
 
         if len(values) < minimum_count:
             raise BadRequest('{k} must provide at least {n} integers'.format(
-                k=key,
+                k=key if inside is None else f'{inside}->{key}',
                 n=str(minimum_count)
             ))
 
         if maximum_count is not None and len(values) > maximum_count:
             raise BadRequest('{k} must provide no more than {n} \
 integers'.format(
-                k=key,
+                k=key if inside is None else f'{inside}->{key}',
                 n=str(maximum_count)
             ))
 
@@ -395,7 +426,8 @@ integers'.format(
                 key=key,
                 candidate=value,
                 max_value=max_value,
-                min_value=min_value
+                min_value=min_value,
+                inside=inside
             ))
 
         return validated
@@ -403,7 +435,8 @@ integers'.format(
     def optionally_parse_bool(
         self,
         key: str,
-        fallback_to: Optional[bool] = None
+        fallback_to: Optional[bool] = None,
+        inside: Optional[str] = None
     ) -> Optional[bool]:
 
         value = self.get(key)
@@ -418,16 +451,21 @@ integers'.format(
         if value == 'false':
             return False
 
-        raise BadRequest(key + ' must be "true" or "false"')
+        hint = key if inside is None else f'{inside}->{key}'
+
+        raise BadRequest(f'{hint} must be "true" or "false"')
 
     def parse_bool(
         self,
-        key: str
+        key: str,
+        inside: Optional[str] = None
     ) -> bool:
 
         value = self.optionally_parse_bool(key)
         if value is None:
-            raise BadRequest(key + ' parameter missing')
+            raise BadRequest('{k} parameter missing'.format(
+                k=key if inside is None else f'{inside}->{key}'
+            ))
 
         return value
 
@@ -435,7 +473,8 @@ integers'.format(
         self,
         key: str,
         max_value: Optional[Decimal] = None,
-        min_value: Optional[Decimal] = None
+        min_value: Optional[Decimal] = None,
+        inside: Optional[str] = None
     ) -> Optional[Decimal]:
 
         value = self._raw.get(key)
@@ -445,20 +484,24 @@ integers'.format(
         try:
             decimal_value = Decimal(str(value))
         except Exception:
-            raise BadRequest(key + ' must be a string encoded decimal')
+            raise BadRequest('{k} must be a string encoded decimal'.format(
+                k=key if inside is None else f'{inside}->{key}'
+            ))
 
         return self._constrain_number(
             key=key,
             number=decimal_value,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
     def parse_decimal(
         self,
         key: str,
         max_value: Optional[Decimal] = None,
-        min_value: Optional[Decimal] = None
+        min_value: Optional[Decimal] = None,
+        inside: Optional[str] = None
     ) -> Decimal:
 
         decimal = self.optionally_parse_decimal(
@@ -468,8 +511,8 @@ integers'.format(
         )
 
         if decimal is None:
-            raise BadRequest(key + ' missing string encoded decimal for key \
-`{k}`'.format(k=key))
+            raise BadRequest('Missing string encoded decimal for key `{k}`\
+'.format(k=key if inside is None else f'{inside}->{key}'))
 
         return decimal
 
@@ -493,12 +536,17 @@ integers'.format(
         type_name: str,
         min_elements: Optional[int] = None,
         max_elements: Optional[int] = None,
-        delimiter: Optional[str] = None
+        delimiter: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Optional[List[Enum]]:
 
         def check() -> Optional[Any]:
             if delimiter is None:
-                return self.get(key, of_type=list, type_name='array')
+                return self.get(
+                    key=key,
+                    of_type=list, type_name='array',
+                    inside=inside
+                )
             return self.optionally_parse_string(key)
 
         if check() is None:
@@ -510,7 +558,8 @@ integers'.format(
             type_name=type_name,
             min_elements=min_elements,
             max_elements=max_elements,
-            delimiter=delimiter
+            delimiter=delimiter,
+            inside=inside
         )
 
     def parse_enum_array(
@@ -520,20 +569,30 @@ integers'.format(
         type_name: str,
         min_elements: Optional[int] = None,
         max_elements: Optional[int] = None,
-        delimiter: Optional[str] = None
+        delimiter: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> List[Enum]:
 
         def derive_array() -> List[Any]:
             if delimiter is None:
-                return self.require(key, of_type=list, type_name='array')
-            return self.parse_many_strings(key, delimiter=delimiter)
+                return self.require(
+                    key,
+                    of_type=list,
+                    type_name='array',
+                    inside=inside
+                )
+            return self.parse_many_strings(
+                key=key,
+                delimiter=delimiter,
+                inside=inside
+            )
 
         array = derive_array()
 
         if min_elements is not None:
             if len(array) < min_elements:
                 raise BadRequest('{k} array minimum elements is {i}'.format(
-                    k=key,
+                    k=key if inside is None else f'{inside}->{key}',
                     i=str(min_elements)
                 ))
             pass
@@ -544,7 +603,7 @@ integers'.format(
         if max_elements is not None:
             if len(array) > max_elements:
                 raise BadRequest('{k} array maximum length is {i}'.format(
-                    k=key,
+                    k=key if inside is None else f'{inside}->{key}',
                     i=str(max_elements)
                 ))
             pass
@@ -564,7 +623,7 @@ integers'.format(
                 raise BadRequest('Bad {t} value for enumeration at key {k}. Ac\
 ceptable values: {v}'.format(
                         t=type_name,
-                        k=key,
+                        k=key if inside is None else f'{inside}->{key}',
                         v=str(valid_enum_values)
                     )
                 )
@@ -583,15 +642,21 @@ ceptable values: {v}'.format(
         allowed_characters: Optional[str] = None,
         disallowed_characters: Optional[str] = None,
         min_elements: Optional[int] = None,
-        max_elements: Optional[int] = None
+        max_elements: Optional[int] = None,
+        inside: Optional[str] = None
     ) -> List[str]:
 
-        array = self.require(key=key, of_type=list, type_name='array')
+        array = self.require(
+            key=key,
+            of_type=list,
+            type_name='array',
+            inside=inside
+        )
 
         if min_elements is not None:
             if len(array) < min_elements:
                 raise BadRequest('{k} array minimum elements is {i}'.format(
-                    k=key,
+                    k=key if inside is None else f'{inside}->{key}',
                     i=str(min_elements)
                 ))
 
@@ -601,7 +666,7 @@ ceptable values: {v}'.format(
         if max_elements is not None:
             if len(array) < min_elements:
                 raise BadRequest('{k} array maximum length is {i}'.format(
-                    k=key,
+                    k=key if inside is None else f'{inside}->{key}',
                     i=str(max_elements)
                 ))
 
@@ -613,7 +678,8 @@ ceptable values: {v}'.format(
                 min_length=min_length,
                 allow_whitespace=allow_whitespace,
                 allowed_characters=allowed_characters,
-                disallowed_characters=disallowed_characters
+                disallowed_characters=disallowed_characters,
+                inside=inside
             )
             continue
 
@@ -624,14 +690,21 @@ ceptable values: {v}'.format(
         key: str,
         number: _Number,
         max_value: Optional[_Number],
-        min_value: Optional[_Number]
+        min_value: Optional[_Number],
+        inside: Optional[str] = None
     ) -> _Number:
 
         if min_value is not None and number < min_value:
-            raise BadRequest(key + ' below mininum value: ' + str(min_value))
+            raise BadRequest('{k} below mininum value: {m}'.format(
+                k=key if inside is None else f'{inside}->{key}',
+                m=str(min_value)
+            ))
 
         if max_value is not None and number > max_value:
-            raise BadRequest(key + ' above maximum value: ' + str(max_value))
+            raise BadRequest('{k} above maximum value: {m}'.format(
+                k=key if inside is None else f'{inside}->{key}',
+                m=str(max_value)
+            ))
 
         return number
 
@@ -640,33 +713,38 @@ ceptable values: {v}'.format(
         key: str,
         candidate: Any,
         max_value: Optional[float] = None,
-        min_value: Optional[float] = None
+        min_value: Optional[float] = None,
+        inside: Optional[str] = None
     ) -> float:
 
         if isinstance(candidate, bool):
-            raise BadRequest(
-                key + ' must be float or string encoded float'
-            )
+            raise BadRequest('{k} must be float or string encoded float\
+'.format(
+                k=key if inside is None else f'{inside}->{key}'
+            ))
 
         try:
             float_value = float(candidate)
         except Exception:
-            raise BadRequest(
-                key + ' must be float or string encoded float'
-            )
+            raise BadRequest('{k} must be float or string encoded float\
+'.format(
+                k=key if inside is None else f'{inside}->{key}'
+            ))
 
         return self._constrain_number(
             key=key,
             number=float_value,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
     def optionally_parse_float(
         self,
         key: str,
         max_value: Optional[float] = None,
-        min_value: Optional[float] = None
+        min_value: Optional[float] = None,
+        inside: Optional[str] = None
     ) -> Optional[float]:
 
         value = self._raw.get(key)
@@ -677,24 +755,29 @@ ceptable values: {v}'.format(
             key=key,
             candidate=value,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
     def parse_float(
         self,
         key: str,
         max_value: Optional[float] = None,
-        min_value: Optional[float] = None
+        min_value: Optional[float] = None,
+        inside: Optional[str] = None
     ) -> float:
 
         value = self.optionally_parse_float(
             key=key,
             max_value=max_value,
-            min_value=min_value
+            min_value=min_value,
+            inside=inside
         )
 
         if value is None:
-            raise BadRequest('Missing ' + key + ' parameter')
+            raise BadRequest('Missing {k} parameter'.format(
+                key if inside is None else f'{inside}->{key}'
+            ))
 
         return value
 
