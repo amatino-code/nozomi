@@ -134,7 +134,7 @@ characters. Unacceptable characters: {d}'.format(
             inside=inside
         )
 
-        return values if len(values) > 1 else None
+        return values if len(values) > 0 else None
 
     def parse_many_strings(
         self,
