@@ -71,7 +71,7 @@ class ViewTemplate:
 
         stage_2_environment = self._CACHED_S2_ENVIRONMENT
 
-        with open(template_filename) as template_file:
+        with open(f'{self._CACHED_PATH}/{template_filename}') as template_file:
             template_string = template_file.read()
         self._stage_1_render = stage_1_environment.from_string(
             template_string
