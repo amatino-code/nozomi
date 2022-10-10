@@ -387,7 +387,7 @@ able values: {v}'.format(
         )
         if value is None:
             raise BadRequest('Missing {k} parameter'.format(
-                key if inside is None else f'{inside}->{key}'
+                k=key if inside is None else f'{inside}->{key}'
             ))
 
         return value
@@ -776,7 +776,7 @@ ceptable values: {v}'.format(
 
         if value is None:
             raise BadRequest('Missing {k} parameter'.format(
-                key if inside is None else f'{inside}->{key}'
+                k=key if inside is None else f'{inside}->{key}'
             ))
 
         return value
