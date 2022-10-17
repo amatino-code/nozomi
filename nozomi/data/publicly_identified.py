@@ -66,7 +66,9 @@ class PubliclyIdentified(Decodable, Named):
 
         if result is None:
             raise NotFound('No {n} found with supplied public id'.format(
-                n=Self.type_name if isinstance(Self.name, str) else 'object'
+                n=Self.type_name if (
+                    isinstance(Self.type_name, str)
+                ) else 'object'
             ))
 
         return result
