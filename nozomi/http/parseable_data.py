@@ -240,6 +240,10 @@ characters. Unacceptable characters: {d}'.format(
             return None
 
         value = self._raw[key]
+
+        if value is None:
+            return None
+
         if of_type is not None and not isinstance(value, of_type):
             if of_type == int and isinstance(value, str):
                 try:
