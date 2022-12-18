@@ -3,13 +3,12 @@ Nozomi
 Time Module
 author: hugh@blinkybeach.com
 """
-from optparse import Option
 from nozomi.data.codable import Codable
 from nozomi.http.parseable_data import ParseableData
 from nozomi.errors.bad_request import BadRequest
 from datetime import timedelta
 from datetime import datetime
-from typing import TypeVar, Type, Any, Optional
+from typing import TypeVar, Type, Any, Optional, Union
 from nozomi.temporal.tz_utc import UTC
 
 T = TypeVar('T', bound='NozomiTime')
@@ -19,6 +18,32 @@ class NozomiTime(datetime, Codable):
 
     _DB_FORMAT_STRING = '%Y-%m-%d %H:%M:%S.%f'
     _NO_MS_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+    def offset_by(
+        self,
+        days: int = 0,
+        hours: Union[int, float] = 0,
+        minutes: int = 0,
+        seconds: int = 0,
+        milliseconds: int = 0
+    ) -> T:
+
+        return self._from_datetime(time=self + timedelta(
+            days=days,
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds,
+            milliseconds=milliseconds
+        ))
+
+    def offset_by_days(self, days: int) -> T:
+        return self._from_datetime(time=self + timedelta(days=days))
+
+    def offset_by_hours(self, hours: Union[int, float]) -> T:
+        return self._from_datetime(time=self + timedelta(hours=hours))
+
+    def offset_by_minutes(self, minutes: int) -> T:
+        return self._from_datetime(time=self + timedelta(minutes=minutes))
 
     @classmethod
     def decode(cls: Type[T], data: Any) -> T:
@@ -72,6 +97,11 @@ class NozomiTime(datetime, Codable):
     def in_minutes_from_now(cls: Type[T], minutes: int) -> T:
         time = datetime.utcnow() + timedelta(minutes=minutes)
         return cls._from_datetime(time.replace(tzinfo=UTC))
+
+    @classmethod
+    def in_hours_from_now(cls: Type[T], hours: float) -> T:
+        time = datetime.utcnow() + timedelta(hours=hours)
+        return cls._from_datetime(time)
 
     @classmethod
     def in_days_from_now(cls: Type[T], days: int) -> T:
