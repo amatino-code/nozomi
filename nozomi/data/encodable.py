@@ -46,12 +46,26 @@ class Encodable(AbstractEncodable):
         return [d.encode() for d in data]
 
     @classmethod
-    def serialise_many(cls: Type[T], data: List[T]) -> str:
+    def serialise_many(
+        cls: Type[T],
+        data: List[T],
+        format: ContentType = ContentType.JSON
+    ) -> str:
         """Return json serialised list data"""
-        return dumps(
-            cls=Encoder,
-            obj=data,
-            separators=(',', ': '),
-            sort_keys=True,
-            indent=4
+
+        if format == ContentType.JSON:
+            return dumps(
+                cls=Encoder,
+                obj=data,
+                separators=(',', ': '),
+                sort_keys=True,
+                indent=4
+            )
+
+        if format == ContentType.XML:
+            return XML.data_to_xmlstring([d.encode() for d in data])
+        
+        raise NotImplementedError(
+            str(format.indexid) + ', ' + str(type(format))
         )
+
