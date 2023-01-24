@@ -52,7 +52,7 @@ class NozomiTime(datetime, Codable):
         if '+' in data:
             parsable = data.split('+')[0]
         else:
-            if '-' in data.split(':')[2]:
+            if len(data.split(':')) >= 3 and '-' in data.split(':')[2]:
                 parsable = data[:-6]
             else:
                 parsable = data
