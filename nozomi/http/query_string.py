@@ -15,13 +15,15 @@ class QueryString(ParseableData):
         self,
         key: str,
         of_type: Optional[Type] = None,
-        type_name: Optional[str] = None
+        type_name: Optional[str] = None,
+        inside: Optional[str] = None
     ) -> Optional[Any]:
 
         value = super().get(
             key=key,
             of_type=of_type,
-            type_name=type_name
+            type_name=type_name,
+            inside=inside
         )
 
         if isinstance(value, str):
