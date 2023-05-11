@@ -486,9 +486,11 @@ integers'.format(
             return None
 
         try:
-            decimal_value = Decimal(str(value))
+            decimal_value = Decimal(str(value).replace(',', ''))
         except Exception:
-            raise BadRequest('{k} must be a string encoded decimal'.format(
+            raise BadRequest('{k} must be a string encoded decimal, optionally\
+ with a `.` character as the fractional separator. The `,` character will be i\
+gnored'.format(
                 k=key if inside is None else f'{inside}->{key}'
             ))
 
