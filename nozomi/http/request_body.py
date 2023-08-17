@@ -9,7 +9,10 @@ from nozomi.http.status_code import HTTPStatusCode
 from nozomi.errors.bad_request import BadRequest
 from nozomi.errors.error import NozomiError
 from nozomi.data.xml import XML
+from typing import Optional, TypeVar
 import json
+
+Self = TypeVar('Self', bound='RequestBody')
 
 
 class RequestBody(ParseableData):
@@ -70,3 +73,22 @@ ease check the syntax of your request body.')
 
         raise BadRequest('Invalid content type. Valid content types are applic\
 ation/json and application/xml only.')
+
+    @staticmethod
+    def optionally_suppressing_exceptions_as_none(
+        headers: Headers,
+        request_body: bytes,
+        max_content_length: int = 10000
+    ) -> Optional[Self]:
+        
+        if headers.value_for('content-length') is None:
+            return None
+        
+        try:
+            return RequestBody(
+                headers=headers,
+                request_body=request_body,
+                max_content_length=max_content_length
+            )
+        except Exception:
+            return None
