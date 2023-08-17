@@ -38,6 +38,10 @@ not provide a .getlist() method for multiple values per key'
         if data is None:
             return None
         
+        if isinstance(data, ParseableData):
+            raise TypeError('Cannot initialise with a `ParseableData` object. \
+Supply a key/value mapping object such as a `dict`.')
+
         return ParseableData(data)
 
     def parse_string(
@@ -818,7 +822,9 @@ ceptable values: {v}'.format(
             return item
 
     def __len__(self):
-        return len(self._keys)
+        if isinstance(self._raw, dict):
+            return len(self._raw.keys())
+        return len(self._raw)
 
     def __getitem__(self, key):
         return self._raw[key]
