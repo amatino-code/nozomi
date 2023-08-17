@@ -29,6 +29,17 @@ not provide a .getlist() method for multiple values per key'
 
     raw = Immutable(lambda s: s._raw)
 
+    @classmethod
+    def optionally_from_data(
+        cls: Type[T],
+        data: Optional[Mapping]
+    ) -> Optional[T]:
+        
+        if data is None:
+            return None
+        
+        return ParseableData(data)
+
     def parse_string(
         self,
         key: str,
