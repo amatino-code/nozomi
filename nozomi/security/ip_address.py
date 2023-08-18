@@ -29,6 +29,7 @@ class IpAddress(SQLConforming, Encodable):
         self._raw_address = raw_address
         return
 
+    string: str = Immutable(lambda s: s._raw_address)
     sql_representation = Immutable(lambda s: s.quote_string(s._raw_address))
 
     @classmethod
